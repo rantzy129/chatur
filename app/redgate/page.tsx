@@ -1,26 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
-  Shield,
-  CheckCircle2,
-  XCircle,
-  Key,
-  RotateCcw,
-  Trash2,
+  Activity,
+  AlertCircle,
+  ArrowUpRight,
   Ban,
+  Check,
+  CheckCircle2,
+  Clock3,
+  Copy,
+  DollarSign,
+  Eye,
+  EyeOff,
+  KeyRound,
+  LayoutDashboard,
+  LogOut,
   Plus,
   RefreshCw,
+  RotateCcw,
   Search,
-  ExternalLink,
-  Lock,
-  Eye,
-  Check,
-  DollarSign,
-  Users,
-  Clock,
-  AlertCircle,
-  Copy,
+  Shield,
+  ShieldCheck,
+  Trash2,
+  UsersRound,
+  Wallet,
+  X,
+  XCircle,
 } from "lucide-react";
 
 interface Order {
@@ -51,821 +57,1239 @@ interface License {
   created_at: string;
 }
 
+type AdminView = "overview" | "orders" | "licenses";
+type Notice = { tone: "success" | "error"; message: string } | null;
+
+const navigation: { id: AdminView; label: string; icon: typeof LayoutDashboard }[] = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "orders", label: "Orders", icon: Wallet },
+  { id: "licenses", label: "Licenses", icon: KeyRound },
+];
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "Unknown date"
+    : date.toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatTime(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "—"
+    : date.toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" });
+}
+
+function Sidebar({
+  view,
+  onNavigate,
+  pendingCount,
+  onLogout,
+}: {
+  view: AdminView;
+  onNavigate: (view: AdminView) => void;
+  pendingCount: number;
+  onLogout: () => void;
+}) {
+  return (
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-white/[0.08] bg-[#0b0d11] lg:flex">
+      <a href="/redgate" className="flex h-[76px] items-center gap-3 border-b border-white/[0.08] px-6">
+        <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-red-500/30 bg-[#14171d] p-1.5">
+          <img src="/logo.png" alt="" className="h-full w-full object-contain" />
+        </span>
+        <span>
+          <span className="block text-sm font-bold tracking-[0.12em] text-white">RED LINE</span>
+          <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-500">
+            Admin workspace
+          </span>
+        </span>
+      </a>
+
+      <div className="px-4 pt-7">
+        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          Workspace
+        </p>
+        <nav aria-label="Admin navigation" className="space-y-1">
+          {navigation.map(({ id, label, icon: Icon }) => {
+            const selected = view === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => onNavigate(id)}
+                aria-current={selected ? "page" : undefined}
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400 ${
+                  selected
+                    ? "bg-red-500/[0.11] text-red-300"
+                    : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-100"
+                }`}
+              >
+                <Icon className="h-[17px] w-[17px]" strokeWidth={1.8} />
+                <span className="flex-1">{label}</span>
+                {id === "orders" && pendingCount > 0 && (
+                  <span className="min-w-5 rounded bg-red-500/15 px-1.5 py-0.5 text-center text-[10px] tabular-nums text-red-300">
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="mt-auto border-t border-white/[0.08] p-4">
+        <a
+          href="/"
+          className="mb-3 flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-zinc-400 transition-colors hover:bg-white/[0.04] hover:text-white"
+        >
+          <ArrowUpRight className="h-4 w-4" />
+          View storefront
+        </a>
+        <div className="flex items-center gap-3 rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#242831] text-zinc-300">
+            <ShieldCheck className="h-4 w-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-xs font-semibold text-zinc-100">Admin session</span>
+            <span className="mt-0.5 block text-[10px] text-emerald-400">Authenticated</span>
+          </span>
+          <button
+            type="button"
+            onClick={onLogout}
+            aria-label="Sign out"
+            title="Sign out"
+            className="rounded-md p-2 text-zinc-500 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  detail,
+  icon: Icon,
+  accent,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  icon: typeof DollarSign;
+  accent: "red" | "amber" | "green" | "blue";
+}) {
+  const accentClasses = {
+    red: "text-red-300 bg-red-400/10",
+    amber: "text-amber-300 bg-amber-400/10",
+    green: "text-emerald-300 bg-emerald-400/10",
+    blue: "text-sky-300 bg-sky-400/10",
+  }[accent];
+
+  return (
+    <article className="min-w-0 rounded-xl border border-white/[0.08] bg-[#101318] p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[12px] font-medium text-zinc-400">{label}</p>
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${accentClasses}`}>
+          <Icon className="h-4 w-4" strokeWidth={1.8} />
+        </span>
+      </div>
+      <p className="mt-4 truncate text-[25px] font-semibold leading-none tracking-[-0.03em] text-white tabular-nums sm:text-[28px]">
+        {value}
+      </p>
+      <p className="mt-2 text-[11px] text-zinc-500">{detail}</p>
+    </article>
+  );
+}
+
+function RevenueChart({ points }: { points: { label: string; value: number }[] }) {
+  const width = 720;
+  const height = 244;
+  const left = 64;
+  const right = 704;
+  const top = 18;
+  const bottom = 194;
+  const maxValue = Math.max(1, ...points.map((point) => point.value));
+  const coordinates = points.map((point, index) => ({
+    ...point,
+    x: left + (index * (right - left)) / Math.max(1, points.length - 1),
+    y: bottom - (point.value / maxValue) * (bottom - top),
+  }));
+  const line = coordinates.map((point) => `${point.x},${point.y}`).join(" ");
+  const area = `${left},${bottom} ${line} ${right},${bottom}`;
+  const ticks = [0, 1, 2, 3].map((step) => (maxValue * step) / 3);
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-[14px] font-semibold text-zinc-100">Approved revenue</h2>
+          <p className="mt-1 text-[11px] text-zinc-500">Daily totals · last 7 days</p>
+        </div>
+        <span className="inline-flex items-center gap-2 text-[11px] text-zinc-400">
+          <span className="h-2 w-2 rounded-full bg-red-400" />
+          PHP
+        </span>
+      </div>
+      <div className="mt-5 w-full overflow-hidden">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          role="img"
+          aria-label="Approved revenue by day over the last seven days"
+          className="h-auto w-full overflow-visible"
+        >
+          <defs>
+            <linearGradient id="revenue-fill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {ticks.map((tick, index) => {
+            const y = bottom - (index / 3) * (bottom - top);
+            return (
+              <g key={index}>
+                <line x1={left} x2={right} y1={y} y2={y} stroke="#ffffff" strokeOpacity="0.08" />
+                <text x={left - 10} y={y + 4} textAnchor="end" fill="#9298a2" fontSize="10">
+                  {Math.round(tick).toLocaleString()}
+                </text>
+              </g>
+            );
+          })}
+          {coordinates.length > 1 && (
+            <polygon points={area} fill="url(#revenue-fill)" />
+          )}
+          <polyline
+            points={line}
+            fill="none"
+            stroke="#ef4444"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          {coordinates.map((point) => (
+            <g key={point.label}>
+              <circle cx={point.x} cy={point.y} r="4" fill="#0f1116" stroke="#f87171" strokeWidth="2" />
+              <title>{`${point.label}: ${formatCurrency(point.value)}`}</title>
+              <text x={point.x} y={bottom + 24} textAnchor="middle" fill="#9298a2" fontSize="10">
+                {point.label}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+      {points.every((point) => point.value === 0) && (
+        <p className="mt-2 text-center text-[11px] text-zinc-500">
+          No approved revenue recorded in this period.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function PlanBreakdown({ licenses }: { licenses: License[] }) {
+  const plans = licenses.reduce<Record<string, number>>((counts, license) => {
+    counts[license.tier] = (counts[license.tier] || 0) + 1;
+    return counts;
+  }, {});
+  const entries = Object.entries(plans).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const maximum = Math.max(1, ...entries.map(([, count]) => count));
+
+  return (
+    <div>
+      <div>
+        <h2 className="text-[14px] font-semibold text-zinc-100">License mix</h2>
+        <p className="mt-1 text-[11px] text-zinc-500">Issued licenses by plan</p>
+      </div>
+      {entries.length === 0 ? (
+        <p className="py-12 text-center text-[12px] text-zinc-500">No licenses to report yet.</p>
+      ) : (
+        <div className="mt-7 space-y-5">
+          {entries.map(([tier, count]) => (
+            <div key={tier}>
+              <div className="mb-2 flex items-center justify-between gap-3 text-[12px]">
+                <span className="truncate text-zinc-300">{tier}</span>
+                <span className="shrink-0 font-medium tabular-nums text-white">{count}</span>
+              </div>
+              <div
+                className="h-2 overflow-hidden rounded-full bg-white/[0.07]"
+                role="meter"
+                aria-label={`${tier} licenses`}
+                aria-valuemin={0}
+                aria-valuemax={maximum}
+                aria-valuenow={count}
+              >
+                <div
+                  className="h-full rounded-full bg-red-400 transition-[width] duration-300"
+                  style={{ width: `${(count / maximum) * 100}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="mt-7 flex items-center justify-between border-t border-white/[0.08] pt-4 text-[11px]">
+        <span className="text-zinc-500">Total issued</span>
+        <span className="font-semibold tabular-nums text-zinc-200">{licenses.length}</span>
+      </div>
+    </div>
+  );
+}
+
+function OrdersTable({
+  orders,
+  onApprove,
+  onReject,
+  onViewReceipt,
+}: {
+  orders: Order[];
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+  onViewReceipt: (url: string) => void;
+}) {
+  if (orders.length === 0) {
+    return (
+      <div className="px-5 py-14 text-center">
+        <Wallet className="mx-auto h-6 w-6 text-zinc-500" />
+        <p className="mt-3 text-sm font-medium text-zinc-200">No matching orders</p>
+        <p className="mt-1 text-xs text-zinc-500">Try another search or check back when a customer places an order.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[860px] text-left text-[12px]">
+        <thead className="border-b border-white/[0.08] bg-white/[0.02] text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+          <tr>
+            <th className="px-4 py-3 font-medium">Order</th>
+            <th className="px-4 py-3 font-medium">Customer</th>
+            <th className="px-4 py-3 font-medium">Plan / amount</th>
+            <th className="px-4 py-3 font-medium">Reference</th>
+            <th className="px-4 py-3 font-medium">Proof</th>
+            <th className="px-4 py-3 font-medium">Status</th>
+            <th className="px-4 py-3 text-right font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-white/[0.06]">
+          {orders.map((order) => (
+            <tr key={order.id} className="transition-colors hover:bg-white/[0.025]">
+              <td className="px-4 py-3.5">
+                <span className="font-medium text-zinc-100">{order.order_number}</span>
+                <span className="mt-1 block text-[10px] text-zinc-500">{formatDate(order.created_at)} · {formatTime(order.created_at)}</span>
+              </td>
+              <td className="px-4 py-3.5">
+                <span className="block max-w-[150px] truncate font-medium text-zinc-200">{order.discord_username}</span>
+                <span className="mt-1 block text-[10px] text-zinc-500">{order.discord_id}</span>
+              </td>
+              <td className="px-4 py-3.5">
+                <span className="block text-zinc-300">{order.tier}</span>
+                <span className="mt-1 block font-medium tabular-nums text-zinc-100">{formatCurrency(Number(order.amount) || 0)}</span>
+              </td>
+              <td className="px-4 py-3.5">
+                <code className="rounded bg-black/30 px-2 py-1 text-[11px] text-zinc-300">{order.reference_number}</code>
+                {order.sender_name && <span className="mt-1 block text-[10px] text-zinc-500">From {order.sender_name}</span>}
+              </td>
+              <td className="px-4 py-3.5">
+                {order.receipt_url ? (
+                  <button
+                    type="button"
+                    onClick={() => onViewReceipt(order.receipt_url!)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.1] px-2.5 py-1.5 text-[11px] text-zinc-300 transition-colors hover:border-red-400/40 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    View
+                  </button>
+                ) : <span className="text-zinc-500">No proof</span>}
+              </td>
+              <td className="px-4 py-3.5"><StatusBadge status={order.status} /></td>
+              <td className="px-4 py-3.5">
+                {order.status === "pending" ? (
+                  <div className="flex justify-end gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onApprove(order.id)}
+                      aria-label={`Approve ${order.order_number}`}
+                      title="Approve and issue license"
+                      className="rounded-md p-2 text-emerald-300 transition-colors hover:bg-emerald-400/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onReject(order.id)}
+                      aria-label={`Reject ${order.order_number}`}
+                      title="Reject order"
+                      className="rounded-md p-2 text-red-300 transition-colors hover:bg-red-400/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <span className="block max-w-[140px] truncate text-right text-[10px] text-zinc-500">
+                    {order.license_key || "Resolved"}
+                  </span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: Order["status"] }) {
+  const styles = {
+    pending: "border-amber-400/20 bg-amber-400/[0.08] text-amber-200",
+    approved: "border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-200",
+    rejected: "border-red-400/20 bg-red-400/[0.08] text-red-200",
+  }[status];
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] capitalize ${styles}`}>
+      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+      {status}
+    </span>
+  );
+}
+
+function LicensesTable({
+  licenses,
+  copiedKey,
+  onCopy,
+  onResetHwid,
+  onToggleBan,
+  onDelete,
+}: {
+  licenses: License[];
+  copiedKey: string | null;
+  onCopy: (key: string) => void;
+  onResetHwid: (key: string) => void;
+  onToggleBan: (key: string, isBanned: boolean) => void;
+  onDelete: (key: string) => void;
+}) {
+  if (licenses.length === 0) {
+    return (
+      <div className="px-5 py-14 text-center">
+        <KeyRound className="mx-auto h-6 w-6 text-zinc-500" />
+        <p className="mt-3 text-sm font-medium text-zinc-200">No matching licenses</p>
+        <p className="mt-1 text-xs text-zinc-500">Try another search or issue a license to get started.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[900px] text-left text-[12px]">
+        <thead className="border-b border-white/[0.08] bg-white/[0.02] text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+          <tr>
+            <th className="px-4 py-3 font-medium">License key</th>
+            <th className="px-4 py-3 font-medium">Plan</th>
+            <th className="px-4 py-3 font-medium">Customer</th>
+            <th className="px-4 py-3 font-medium">Hardware ID</th>
+            <th className="px-4 py-3 font-medium">Expires</th>
+            <th className="px-4 py-3 font-medium">Status</th>
+            <th className="px-4 py-3 text-right font-medium">Manage</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-white/[0.06]">
+          {licenses.map((license) => (
+            <tr key={license.id} className={`transition-colors hover:bg-white/[0.025] ${license.is_banned ? "bg-red-950/10" : ""}`}>
+              <td className="px-4 py-3.5">
+                <span className="flex items-center gap-2">
+                  <code className="font-medium text-red-200">{license.license_key}</code>
+                  <button
+                    type="button"
+                    onClick={() => onCopy(license.license_key)}
+                    aria-label={`Copy ${license.license_key}`}
+                    className="rounded p-1 text-zinc-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                  >
+                    {copiedKey === license.license_key ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : <Copy className="h-3.5 w-3.5" />}
+                  </button>
+                </span>
+              </td>
+              <td className="px-4 py-3.5 text-zinc-300">{license.tier}</td>
+              <td className="px-4 py-3.5">
+                <span className="block text-zinc-200">{license.discord_username || "Unassigned"}</span>
+                <span className="mt-1 block text-[10px] text-zinc-500">{license.discord_id || "No Discord ID"}</span>
+              </td>
+              <td className="px-4 py-3.5">
+                {license.hwid ? (
+                  <code title={license.hwid} className="block max-w-[130px] truncate text-[11px] text-zinc-300">{license.hwid}</code>
+                ) : <span className="text-zinc-500">Not bound</span>}
+              </td>
+              <td className="px-4 py-3.5 text-zinc-400">{license.expires_at ? formatDate(license.expires_at) : "Lifetime"}</td>
+              <td className="px-4 py-3.5">
+                <span className={`inline-flex items-center gap-1.5 text-[11px] ${license.is_banned ? "text-red-300" : "text-emerald-300"}`}>
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                  {license.is_banned ? "Banned" : "Active"}
+                </span>
+              </td>
+              <td className="px-4 py-3.5">
+                <div className="flex justify-end gap-1">
+                  <button type="button" onClick={() => onResetHwid(license.license_key)} aria-label={`Reset hardware lock for ${license.license_key}`} title="Reset hardware lock" className="rounded-md p-2 text-zinc-400 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">
+                    <RotateCcw className="h-3.5 w-3.5" />
+                  </button>
+                  <button type="button" onClick={() => onToggleBan(license.license_key, license.is_banned)} aria-label={`${license.is_banned ? "Unban" : "Ban"} ${license.license_key}`} title={license.is_banned ? "Unban license" : "Ban license"} className="rounded-md p-2 text-zinc-400 hover:bg-amber-400/10 hover:text-amber-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300">
+                    <Ban className="h-3.5 w-3.5" />
+                  </button>
+                  <button type="button" onClick={() => onDelete(license.license_key)} aria-label={`Delete ${license.license_key}`} title="Delete license" className="rounded-md p-2 text-zinc-400 hover:bg-red-400/10 hover:text-red-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [adminSecret, setAdminSecret] = useState("");
+  const [showSecret, setShowSecret] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState("");
-
+  const [dashboardError, setDashboardError] = useState("");
+  const [notice, setNotice] = useState<Notice>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [licenses, setLicenses] = useState<License[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"orders" | "licenses">("orders");
+  const [view, setView] = useState<AdminView>("overview");
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Manual key generation modal
+  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const [showGenModal, setShowGenModal] = useState(false);
   const [genTier, setGenTier] = useState("Monthly VIP");
   const [genDays, setGenDays] = useState("30");
   const [genDiscordId, setGenDiscordId] = useState("");
   const [genDiscordUsername, setGenDiscordUsername] = useState("");
   const [genNotes, setGenNotes] = useState("");
-
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Restore stored admin key
   useEffect(() => {
     const saved = sessionStorage.getItem("esm_admin_secret");
     if (saved) {
       setAdminSecret(saved);
-      verifySecret(saved);
+      void verifySecret(saved);
     }
   }, []);
 
-  const verifySecret = async (secret: string) => {
-    setIsLoading(true);
-    setAuthError("");
-    try {
-      const res = await fetch("/api/admin/orders", {
-        headers: { "x-admin-secret": secret },
-      });
-      if (res.ok) {
-        sessionStorage.setItem("esm_admin_secret", secret);
-        setIsAuthenticated(true);
-        loadAdminData(secret);
-      } else {
-        setAuthError("Invalid Admin Secret Passcode.");
-      }
-    } catch {
-      setAuthError("Failed to connect to verification backend.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const loadAdminData = async (secret: string = adminSecret) => {
     setIsLoading(true);
+    setDashboardError("");
     try {
-      const [ordRes, licRes] = await Promise.all([
+      const [ordersResponse, licensesResponse] = await Promise.all([
         fetch("/api/admin/orders", { headers: { "x-admin-secret": secret } }),
         fetch("/api/admin/licenses", { headers: { "x-admin-secret": secret } }),
       ]);
+      const [ordersData, licensesData] = await Promise.all([
+        ordersResponse.json(),
+        licensesResponse.json(),
+      ]);
 
-      const ordData = await ordRes.json();
-      const licData = await licRes.json();
+      if (!ordersResponse.ok) {
+        throw new Error(ordersData.error || "Could not load orders.");
+      }
+      if (!licensesResponse.ok) {
+        throw new Error(licensesData.error || "Could not load licenses.");
+      }
 
-      if (ordData.orders) setOrders(ordData.orders);
-      if (licData.licenses) setLicenses(licData.licenses);
-    } catch (err) {
-      console.error("Admin data load error", err);
+      setOrders(ordersData.orders || []);
+      setLicenses(licensesData.licenses || []);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not load admin data.";
+      setDashboardError(message);
+      console.error("Admin data load error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleApproveOrder = async (orderId: string) => {
-    if (!confirm("Approve this order and generate VIP license key?")) return;
-
+  const verifySecret = async (secret: string) => {
+    setIsAuthenticating(true);
+    setAuthError("");
     try {
-      const res = await fetch("/api/orders/action", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": adminSecret,
-        },
-        body: JSON.stringify({
-          order_id: orderId,
-          action: "approve",
-          reviewer: "Web Admin",
-        }),
+      const response = await fetch("/api/admin/orders", {
+        headers: { "x-admin-secret": secret },
       });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Admin access could not be verified.");
+      }
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      alert(`Order Approved! Generated Key: ${data.license.license_key}`);
-      loadAdminData();
-    } catch (err: any) {
-      alert("Error: " + err.message);
+      sessionStorage.setItem("esm_admin_secret", secret);
+      setIsAuthenticated(true);
+      await loadAdminData(secret);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not verify admin access.";
+      setAuthError(message);
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
-  const handleRejectOrder = async (orderId: string) => {
-    const reason = prompt("Enter reason for rejection (optional):", "Invalid reference number or receipt");
+  const refreshData = () => {
+    setNotice(null);
+    void loadAdminData();
+  };
+
+  const postAdminAction = async (path: string, body: Record<string, unknown>) => {
+    const response = await fetch(path, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-secret": adminSecret,
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "The action could not be completed.");
+    }
+    return data;
+  };
+
+  const runAction = async (
+    action: () => Promise<{ message?: string }>,
+    fallbackMessage: string
+  ) => {
+    setNotice(null);
+    try {
+      const result = await action();
+      setNotice({ tone: "success", message: result.message || fallbackMessage });
+      await loadAdminData();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : fallbackMessage;
+      setNotice({ tone: "error", message });
+    }
+  };
+
+  const handleApproveOrder = (orderId: string) => {
+    if (!window.confirm("Approve this order and generate its VIP license?")) return;
+    void runAction(
+      () => postAdminAction("/api/orders/action", {
+        order_id: orderId,
+        action: "approve",
+        reviewer: "Web Admin",
+      }),
+      "Order approved."
+    );
+  };
+
+  const handleRejectOrder = (orderId: string) => {
+    const reason = window.prompt("Reason for rejection (optional):", "Invalid reference number or receipt");
     if (reason === null) return;
-
-    try {
-      const res = await fetch("/api/orders/action", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": adminSecret,
-        },
-        body: JSON.stringify({
-          order_id: orderId,
-          action: "reject",
-          admin_notes: reason,
-          reviewer: "Web Admin",
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      loadAdminData();
-    } catch (err: any) {
-      alert("Error: " + err.message);
-    }
+    void runAction(
+      () => postAdminAction("/api/orders/action", {
+        order_id: orderId,
+        action: "reject",
+        admin_notes: reason,
+        reviewer: "Web Admin",
+      }),
+      "Order rejected."
+    );
   };
 
-  const handleResetHwid = async (key: string) => {
-    if (!confirm(`Clear hardware ID lock for ${key}? The user will be able to bind to a new PC.`)) return;
-
-    try {
-      const res = await fetch("/api/admin/licenses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": adminSecret,
-        },
-        body: JSON.stringify({
-          action: "reset_hwid",
-          license_key: key,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      alert(data.message);
-      loadAdminData();
-    } catch (err: any) {
-      alert("Error: " + err.message);
-    }
+  const handleResetHwid = (key: string) => {
+    if (!window.confirm(`Clear the hardware lock for ${key}?`)) return;
+    void runAction(
+      () => postAdminAction("/api/admin/licenses", { action: "reset_hwid", license_key: key }),
+      "Hardware lock reset."
+    );
   };
 
-  const handleToggleBan = async (key: string, currentStatus: boolean) => {
-    const targetStatus = !currentStatus;
-    if (!confirm(`${targetStatus ? "Ban" : "Unban"} license ${key}?`)) return;
-
-    try {
-      const res = await fetch("/api/admin/licenses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": adminSecret,
-        },
-        body: JSON.stringify({
-          action: "toggle_ban",
-          license_key: key,
-          is_banned: targetStatus,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      loadAdminData();
-    } catch (err: any) {
-      alert("Error: " + err.message);
-    }
+  const handleToggleBan = (key: string, isBanned: boolean) => {
+    const nextStatus = !isBanned;
+    if (!window.confirm(`${nextStatus ? "Ban" : "Unban"} license ${key}?`)) return;
+    void runAction(
+      () => postAdminAction("/api/admin/licenses", {
+        action: "toggle_ban",
+        license_key: key,
+        is_banned: nextStatus,
+      }),
+      `License ${nextStatus ? "banned" : "unbanned"}.`
+    );
   };
 
-  const handleDeleteLicense = async (key: string) => {
-    if (!confirm(`Permanently delete license ${key}? This cannot be undone.`)) return;
-
-    try {
-      const res = await fetch("/api/admin/licenses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": adminSecret,
-        },
-        body: JSON.stringify({
-          action: "delete",
-          license_key: key,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      loadAdminData();
-    } catch (err: any) {
-      alert("Error: " + err.message);
-    }
+  const handleDeleteLicense = (key: string) => {
+    if (!window.confirm(`Permanently delete ${key}? This cannot be undone.`)) return;
+    void runAction(
+      () => postAdminAction("/api/admin/licenses", { action: "delete", license_key: key }),
+      "License deleted."
+    );
   };
 
-  const handleGenerateManualKey = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGenerateManualKey = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setNotice(null);
     try {
-      const res = await fetch("/api/admin/licenses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": adminSecret,
-        },
-        body: JSON.stringify({
-          action: "generate",
-          tier: genTier,
-          duration_days: genDays,
-          discord_id: genDiscordId.trim() || null,
-          discord_username: genDiscordUsername.trim() || null,
-          notes: genNotes.trim() || "Manual Admin Generation",
-        }),
+      const result = await postAdminAction("/api/admin/licenses", {
+        action: "generate",
+        tier: genTier,
+        duration_days: genDays,
+        discord_id: genDiscordId.trim() || null,
+        discord_username: genDiscordUsername.trim() || null,
+        notes: genNotes.trim() || "Manual Admin Generation",
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      alert(`Key Generated: ${data.license.license_key}`);
       setShowGenModal(false);
-      loadAdminData();
-    } catch (err: any) {
-      alert("Error: " + err.message);
+      setNotice({
+        tone: "success",
+        message: `License ${result.license.license_key} created successfully.`,
+      });
+      setGenDiscordId("");
+      setGenDiscordUsername("");
+      setGenNotes("");
+      await loadAdminData();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "The license could not be created.";
+      setNotice({ tone: "error", message });
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedKey(text);
-    setTimeout(() => setCopiedKey(null), 2000);
+  const handleCopyKey = async (key: string) => {
+    try {
+      await navigator.clipboard.writeText(key);
+      setCopiedKey(key);
+      window.setTimeout(() => setCopiedKey(null), 1800);
+    } catch (error) {
+      setNotice({ tone: "error", message: "Could not copy the license key. Check clipboard permissions." });
+      console.error("License key copy failed:", error);
+    }
   };
 
-  // Metrics
-  const pendingOrders = orders.filter((o) => o.status === "pending");
-  const approvedOrders = orders.filter((o) => o.status === "approved");
-  const totalRevenue = approvedOrders.reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
-  const activeLicenses = licenses.filter((l) => !l.is_banned);
+  const handleLogout = () => {
+    sessionStorage.removeItem("esm_admin_secret");
+    setAdminSecret("");
+    setIsAuthenticated(false);
+    setOrders([]);
+    setLicenses([]);
+    setView("overview");
+    setDashboardError("");
+    setNotice(null);
+  };
 
-  // If not authenticated
+  const pendingOrders = orders.filter((order) => order.status === "pending");
+  const approvedOrders = orders.filter((order) => order.status === "approved");
+  const resolvedOrders = orders.filter((order) => order.status !== "pending");
+  const totalRevenue = approvedOrders.reduce((total, order) => total + (Number(order.amount) || 0), 0);
+  const activeLicenses = licenses.filter((license) => !license.is_banned);
+  const lifetimeLicenses = licenses.filter((license) => !license.expires_at);
+  const approvalRate = resolvedOrders.length
+    ? Math.round((approvedOrders.length / resolvedOrders.length) * 100)
+    : 0;
+
+  const revenuePoints = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() - (6 - index));
+      return {
+        date,
+        label: date.toLocaleDateString("en-PH", { weekday: "short" }),
+        value: 0,
+      };
+    });
+
+    for (const order of approvedOrders) {
+      const createdAt = new Date(order.created_at);
+      if (Number.isNaN(createdAt.getTime())) continue;
+      createdAt.setHours(0, 0, 0, 0);
+      const day = days.find((item) => item.date.getTime() === createdAt.getTime());
+      if (day) day.value += Number(order.amount) || 0;
+    }
+
+    return days.map(({ label, value }) => ({ label, value }));
+  }, [orders]);
+
+  const filteredOrders = orders.filter((order) => {
+    const term = searchTerm.toLowerCase().trim();
+    return (
+      order.order_number.toLowerCase().includes(term) ||
+      order.discord_username.toLowerCase().includes(term) ||
+      order.reference_number.toLowerCase().includes(term)
+    );
+  });
+  const filteredLicenses = licenses.filter((license) => {
+    const term = searchTerm.toLowerCase().trim();
+    return (
+      license.license_key.toLowerCase().includes(term) ||
+      (license.discord_username || "").toLowerCase().includes(term) ||
+      (license.hwid || "").toLowerCase().includes(term)
+    );
+  });
+  const recentOrders = [...orders]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5);
+
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md p-8 rounded-3xl bg-cyber-card border border-white/[0.1] shadow-2xl text-center space-y-6">
-          <div className="h-16 w-16 mx-auto rounded-2xl bg-cyber-gold/10 border border-cyber-gold/30 flex items-center justify-center text-cyber-gold shadow-glow-gold">
-            <Shield className="h-8 w-8" />
-          </div>
-
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold text-white font-mono">
-              STAFF COMMAND CONSOLE
-            </h1>
-            <p className="text-xs text-zinc-400">
-              Enter the authorized Admin Secret Key to review orders and manage VIP hardware licenses.
-            </p>
-          </div>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              verifySecret(adminSecret);
-            }}
-            className="space-y-4 text-left"
-          >
-            {authError && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                <span>{authError}</span>
+      <div className="admin-console min-h-screen bg-[#090a0d] text-zinc-100">
+        <div className="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.85fr)]">
+          <section className="relative hidden min-h-screen flex-col justify-between overflow-hidden border-r border-white/[0.08] bg-[#0d0f13] p-10 lg:flex xl:p-14">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_22%,rgba(127,29,29,0.18),transparent_44%)]" />
+            <a href="/" className="relative flex w-fit items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg border border-red-500/30 bg-[#14171d] p-1.5">
+                <img src="/logo.png" alt="" className="h-full w-full object-contain" />
+              </span>
+              <span>
+                <span className="block text-sm font-bold tracking-[0.13em] text-white">RED LINE</span>
+                <span className="mt-0.5 block text-[10px] uppercase tracking-[0.18em] text-zinc-500">Admin workspace</span>
+              </span>
+            </a>
+            <div className="relative max-w-xl py-16">
+              <div className="mb-7 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.15em] text-red-300">
+                <Shield className="h-4 w-4" />
+                Restricted access
               </div>
-            )}
-
-            <div>
-              <label className="block text-[11px] uppercase tracking-wider text-zinc-400 font-mono mb-1">
-                Admin Secret Key
-              </label>
-              <input
-                type="password"
-                required
-                value={adminSecret}
-                onChange={(e) => setAdminSecret(e.target.value)}
-                placeholder="Enter ADMIN_SECRET_KEY"
-                className="w-full px-3.5 py-3 rounded-xl bg-black/60 border border-white/[0.1] text-white text-base sm:text-sm focus:outline-none focus:border-cyber-gold font-mono"
-              />
+              <h1 className="max-w-[12ch] text-5xl font-semibold leading-[1.06] tracking-[-0.04em] text-white xl:text-6xl">
+                Operations, at a glance.
+              </h1>
+              <p className="mt-6 max-w-[46ch] text-[15px] leading-7 text-zinc-400">
+                Review customer orders, track license activity, and manage access from one secure workspace.
+              </p>
+              <div className="mt-12 flex items-center gap-3 border-t border-white/[0.08] pt-6 text-xs text-zinc-500">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.03]">
+                  <ShieldCheck className="h-4 w-4 text-zinc-300" />
+                </span>
+                <span>Admin credentials are validated by the server.</span>
+              </div>
             </div>
+            <p className="relative text-[11px] text-zinc-600">RED LINE VIP · ADMINISTRATOR ACCESS</p>
+          </section>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl bg-cyber-gold hover:bg-amber-400 text-black font-bold font-mono text-sm tracking-wider shadow-glow-gold transition-all"
-            >
-              {isLoading ? "Authenticating..." : "Unlock Admin Dashboard"}
-            </button>
-          </form>
+          <main className="flex min-h-screen flex-col">
+            <header className="flex h-[72px] items-center justify-between border-b border-white/[0.08] px-5 sm:px-8">
+              <a href="/" className="flex items-center gap-2.5 lg:hidden">
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-red-500/30 bg-[#14171d] p-1">
+                  <img src="/logo.png" alt="" className="h-full w-full object-contain" />
+                </span>
+                <span className="text-xs font-semibold tracking-[0.12em] text-white">RED LINE ADMIN</span>
+              </a>
+              <span className="hidden text-[12px] text-zinc-500 lg:inline">Secure sign in</span>
+              <a href="/" className="ml-auto text-[12px] text-zinc-400 transition-colors hover:text-white">
+                Back to storefront
+              </a>
+            </header>
+
+            <div className="flex flex-1 items-center justify-center px-5 py-12 sm:px-8">
+              <div className="w-full max-w-[390px]">
+                <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-xl border border-red-400/20 bg-red-400/[0.08] text-red-300">
+                  <KeyRound className="h-5 w-5" />
+                </div>
+                <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-white">Sign in to admin</h2>
+                <p className="mt-2 text-[13px] leading-6 text-zinc-400">
+                  Enter your administrator key to open the management workspace.
+                </p>
+
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void verifySecret(adminSecret);
+                  }}
+                  className="mt-8 space-y-5"
+                >
+                  <div>
+                    <label htmlFor="admin-secret" className="mb-2 block text-[12px] font-medium text-zinc-300">
+                      Admin secret key
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="admin-secret"
+                        type={showSecret ? "text" : "password"}
+                        required
+                        autoComplete="current-password"
+                        value={adminSecret}
+                        onChange={(event) => setAdminSecret(event.target.value)}
+                        placeholder="Enter your secret key"
+                        className="h-12 w-full rounded-lg border border-white/[0.12] bg-[#101318] px-3.5 pr-12 text-[14px] text-white placeholder:text-zinc-500 focus:border-red-400/70 focus:outline-none focus:ring-2 focus:ring-red-400/15"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSecret((visible) => !visible)}
+                        aria-label={showSecret ? "Hide admin secret" : "Show admin secret"}
+                        className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-zinc-500 hover:text-zinc-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                      >
+                        {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {authError && (
+                    <div role="alert" className="flex items-start gap-2.5 rounded-lg border border-red-400/20 bg-red-400/[0.07] p-3 text-[12px] leading-5 text-red-200">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>{authError}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isAuthenticating || !adminSecret.trim()}
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-red-500 px-4 text-[13px] font-semibold text-white transition-colors hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300 disabled:cursor-not-allowed disabled:bg-red-500/40 disabled:text-white/60"
+                  >
+                    {isAuthenticating && <RefreshCw className="h-4 w-4 animate-spin" />}
+                    {isAuthenticating ? "Verifying access…" : "Continue to admin"}
+                  </button>
+                </form>
+
+                <p className="mt-8 border-t border-white/[0.08] pt-5 text-[11px] leading-5 text-zinc-500">
+                  This area is restricted to authorized staff. Keep your admin key private.
+                </p>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     );
   }
 
-  const filteredOrders = orders.filter(
-    (o) =>
-      o.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.discord_username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.reference_number.includes(searchTerm)
-  );
-
-  const filteredLicenses = licenses.filter(
-    (l) =>
-      l.license_key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (l.discord_username &&
-        l.discord_username.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (l.hwid && l.hwid.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const heading = {
+    overview: "Overview",
+    orders: "Orders",
+    licenses: "Licenses",
+  }[view];
 
   return (
-    <div className="space-y-8 animate-in fade-in">
-      {/* ─── ADMIN HEADER & REVENUE STATS ──────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-mono flex items-center gap-2.5">
-            <Shield className="h-6 w-6 text-cyber-gold" />
-            <span>VIP MANAGEMENT CONSOLE</span>
-          </h1>
-          <p className="text-xs text-zinc-400 font-mono mt-0.5">
-            Real-time GCash payment verifications & 1-Key 1-PC hardware bindings.
-          </p>
-        </div>
+    <div className="admin-console min-h-screen bg-[#090a0d] text-zinc-100 selection:bg-red-500/40 selection:text-white">
+      <Sidebar
+        view={view}
+        onNavigate={(nextView) => {
+          setView(nextView);
+          setSearchTerm("");
+          setNotice(null);
+        }}
+        pendingCount={pendingOrders.length}
+        onLogout={handleLogout}
+      />
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => loadAdminData()}
-            disabled={isLoading}
-            className="p-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white border border-white/[0.08] transition-all"
-            title="Refresh Records"
-          >
-            <RefreshCw
-              className={`h-4 w-4 ${isLoading ? "animate-spin text-cyber-gold" : ""}`}
-            />
-          </button>
-          <button
-            onClick={() => setShowGenModal(true)}
-            className="py-2.5 px-4 rounded-xl bg-cyber-gold hover:bg-amber-400 text-black font-bold font-mono text-xs transition-all shadow-glow-gold flex items-center gap-1.5"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Generate Manual Key</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ─── STATS COUNTERS ───────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-cyber-card border border-white/[0.08] space-y-1">
-          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-mono flex items-center gap-1">
-            <DollarSign className="h-3.5 w-3.5 text-cyber-neon" />
-            Total Revenue
-          </span>
-          <p className="text-xl sm:text-2xl font-extrabold text-cyber-neon font-mono">
-            ₱{totalRevenue.toLocaleString()} PHP
-          </p>
-          <p className="text-[10px] text-zinc-500 font-mono">
-            {approvedOrders.length} verified orders
-          </p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-cyber-card border border-white/[0.08] space-y-1">
-          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-mono flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-yellow-400" />
-            Pending Review
-          </span>
-          <p className="text-xl sm:text-2xl font-extrabold text-yellow-400 font-mono">
-            {pendingOrders.length}
-          </p>
-          <p className="text-[10px] text-zinc-500 font-mono">Requires verification</p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-cyber-card border border-white/[0.08] space-y-1">
-          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-mono flex items-center gap-1">
-            <Users className="h-3.5 w-3.5 text-cyber-cyan" />
-            Active VIP Licenses
-          </span>
-          <p className="text-xl sm:text-2xl font-extrabold text-cyber-cyan font-mono">
-            {activeLicenses.length}
-          </p>
-          <p className="text-[10px] text-zinc-500 font-mono">Bound to PCs</p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-cyber-card border border-white/[0.08] space-y-1">
-          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-mono flex items-center gap-1">
-            <Shield className="h-3.5 w-3.5 text-cyber-gold" />
-            Lifetime Passes
-          </span>
-          <p className="text-xl sm:text-2xl font-extrabold text-cyber-gold font-mono">
-            {licenses.filter((l) => !l.expires_at).length}
-          </p>
-          <p className="text-[10px] text-zinc-500 font-mono">Permanent subscribers</p>
-        </div>
-      </div>
-
-      {/* ─── TABS & SEARCH ────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 p-1 rounded-xl bg-black/40 border border-white/[0.08] w-full sm:w-auto font-mono text-xs">
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-              activeTab === "orders"
-                ? "bg-cyber-neon text-black shadow-glow"
-                : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            <span>Orders Queue</span>
-            {pendingOrders.length > 0 && (
-              <span className="h-5 w-5 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold">
-                {pendingOrders.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("licenses")}
-            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-              activeTab === "licenses"
-                ? "bg-cyber-neon text-black shadow-glow"
-                : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            <span>All VIP Licenses</span>
-            <span className="text-xs opacity-75">({licenses.length})</span>
-          </button>
-        </div>
-
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={`Filter ${activeTab}...`}
-            className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-cyber-card border border-white/[0.1] text-white text-xs focus:outline-none focus:border-cyber-neon font-mono"
-          />
-        </div>
-      </div>
-
-      {/* ─── TAB 1: ORDERS REVIEW QUEUE ───────────────────────────── */}
-      {activeTab === "orders" && (
-        <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-cyber-card/60 backdrop-blur-xl">
-          <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-black/50 text-zinc-400 uppercase text-[10px] tracking-wider border-b border-white/[0.06]">
-              <tr>
-                <th className="py-3 px-4">Order #</th>
-                <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4">Plan & Price</th>
-                <th className="py-3 px-4">GCash Reference</th>
-                <th className="py-3 px-4">Receipt</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-8 text-zinc-500">
-                    No orders match your filter criteria.
-                  </td>
-                </tr>
-              ) : (
-                filteredOrders.map((ord) => (
-                  <tr
-                    key={ord.id}
-                    className={`hover:bg-white/[0.02] transition-colors ${
-                      ord.status === "pending" ? "bg-yellow-500/[0.02]" : ""
-                    }`}
-                  >
-                    <td className="py-3.5 px-4 font-bold text-white">
-                      {ord.order_number}
-                      <span className="block text-[10px] text-zinc-500 font-normal">
-                        {new Date(ord.created_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="font-semibold text-white">
-                        {ord.discord_username}
-                      </span>
-                      <span className="block text-[10px] text-zinc-400 select-all">
-                        {ord.discord_id}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="text-zinc-200">{ord.tier}</span>
-                      <span className="block text-cyber-neon font-bold">
-                        ₱{ord.amount.toLocaleString()} PHP
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <code className="text-xs bg-black/40 px-2 py-0.5 rounded border border-white/[0.08] text-white">
-                        {ord.reference_number}
-                      </code>
-                      {ord.sender_name && (
-                        <span className="block text-[10px] text-zinc-500 mt-0.5">
-                          From: {ord.sender_name}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      {ord.receipt_url ? (
-                        <button
-                          onClick={() => setSelectedReceipt(ord.receipt_url)}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/[0.06] hover:bg-white/[0.12] text-cyber-cyan border border-cyber-cyan/30 transition-colors"
-                        >
-                          <Eye className="h-3 w-3" />
-                          <span>View Proof</span>
-                        </button>
-                      ) : (
-                        <span className="text-zinc-600">No Image</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      {ord.status === "pending" && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-[10px]">
-                          <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-ping"></span>
-                          Pending
-                        </span>
-                      )}
-                      {ord.status === "approved" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px]">
-                          <Check className="h-3 w-3" /> Approved
-                        </span>
-                      )}
-                      {ord.status === "rejected" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/30 text-[10px]">
-                          Rejected
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      {ord.status === "pending" ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleApproveOrder(ord.id)}
-                            className="p-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 transition-colors"
-                            title="Approve Order & Generate Key"
-                          >
-                            <CheckCircle2 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleRejectOrder(ord.id)}
-                            className="p-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/40 transition-colors"
-                            title="Reject Order"
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-[11px] text-zinc-500">
-                          {ord.license_key || "Resolved"}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ─── TAB 2: ALL LICENSES MANAGER ──────────────────────────── */}
-      {activeTab === "licenses" && (
-        <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-cyber-card/60 backdrop-blur-xl">
-          <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-black/50 text-zinc-400 uppercase text-[10px] tracking-wider border-b border-white/[0.06]">
-              <tr>
-                <th className="py-3 px-4">License Key</th>
-                <th className="py-3 px-4">Plan Tier</th>
-                <th className="py-3 px-4">Bound Discord User</th>
-                <th className="py-3 px-4">Hardware Lock (HWID)</th>
-                <th className="py-3 px-4">Expires</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {filteredLicenses.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-8 text-zinc-500">
-                    No licenses found.
-                  </td>
-                </tr>
-              ) : (
-                filteredLicenses.map((lic) => (
-                  <tr
-                    key={lic.id}
-                    className={`hover:bg-white/[0.02] transition-colors ${
-                      lic.is_banned ? "bg-red-950/20 text-red-300" : ""
-                    }`}
-                  >
-                    <td className="py-3.5 px-4 font-bold text-white">
-                      <div className="flex items-center gap-1.5">
-                        <code className="text-cyber-neon font-bold">
-                          {lic.license_key}
-                        </code>
-                        <button
-                          onClick={() => copyToClipboard(lic.license_key)}
-                          className="text-zinc-500 hover:text-white"
-                        >
-                          {copiedKey === lic.license_key ? (
-                            <Check className="h-3 w-3 text-cyber-neon" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-zinc-300">{lic.tier}</td>
-                    <td className="py-3.5 px-4">
-                      {lic.discord_username ? (
-                        <>
-                          <span className="text-white font-medium">
-                            {lic.discord_username}
-                          </span>
-                          <span className="block text-[10px] text-zinc-500">
-                            {lic.discord_id}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-zinc-600">Unassigned</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      {lic.hwid ? (
-                        <span
-                          className="text-cyber-cyan truncate max-w-[140px] block"
-                          title={lic.hwid}
-                        >
-                          {lic.hwid.slice(0, 16)}...
-                        </span>
-                      ) : (
-                        <span className="text-emerald-400">Unbound (0 PCs)</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-zinc-400">
-                      {lic.expires_at
-                        ? new Date(lic.expires_at).toLocaleDateString()
-                        : "Permanent Lifetime"}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      {lic.is_banned ? (
-                        <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px]">
-                          BANNED
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px]">
-                          ACTIVE
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => handleResetHwid(lic.license_key)}
-                          className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-cyber-cyan/20 text-zinc-400 hover:text-cyber-cyan transition-colors"
-                          title="Reset Hardware Lock (Allow new PC)"
-                        >
-                          <RotateCcw className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleToggleBan(lic.license_key, lic.is_banned)}
-                          className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-yellow-500/20 text-zinc-400 hover:text-yellow-400 transition-colors"
-                          title={lic.is_banned ? "Unban Key" : "Ban Key"}
-                        >
-                          <Ban className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteLicense(lic.license_key)}
-                          className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-red-500/20 text-zinc-400 hover:text-red-400 transition-colors"
-                          title="Delete Key"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ─── RECEIPT PROOF MODAL ──────────────────────────────────── */}
-      {selectedReceipt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in">
-          <div className="relative max-w-2xl w-full p-4 rounded-2xl bg-cyber-card border border-white/[0.1] shadow-2xl flex flex-col items-center">
+      <main className="min-h-screen min-w-0 lg:ml-[252px]">
+        <header className="sticky top-0 z-20 flex min-h-[72px] items-center justify-between gap-4 border-b border-white/[0.08] bg-[#090a0d]/95 px-4 backdrop-blur-sm sm:px-7 lg:px-9">
+          <div className="min-w-0">
+            <p className="truncate text-[14px] font-semibold text-zinc-100">{heading}</p>
+            <p className="mt-0.5 hidden text-[11px] text-zinc-500 sm:block">Red Line / Admin workspace</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <span className="hidden text-[11px] text-zinc-500 md:block">
+              {new Date().toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric" })}
+            </span>
             <button
-              onClick={() => setSelectedReceipt(null)}
-              className="absolute top-3 right-3 text-zinc-400 hover:text-white p-1 rounded-lg"
+              type="button"
+              onClick={refreshData}
+              disabled={isLoading}
+              aria-label="Refresh admin data"
+              title="Refresh data"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.1] text-zinc-400 transition-colors hover:bg-white/[0.05] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400 disabled:cursor-wait disabled:opacity-50"
             >
-              ✕
+              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
             </button>
-            <p className="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">
-              GCash Receipt Screenshot Proof
-            </p>
-            <img
-              src={selectedReceipt}
-              alt="Payment receipt proof"
-              className="max-h-[75vh] w-auto rounded-xl object-contain border border-white/[0.08]"
-            />
+            <button
+              type="button"
+              onClick={() => setShowGenModal(true)}
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-red-500 px-3 text-[12px] font-semibold text-white transition-colors hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300 sm:px-3.5"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Issue license</span>
+              <span className="sm:hidden">Issue</span>
+            </button>
+          </div>
+        </header>
+
+        <div className="mx-auto w-full max-w-[1500px] px-4 pb-12 pt-6 sm:px-7 sm:pt-8 lg:px-9">
+          <nav aria-label="Admin navigation" className="mb-6 flex gap-1 overflow-x-auto border-b border-white/[0.08] lg:hidden">
+            {navigation.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  setView(id);
+                  setSearchTerm("");
+                  setNotice(null);
+                }}
+                aria-current={view === id ? "page" : undefined}
+                className={`inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-[12px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400 ${
+                  view === id
+                    ? "border-red-400 text-red-200"
+                    : "border-transparent text-zinc-500 hover:text-zinc-200"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+                {id === "orders" && pendingOrders.length > 0 && (
+                  <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-[10px] tabular-nums text-red-200">{pendingOrders.length}</span>
+                )}
+              </button>
+            ))}
+          </nav>
+
+          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-[26px] font-semibold tracking-[-0.035em] text-white sm:text-[30px]">{heading}</h1>
+              <p className="mt-1.5 max-w-[62ch] text-[12px] leading-5 text-zinc-400">
+                {view === "overview" && "A clear view of orders, revenue, and issued licenses."}
+                {view === "orders" && "Review payment proof and resolve customer orders."}
+                {view === "licenses" && "Manage issued keys, hardware bindings, and account status."}
+              </p>
+            </div>
+            {view !== "overview" && (
+              <label className="relative w-full sm:w-[280px]">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder={`Search ${view}…`}
+                  className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#101318] pl-9 pr-3 text-[12px] text-white placeholder:text-zinc-500 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10"
+                />
+              </label>
+            )}
+          </div>
+
+          {notice && (
+            <div
+              role={notice.tone === "error" ? "alert" : "status"}
+              className={`mb-5 flex items-start gap-2.5 rounded-lg border px-3.5 py-3 text-[12px] ${
+                notice.tone === "success"
+                  ? "border-emerald-400/20 bg-emerald-400/[0.06] text-emerald-200"
+                  : "border-red-400/20 bg-red-400/[0.06] text-red-200"
+              }`}
+            >
+              {notice.tone === "success" ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />}
+              <span>{notice.message}</span>
+            </div>
+          )}
+
+          {dashboardError && (
+            <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-400/20 bg-red-400/[0.06] px-3.5 py-3 text-[12px] text-red-200">
+              <span className="flex items-start gap-2.5">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                {dashboardError}
+              </span>
+              <button type="button" onClick={refreshData} className="font-semibold underline underline-offset-4 hover:text-white">Retry</button>
+            </div>
+          )}
+
+          {isLoading && orders.length === 0 && licenses.length === 0 ? (
+            <div className="space-y-5" aria-label="Loading admin data" aria-busy="true">
+              <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+                {Array.from({ length: 4 }, (_, index) => (
+                  <div key={index} className="h-[118px] animate-pulse rounded-xl border border-white/[0.06] bg-[#101318]" />
+                ))}
+              </div>
+              <div className="h-[320px] animate-pulse rounded-xl border border-white/[0.06] bg-[#101318]" />
+            </div>
+          ) : view === "overview" ? (
+            <div className="space-y-5">
+              <section aria-label="Business measurements" className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+                <Metric
+                  label="Approved revenue"
+                  value={formatCurrency(totalRevenue)}
+                  detail={`${approvedOrders.length} approved ${approvedOrders.length === 1 ? "order" : "orders"}`}
+                  icon={DollarSign}
+                  accent="green"
+                />
+                <Metric
+                  label="Needs review"
+                  value={String(pendingOrders.length)}
+                  detail={pendingOrders.length ? "Payment verification required" : "Queue is clear"}
+                  icon={Clock3}
+                  accent="amber"
+                />
+                <Metric
+                  label="Active licenses"
+                  value={String(activeLicenses.length)}
+                  detail={`${licenses.length - activeLicenses.length} currently banned`}
+                  icon={UsersRound}
+                  accent="blue"
+                />
+                <Metric
+                  label="Approval rate"
+                  value={`${approvalRate}%`}
+                  detail={`${resolvedOrders.length} resolved orders`}
+                  icon={Activity}
+                  accent="red"
+                />
+              </section>
+
+              <section className="grid gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.9fr)]">
+                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-[#101318] p-4 sm:p-5">
+                  <RevenueChart points={revenuePoints} />
+                </div>
+                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-[#101318] p-4 sm:p-5">
+                  <PlanBreakdown licenses={licenses} />
+                </div>
+              </section>
+
+              <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#101318]">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
+                  <div>
+                    <h2 className="text-[14px] font-semibold text-zinc-100">Recent orders</h2>
+                    <p className="mt-1 text-[11px] text-zinc-500">Latest customer activity</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setView("orders")}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-300 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                  >
+                    All orders <ArrowUpRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <OrdersTable
+                  orders={recentOrders}
+                  onApprove={handleApproveOrder}
+                  onReject={handleRejectOrder}
+                  onViewReceipt={setSelectedReceipt}
+                />
+              </section>
+            </div>
+          ) : view === "orders" ? (
+            <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#101318]">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
+                <div>
+                  <h2 className="text-[14px] font-semibold text-zinc-100">Order queue</h2>
+                  <p className="mt-1 text-[11px] text-zinc-500">{pendingOrders.length} awaiting review · {orders.length} total</p>
+                </div>
+                <span className="text-[11px] text-zinc-500">Updated {new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}</span>
+              </div>
+              <OrdersTable
+                orders={filteredOrders}
+                onApprove={handleApproveOrder}
+                onReject={handleRejectOrder}
+                onViewReceipt={setSelectedReceipt}
+              />
+            </section>
+          ) : (
+            <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#101318]">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
+                <div>
+                  <h2 className="text-[14px] font-semibold text-zinc-100">License registry</h2>
+                  <p className="mt-1 text-[11px] text-zinc-500">{activeLicenses.length} active · {lifetimeLicenses.length} lifetime</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowGenModal(true)}
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/[0.1] px-3 text-[11px] font-medium text-zinc-200 transition-colors hover:bg-white/[0.05] focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Issue license
+                </button>
+              </div>
+              <LicensesTable
+                licenses={filteredLicenses}
+                copiedKey={copiedKey}
+                onCopy={handleCopyKey}
+                onResetHwid={handleResetHwid}
+                onToggleBan={handleToggleBan}
+                onDelete={handleDeleteLicense}
+              />
+            </section>
+          )}
+        </div>
+      </main>
+
+      {selectedReceipt && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Payment receipt"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSelectedReceipt(null);
+          }}
+        >
+          <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col rounded-xl border border-white/[0.12] bg-[#101318] p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold text-white">Payment receipt</h2>
+                <p className="mt-1 text-[11px] text-zinc-500">Customer-submitted payment proof</p>
+              </div>
+              <button type="button" onClick={() => setSelectedReceipt(null)} aria-label="Close receipt" className="rounded-md p-2 text-zinc-400 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto rounded-lg bg-black/30">
+              <img src={selectedReceipt} alt="Customer payment receipt" className="max-h-[76vh] max-w-full object-contain" />
+            </div>
           </div>
         </div>
       )}
 
-      {/* ─── MANUAL KEY GENERATOR MODAL ──────────────────────────── */}
       {showGenModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
-          <div className="relative max-w-md w-full p-6 rounded-2xl bg-cyber-card border border-white/[0.1] shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
-              <h3 className="text-lg font-bold text-white font-mono flex items-center gap-2">
-                <Key className="h-5 w-5 text-cyber-gold" />
-                <span>Issue Custom License</span>
-              </h3>
-              <button
-                onClick={() => setShowGenModal(false)}
-                className="text-zinc-400 hover:text-white"
-              >
-                ✕
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="issue-license-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setShowGenModal(false);
+          }}
+        >
+          <div className="my-auto w-full max-w-[480px] rounded-xl border border-white/[0.1] bg-[#111419] p-5 shadow-2xl sm:p-6">
+            <div className="mb-5 flex items-start justify-between gap-4 border-b border-white/[0.08] pb-4">
+              <div>
+                <h2 id="issue-license-title" className="text-[17px] font-semibold text-white">Issue a license</h2>
+                <p className="mt-1 text-[12px] text-zinc-400">Create a key and optionally assign it to a Discord user.</p>
+              </div>
+              <button type="button" onClick={() => setShowGenModal(false)} aria-label="Close form" className="rounded-md p-2 text-zinc-400 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleGenerateManualKey} className="space-y-3 font-mono text-xs">
+            <form onSubmit={handleGenerateManualKey} className="space-y-4">
               <div>
-                <label className="block uppercase tracking-wider text-zinc-400 mb-1">
-                  Plan Tier
-                </label>
+                <label htmlFor="license-tier" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Plan</label>
                 <select
+                  id="license-tier"
                   value={genTier}
-                  onChange={(e) => {
-                    setGenTier(e.target.value);
-                    if (e.target.value === "Lifetime VIP") setGenDays("0");
-                    else if (e.target.value === "Monthly VIP") setGenDays("30");
-                    else if (e.target.value === "Weekly VIP") setGenDays("7");
+                  onChange={(event) => {
+                    setGenTier(event.target.value);
+                    if (event.target.value === "Lifetime VIP") setGenDays("0");
+                    else if (event.target.value === "Monthly VIP") setGenDays("30");
+                    else if (event.target.value === "Weekly VIP") setGenDays("7");
+                    else if (event.target.value === "1 Day Trial") setGenDays("1");
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-black/50 border border-white/[0.1] text-white focus:outline-none focus:border-cyber-gold"
+                  className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10"
                 >
-                  <option value="Monthly VIP">Monthly VIP (30 Days)</option>
-                  <option value="Lifetime VIP">Lifetime VIP (Permanent)</option>
-                  <option value="Weekly VIP">Weekly VIP (7 Days)</option>
-                  <option value="1 Day Trial">1 Day Trial (24 Hours)</option>
+                  <option value="Monthly VIP">Monthly VIP · 30 days</option>
+                  <option value="Lifetime VIP">Lifetime VIP · permanent</option>
+                  <option value="Weekly VIP">Weekly VIP · 7 days</option>
+                  <option value="1 Day Trial">1 Day Trial · 1 day</option>
                 </select>
               </div>
-
               <div>
-                <label className="block uppercase tracking-wider text-zinc-400 mb-1">
-                  Duration (Days, 0 = Lifetime)
-                </label>
-                <input
-                  type="number"
-                  value={genDays}
-                  onChange={(e) => setGenDays(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-black/50 border border-white/[0.1] text-white focus:outline-none focus:border-cyber-gold"
-                />
+                <label htmlFor="license-duration" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Duration in days <span className="font-normal text-zinc-500">(0 for lifetime)</span></label>
+                <input id="license-duration" type="number" min="0" value={genDays} onChange={(event) => setGenDays(event.target.value)} className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
               </div>
-
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="recipient-discord-id" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Discord ID <span className="font-normal text-zinc-500">(optional)</span></label>
+                  <input id="recipient-discord-id" type="text" value={genDiscordId} onChange={(event) => setGenDiscordId(event.target.value)} placeholder="User ID" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                </div>
+                <div>
+                  <label htmlFor="recipient-discord-name" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Username <span className="font-normal text-zinc-500">(optional)</span></label>
+                  <input id="recipient-discord-name" type="text" value={genDiscordUsername} onChange={(event) => setGenDiscordUsername(event.target.value)} placeholder="Discord username" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                </div>
+              </div>
               <div>
-                <label className="block uppercase tracking-wider text-zinc-400 mb-1">
-                  Recipient Discord ID (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={genDiscordId}
-                  onChange={(e) => setGenDiscordId(e.target.value)}
-                  placeholder="e.g. 1561411157095620758"
-                  className="w-full px-3 py-2 rounded-lg bg-black/50 border border-white/[0.1] text-white focus:outline-none focus:border-cyber-gold"
-                />
+                <label htmlFor="license-notes" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Admin notes <span className="font-normal text-zinc-500">(optional)</span></label>
+                <input id="license-notes" type="text" value={genNotes} onChange={(event) => setGenNotes(event.target.value)} placeholder="Internal note" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
               </div>
-
-              <div>
-                <label className="block uppercase tracking-wider text-zinc-400 mb-1">
-                  Recipient Username (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={genDiscordUsername}
-                  onChange={(e) => setGenDiscordUsername(e.target.value)}
-                  placeholder="e.g. shadow_sniper"
-                  className="w-full px-3 py-2 rounded-lg bg-black/50 border border-white/[0.1] text-white focus:outline-none focus:border-cyber-gold"
-                />
+              <div className="flex justify-end gap-2 border-t border-white/[0.08] pt-4">
+                <button type="button" onClick={() => setShowGenModal(false)} className="h-10 rounded-lg border border-white/[0.1] px-4 text-[12px] font-medium text-zinc-300 hover:bg-white/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">Cancel</button>
+                <button type="submit" className="h-10 rounded-lg bg-red-500 px-4 text-[12px] font-semibold text-white transition-colors hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300">
+                  Create license
+                </button>
               </div>
-
-              <div>
-                <label className="block uppercase tracking-wider text-zinc-400 mb-1">
-                  Admin Notes
-                </label>
-                <input
-                  type="text"
-                  value={genNotes}
-                  onChange={(e) => setGenNotes(e.target.value)}
-                  placeholder="e.g. Giveaway Winner / Manual GCash"
-                  className="w-full px-3 py-2 rounded-lg bg-black/50 border border-white/[0.1] text-white focus:outline-none focus:border-cyber-gold"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-cyber-gold hover:bg-amber-400 text-black font-bold font-mono tracking-wider shadow-glow-gold transition-all mt-4"
-              >
-                Generate & Save to Supabase
-              </button>
             </form>
           </div>
         </div>
@@ -873,4 +1297,3 @@ export default function AdminPage() {
     </div>
   );
 }
-

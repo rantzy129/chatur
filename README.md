@@ -76,11 +76,17 @@ Never commit `.env.local`. The service-role key and admin secret must only be co
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase Service Role Secret | `sb_secret_...` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Anon Key | Public anon key |
 | `ADMIN_SECRET_KEY` | Private secret passcode for the `/redgate` admin portal | Generate a long random value |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL used for shared API rate limits | `https://your-database.upstash.io` |
+| `UPSTASH_REDIS_REST_TOKEN` | Private Upstash Redis REST token | Keep this secret |
 | `DISCORD_WEBHOOK_URL` | Discord webhook for staff payment alerts | `https://discord.com/api/webhooks/...` |
 | `NEXT_PUBLIC_DISCORD_CLIENT_ID` | Discord Bot Application Client ID | `1561348357614735451` |
 | `NEXT_PUBLIC_GCASH_NAME` | GCash Account Name | `ESMIRINGHOY VIP` |
 | `NEXT_PUBLIC_GCASH_NUMBER` | GCash Mobile Number | `0912-345-6789` |
 | `NEXT_PUBLIC_DISCORD_INVITE` | Official Discord Invite Link | `https://discord.gg/Whwxq9QAEN` |
+
+Create a Redis database in Upstash and add its REST URL and token to Vercel. API requests fail closed with `503` until both values are configured, so rate limits remain consistent across serverless instances.
+
+The API limits are 5 order submissions per 10 minutes per IP, 5 invalid admin authentication attempts per 15 minutes per IP, 30 admin mutations per minute per IP, 120 authenticated admin reads per minute per IP, and 60 other API reads per minute per IP. Excess requests receive `429 Too Many Requests`.
 
 ---
 
@@ -89,7 +95,7 @@ Never commit `.env.local`. The service-role key and admin secret must only be co
 ### Option A: Via GitHub (Recommended)
 1. Push your repository to GitHub.
 2. Go to [vercel.com/new](https://vercel.com/new).
-3. Import your repository and set the **Root Directory** to `web`.
+3. Import your repository and leave the **Root Directory** at the repository root (`./`).
 4. Paste the Environment Variables listed above.
 5. Click **Deploy**!
 

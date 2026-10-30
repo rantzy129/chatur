@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { DiscordAuthProvider } from "@/context/DiscordAuthContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import AppFrame from "@/components/AppFrame";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,18 +36,9 @@ export default function RootLayout({
     <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-cyber-bg text-zinc-100 flex flex-col selection:bg-red-600 selection:text-white font-sans antialiased">
         <DiscordAuthProvider>
-          <div className="relative min-h-screen flex flex-col bg-tactical-grid">
-            <Navbar />
-
-            <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              {children}
-            </main>
-
-            <Footer />
-          </div>
+          <AppFrame>{children}</AppFrame>
         </DiscordAuthProvider>
       </body>
     </html>
   );
 }
-
