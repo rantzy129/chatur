@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Crosshair,
   Shield,
@@ -16,6 +17,7 @@ import {
   MonitorCheck,
   Radio,
   Sliders,
+  ArrowRight,
 } from "lucide-react";
 import CheckoutModal from "@/components/CheckoutModal";
 import OrderConfirmationModal from "@/components/OrderConfirmationModal";
@@ -49,7 +51,7 @@ export default function HomePage() {
         "Discord VIP syndicate access & support",
       ],
       badge: "WEEKLY PASS",
-      cta: "Purchase Weekly — ₱500",
+      cta: "Choose Weekly — ₱500",
     },
     {
       tier: "Monthly VIP",
@@ -66,7 +68,7 @@ export default function HomePage() {
         "Discord VIP syndicate access & announcements",
       ],
       badge: "RECOMMENDED",
-      cta: "Purchase Monthly — ₱1,000",
+      cta: "Choose Monthly — ₱1,000",
     },
     {
       tier: "Lifetime VIP Pass",
@@ -82,26 +84,79 @@ export default function HomePage() {
         "Direct VIP support channel in Discord",
       ],
       badge: "LIFETIME VIP",
-      cta: "Claim Lifetime — ₱3,000",
+      cta: "Choose Lifetime — ₱3,000",
     },
   ];
 
   return (
     <div className="space-y-24 sm:space-y-32">
       {/* ─── HERO SECTION ────────────────────────────────────────── */}
-      <section className="relative pt-8 sm:pt-16 pb-4 flex flex-col items-center text-center">
+      <section className="relative isolate overflow-hidden rounded-2xl px-4 sm:px-8 pt-8 sm:pt-16 pb-4 flex flex-col items-center text-center">
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] sm:h-[650px]">
+          <Image
+            src="/holloween.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center opacity-90"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,9,13,0.2)_0%,rgba(8,9,13,0.28)_58%,#08090d_100%)]"
+          />
+        </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden md:block"
+        >
+          <svg
+            viewBox="0 0 120 64"
+            className="absolute left-[7%] top-24 w-14 -rotate-12 text-zinc-950/90 drop-shadow-[0_2px_8px_rgba(239,68,68,0.35)] lg:w-[4.5rem]"
+            fill="currentColor"
+          >
+            <path d="M60 22c-7-13-19-18-31-16l7 13C22 9 10 11 2 17l15 5C8 24 4 31 2 39c12-7 22-8 32-3 5 3 9 7 12 12 3-7 7-11 14-11s11 4 14 11c3-5 7-9 12-12 10-5 20-4 32 3-2-8-6-15-15-17l15-5c-8-6-20-8-34 2l7-13C79 4 67 9 60 22Z" />
+            <circle cx="51" cy="37" r="1.8" className="fill-red-500" />
+            <circle cx="69" cy="37" r="1.8" className="fill-red-500" />
+          </svg>
+          <svg
+            viewBox="0 0 120 64"
+            className="absolute right-[8%] top-52 w-12 rotate-12 text-zinc-950/90 drop-shadow-[0_2px_8px_rgba(239,68,68,0.3)] lg:w-16"
+            fill="currentColor"
+          >
+            <path d="M60 22c-7-13-19-18-31-16l7 13C22 9 10 11 2 17l15 5C8 24 4 31 2 39c12-7 22-8 32-3 5 3 9 7 12 12 3-7 7-11 14-11s11 4 14 11c3-5 7-9 12-12 10-5 20-4 32 3-2-8-6-15-15-17l15-5c-8-6-20-8-34 2l7-13C79 4 67 9 60 22Z" />
+            <circle cx="51" cy="37" r="1.8" className="fill-red-500" />
+            <circle cx="69" cy="37" r="1.8" className="fill-red-500" />
+          </svg>
+          <Image
+            src="/pumpkin.png"
+            alt=""
+            width={400}
+            height={400}
+            sizes="(min-width: 1024px) 96px, 72px"
+            className="absolute bottom-24 left-[4%] w-[4.5rem] opacity-90 drop-shadow-[0_3px_12px_rgba(249,115,22,0.24)] lg:w-24"
+          />
+          <Image
+            src="/pumpkin.png"
+            alt=""
+            width={400}
+            height={400}
+            sizes="(min-width: 1024px) 80px, 64px"
+            className="absolute bottom-28 right-[4%] w-16 -rotate-6 opacity-75 drop-shadow-[0_3px_12px_rgba(249,115,22,0.2)] lg:w-20"
+          />
+        </div>
         {/* Headline — Zero AI Slop (No eyebrow pill, no gradient text) */}
-        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white font-mono uppercase leading-[1.08] max-w-5xl">
+        <h1 className="relative z-10 text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white font-mono uppercase leading-[1.08] max-w-5xl">
           DOMINATE WITH <br className="hidden sm:inline" />
           <span className="text-red-500">SURGICAL VISION.</span>
         </h1>
 
-        <p className="mt-6 text-base sm:text-lg text-zinc-300 max-w-2xl leading-relaxed font-sans">
+        <p className="relative z-10 mt-6 text-base sm:text-lg text-zinc-300 max-w-2xl leading-relaxed font-sans">
           Private tactical visual suite engineered for competitive play. Zero stream footprint, seamless overlay sync, and dedicated single-seat access.
         </p>
 
         {/* Action CTAs */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+        <div className="relative z-10 mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <a
             href="#pricing"
             className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold font-mono text-sm tracking-wider transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2"
@@ -119,7 +174,7 @@ export default function HomePage() {
         </div>
 
         {/* ─── HUD TELEMETRY INSTRUMENT ────────────────────────────── */}
-        <div className="mt-14 w-full max-w-4xl rounded-xl bg-[#0b0e14] border border-white/[0.08] p-5 sm:p-6 shadow-2xl text-left font-mono">
+        <div className="relative z-10 mt-14 w-full max-w-4xl rounded-xl bg-[#0b0e14] border border-white/[0.08] p-5 sm:p-6 shadow-2xl text-left font-mono">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/[0.08] text-xs">
             <div className="flex items-center gap-2.5">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -184,12 +239,12 @@ export default function HomePage() {
           {plans.map((p) => (
             <div
               key={p.tier}
-              className={`relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all ${
+              className={`group relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-[transform,border-color,background-color,box-shadow] duration-300 ease-out motion-reduce:transition-none hover:-translate-y-2 focus-within:-translate-y-1 ${
                 p.isLifetime
-                  ? "bg-[#111218] border-2 border-amber-500/50 shadow-2xl hover:border-amber-400"
+                  ? "bg-[#111218] border-2 border-amber-500/50 shadow-2xl hover:border-amber-400 hover:shadow-[0_24px_70px_rgba(245,158,11,0.12)]"
                   : (p as any).isPopular
-                  ? "bg-[#0f131d] border-2 border-red-500/60 shadow-xl hover:border-red-500"
-                  : "bg-[#0d1017] border border-white/[0.1] hover:border-white/20 shadow-xl"
+                  ? "bg-[#0f131d] border-2 border-red-500/60 shadow-xl hover:border-red-400 hover:shadow-[0_24px_70px_rgba(239,68,68,0.16)]"
+                  : "bg-[#0d1017] border border-white/[0.1] hover:border-white/25 hover:shadow-2xl"
               }`}
             >
               <div>
@@ -208,7 +263,9 @@ export default function HomePage() {
                   <span className="text-xs text-zinc-400 font-mono">Single-Seat</span>
                 </div>
 
-                <h3 className="text-2xl font-bold text-white font-mono">{p.tier}</h3>
+                <h3 className="text-2xl font-bold text-white font-mono transition-colors group-hover:text-red-100">
+                  {p.tier}
+                </h3>
                 <p className="text-xs text-zinc-400 mt-1 min-h-[36px] font-sans">{p.description}</p>
 
                 <div className="mt-6 flex items-baseline gap-2">
@@ -241,14 +298,15 @@ export default function HomePage() {
               <div className="mt-8 pt-4">
                 <button
                   onClick={() => setSelectedPlan(p)}
-                  className={`w-full py-4 px-6 rounded-2xl font-bold font-mono text-sm tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] ${
+                  className={`w-full py-4 px-6 rounded-2xl font-bold font-mono text-sm tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
                     p.isLifetime
-                      ? "bg-amber-500 hover:bg-amber-400 text-black"
-                      : "bg-red-600 hover:bg-red-500 text-white"
+                      ? "bg-amber-500 hover:bg-amber-400 text-black focus-visible:outline-amber-300"
+                      : "bg-red-600 hover:bg-red-500 text-white focus-visible:outline-red-300"
                   }`}
                 >
                   <QrCode className="h-4 w-4" />
                   <span>{p.cta}</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </button>
                 <p className="text-[11px] text-center text-zinc-500 mt-2 font-mono">
                   Settled via GCash / InstaPay QR • Verified by staff
