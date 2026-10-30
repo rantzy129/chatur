@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminAuthResponse } from "@/lib/admin-auth";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { generateLicenseKey } from "@/lib/supabase";
 
 export async function GET(req: Request) {
@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     const authResponse = getAdminAuthResponse(req);
     if (authResponse) return authResponse;
 
-    const { data: licenses, error } = await supabaseAdmin
+    const { data: licenses, error } = await getSupabaseAdmin()
       .from("esm_licenses")
       .select("*")
       .order("created_at", { ascending: false });
@@ -30,6 +30,7 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { action, license_key, id, duration_days, tier, notes, discord_id, discord_username } = body;
+    const supabaseAdmin = getSupabaseAdmin();
 
     // Reset HWID (1 Key = 1 PC reset)
     if (action === "reset_hwid") {

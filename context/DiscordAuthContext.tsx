@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabaseClient } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 
 export interface DiscordUser {
   id: string;
@@ -64,10 +64,12 @@ export function DiscordAuthProvider({ children }: { children: React.ReactNode })
   };
 
   useEffect(() => {
+    let authSubscription: { unsubscribe: () => void } | undefined;
+
     // 1. Check native Supabase Auth Session
     const checkSupabaseAuth = async () => {
       try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
+        const { data: { session } } = await getSupabaseClient().auth.getSession();
         if (session?.user) {
           const parsed = parseDiscordUser(session.user);
           if (parsed) {
@@ -97,23 +99,28 @@ export function DiscordAuthProvider({ children }: { children: React.ReactNode })
     checkSupabaseAuth();
 
     // Listen to Supabase auth state changes (handles redirect return)
-    const { data: authListener } = supabaseClient.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          const parsed = parseDiscordUser(session.user);
-          if (parsed) {
-            setUser(parsed);
-            localStorage.setItem("esm_discord_user", JSON.stringify(parsed));
+    try {
+      const { data } = getSupabaseClient().auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            const parsed = parseDiscordUser(session.user);
+            if (parsed) {
+              setUser(parsed);
+              localStorage.setItem("esm_discord_user", JSON.stringify(parsed));
+            }
+          } else if (event === "SIGNED_OUT") {
+            setUser(null);
+            localStorage.removeItem("esm_discord_user");
           }
-        } else if (event === "SIGNED_OUT") {
-          setUser(null);
-          localStorage.removeItem("esm_discord_user");
         }
-      }
-    );
+      );
+      authSubscription = data.subscription;
+    } catch (err) {
+      console.error("Supabase auth listener setup error:", err);
+    }
 
     return () => {
-      authListener.subscription.unsubscribe();
+      authSubscription?.unsubscribe();
     };
   }, []);
 
@@ -121,7 +128,7 @@ export function DiscordAuthProvider({ children }: { children: React.ReactNode })
   const loginWithDiscord = async () => {
     try {
       const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
-      const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      const { data, error } = await getSupabaseClient().auth.signInWithOAuth({
         provider: "discord",
         options: {
           redirectTo: redirectUrl,
@@ -143,7 +150,7 @@ export function DiscordAuthProvider({ children }: { children: React.ReactNode })
 
   const logout = async () => {
     try {
-      await supabaseClient.auth.signOut();
+      await getSupabaseClient().auth.signOut();
     } catch (e) {
       console.error("Signout error:", e);
     }

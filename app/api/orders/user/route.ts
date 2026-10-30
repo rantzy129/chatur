@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function GET(req: Request) {
   try {
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Missing discord_id" }, { status: 400 });
     }
 
-    const { data: orders, error } = await supabaseAdmin
+    const { data: orders, error } = await getSupabaseAdmin()
       .from("esm_orders")
       .select("*")
       .eq("discord_id", discordId)

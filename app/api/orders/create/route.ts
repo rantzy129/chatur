@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { generateOrderNumber } from "@/lib/supabase";
 import { sendDiscordOrderNotification } from "@/lib/discord";
 
@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       );
     }
 
+    const supabaseAdmin = getSupabaseAdmin();
     const orderNumber = generateOrderNumber();
 
     // Check if table exists or insert

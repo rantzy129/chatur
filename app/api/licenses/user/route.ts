@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function GET(req: Request) {
   try {
@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     }
 
     // Query licenses linked to this user's discord_id in esm_licenses
-    const { data: licenses, error } = await supabaseAdmin
+    const { data: licenses, error } = await getSupabaseAdmin()
       .from("esm_licenses")
       .select("*")
       .eq("discord_id", discordId)

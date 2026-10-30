@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminAuthResponse } from "@/lib/admin-auth";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { generateLicenseKey } from "@/lib/supabase";
 import { sendDiscordOrderApproved } from "@/lib/discord";
 
@@ -15,6 +15,8 @@ export async function POST(req: Request) {
     if (!order_id || !action) {
       return NextResponse.json({ error: "Missing order_id or action" }, { status: 400 });
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     // Fetch the order
     const { data: order, error: fetchErr } = await supabaseAdmin
