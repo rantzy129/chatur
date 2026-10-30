@@ -46,3 +46,8 @@ END $$;
 
 NOTIFY pgrst, 'reload schema';
 
+-- Private subscriber download bucket. Keep public=false; downloads are issued
+-- only as short-lived signed URLs after the API verifies an active license.
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('subscriber-downloads', 'subscriber-downloads', false)
+ON CONFLICT (id) DO UPDATE SET public = false;

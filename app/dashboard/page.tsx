@@ -45,21 +45,26 @@ interface Order {
   created_at: string;
 }
 
+function isLicenseActive(license: License) {
+  if (license.is_banned) return false;
+  if (!license.expires_at) return true;
+  const expiresAt = Date.parse(license.expires_at);
+  return Number.isFinite(expiresAt) && expiresAt > Date.now();
+}
+
 export default function DashboardPage() {
   const { user, loginWithDiscord, isLoading: authLoading } = useDiscordAuth();
   const [licenses, setLicenses] = useState<License[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [revealedKeys, setRevealedKeys] = useState<Record<string, boolean>>({});
 
-  const hasSuccessOrder =
-    orders.some((o) => o.status === "approved") ||
-    licenses.some((l) => !l.is_banned);
+  const hasActiveLicense = licenses.some(isLicenseActive);
 
-  const downloadUrl =
-    process.env.NEXT_PUBLIC_CLIENT_DOWNLOAD_URL || "https://discord.gg/Whwxq9QAEN";
   const discordInvite =
     process.env.NEXT_PUBLIC_DISCORD_INVITE || "https://discord.gg/Whwxq9QAEN";
 
@@ -106,6 +111,44 @@ export default function DashboardPage() {
       fetchData();
     }
   }, [user]);
+
+  const handleClientDownload = async () => {
+    if (!user || isDownloading) return;
+
+    setIsDownloading(true);
+    setDownloadError(null);
+    try {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await getSupabaseClient().auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session?.access_token) {
+        throw new Error("Your Discord session expired. Please sign in again.");
+      }
+
+      const response = await fetch("/api/downloads/client", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        cache: "no-store",
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to download the client.");
+      }
+      if (typeof result.url !== "string") {
+        throw new Error("The download link was missing. Please try again.");
+      }
+
+      window.location.assign(result.url);
+    } catch (error) {
+      console.error("Client download failed:", error);
+      setDownloadError(
+        error instanceof Error ? error.message : "Unable to download the client."
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleCopy = (key: string) => {
     navigator.clipboard.writeText(key);
@@ -196,33 +239,39 @@ export default function DashboardPage() {
             />
           </button>
 
-          {hasSuccessOrder ? (
-            <a
-              href={downloadUrl}
-              target="_blank"
-              rel="noreferrer"
+          {hasActiveLicense ? (
+            <button
+              type="button"
+              onClick={handleClientDownload}
+              disabled={isDownloading}
               className="py-2.5 px-4 rounded-xl bg-cyber-neon hover:bg-emerald-400 text-black font-bold font-mono text-xs transition-all shadow-glow flex items-center gap-2"
             >
-              <Download className="h-4 w-4" />
-              <span>Download Client (.zip)</span>
-            </a>
+              <Download className={`h-4 w-4 ${isDownloading ? "animate-pulse" : ""}`} />
+              <span>{isDownloading ? "Preparing download…" : "Download Client (.zip)"}</span>
+            </button>
           ) : (
             <div className="relative group">
               <button
                 disabled
                 className="py-2.5 px-4 rounded-xl bg-white/[0.04] text-zinc-500 border border-white/[0.08] font-mono text-xs flex items-center gap-2 cursor-not-allowed opacity-75"
-                title="Download requires an approved order"
+                title="Download requires an active license"
               >
                 <Lock className="h-3.5 w-3.5 text-zinc-500" />
                 <span>Download Locked</span>
               </button>
               <div className="absolute right-0 top-full mt-2 hidden group-hover:block w-64 p-2.5 rounded-xl bg-cyber-card border border-white/[0.1] text-[11px] text-zinc-400 font-mono shadow-2xl z-30 pointer-events-none">
-                🔒 Client download unlocks automatically once your GCash payment is approved by staff.
+                An active license is required. Downloads unlock after staff approves your order.
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {downloadError && (
+        <p role="alert" className="text-sm text-red-300">
+          {downloadError}
+        </p>
+      )}
 
       {/* ─── ACTIVE VIP LICENSES ──────────────────────────────────── */}
       <section className="space-y-4">
@@ -358,17 +407,17 @@ export default function DashboardPage() {
                         : "Launch the client application on your gaming PC and paste this key. It will bind permanently to your device."}
                     </p>
 
-                    {!lic.is_banned && (
+                    {isLicenseActive(lic) && (
                       <div className="pt-2">
-                        <a
-                          href={downloadUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="w-full py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-cyber-neon/10 text-zinc-300 hover:text-cyber-neon border border-white/[0.08] hover:border-cyber-neon/30 text-[11px] font-mono font-medium flex items-center justify-center gap-1.5 transition-all"
+                        <button
+                          type="button"
+                          onClick={handleClientDownload}
+                          disabled={isDownloading}
+                          className="w-full py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-cyber-neon/10 text-zinc-300 hover:text-cyber-neon border border-white/[0.08] hover:border-cyber-neon/30 text-[11px] font-mono font-medium flex items-center justify-center gap-1.5 transition-all disabled:cursor-wait disabled:opacity-60"
                         >
-                          <Download className="h-3.5 w-3.5 text-cyber-neon" />
-                          <span>Download Client Package (.zip)</span>
-                        </a>
+                          <Download className={`h-3.5 w-3.5 text-cyber-neon ${isDownloading ? "animate-pulse" : ""}`} />
+                          <span>{isDownloading ? "Preparing download…" : "Download Client Package (.zip)"}</span>
+                        </button>
                       </div>
                     )}
                   </div>

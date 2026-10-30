@@ -34,7 +34,8 @@ Modern, stream-proof tactical web store for **Red Line VIP**. Built using **Next
    - Displays remaining time countdown or Permanent Lifetime VIP status.
    - Displays real-time PC Hardware ID binding status.
    - Shows the signed-in customer's full order history, newest first.
-   - Client `.zip` download link and launch guide.
+   - Private client download after the server verifies an active, unbanned license.
+   - Displays a confirmation dialog with the order reference after checkout succeeds.
 
 ---
 
@@ -80,6 +81,8 @@ Never commit `.env.local`. The service-role key and admin secret must only be co
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL used for shared API rate limits | `https://your-database.upstash.io` |
 | `UPSTASH_REDIS_REST_TOKEN` | Private Upstash Redis REST token | Keep this secret |
 | `DISCORD_WEBHOOK_URL` | Discord webhook for staff payment alerts | `https://discord.com/api/webhooks/...` |
+| `CLIENT_DOWNLOAD_BUCKET` | Private Supabase Storage bucket for the client package | `subscriber-downloads` |
+| `CLIENT_DOWNLOAD_STORAGE_PATH` | Object path of the uploaded package inside that bucket | `client.zip` |
 | `NEXT_PUBLIC_DISCORD_CLIENT_ID` | Discord Bot Application Client ID | `1561348357614735451` |
 | `NEXT_PUBLIC_GCASH_NAME` | GCash Account Name | `ESMIRINGHOY VIP` |
 | `NEXT_PUBLIC_GCASH_NUMBER` | GCash Mobile Number | `0912-345-6789` |
@@ -88,6 +91,12 @@ Never commit `.env.local`. The service-role key and admin secret must only be co
 Create a Redis database in Upstash and add its REST URL and token to Vercel. API requests fail closed with `503` until both values are configured, so rate limits remain consistent across serverless instances.
 
 The API limits are 5 order submissions per 10 minutes per IP, 5 invalid admin authentication attempts per 15 minutes per IP, 30 admin mutations per minute per IP, 120 authenticated admin reads per minute per IP, and 60 other API reads per minute per IP. Excess requests receive `429 Too Many Requests`.
+
+### Step 3: Configure private client downloads
+1. In Supabase, run the private bucket statement at the end of `schema_orders.sql`, or create a Storage bucket named `subscriber-downloads` with **Public bucket** turned off.
+2. Upload the client archive to that bucket using the object path `client.zip` (or set `CLIENT_DOWNLOAD_STORAGE_PATH` to the exact path you uploaded).
+3. Add `CLIENT_DOWNLOAD_BUCKET=subscriber-downloads` and `CLIENT_DOWNLOAD_STORAGE_PATH=client.zip` as **private** Vercel environment variables. Remove any old `NEXT_PUBLIC_CLIENT_DOWNLOAD_URL` variable; do not publish the bucket or put subscriber-only files under `public/downloads`.
+4. Redeploy after setting the variables. The dashboard calls the server endpoint with the signed-in session; the endpoint checks for a non-banned license that has not expired, then issues a signed download URL that expires after 60 seconds. Pending orders and expired or banned licenses cannot download.
 
 ---
 
