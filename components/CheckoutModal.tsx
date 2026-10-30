@@ -1,7 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useDiscordAuth } from "@/context/DiscordAuthContext";
+import { getSupabaseClient } from "@/lib/supabase";
+import {
+  MAX_RECEIPT_BYTES,
+  RECEIPT_IMAGE_TYPES,
+} from "@/lib/receipt-constants";
 import {
   X,
   QrCode,
@@ -43,7 +49,35 @@ export default function CheckoutModal({
   const [error, setError] = useState("");
   const [showEnlargedQr, setShowEnlargedQr] = useState(false);
 
-  if (!isOpen || !plan) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (showEnlargedQr) {
+        setShowEnlargedQr(false);
+      } else {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose, showEnlargedQr]);
+
+  if (!isOpen || !plan || typeof document === "undefined") return null;
 
   const gcashName = process.env.NEXT_PUBLIC_GCASH_NAME || "RED LINE";
   const qrUrl = process.env.NEXT_PUBLIC_GCASH_QR_URL || "/qr.jpg";
@@ -64,8 +98,13 @@ export default function CheckoutModal({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Receipt image must be smaller than 5MB.");
+    if (!RECEIPT_IMAGE_TYPES.includes(file.type)) {
+      setError("Receipt must be a PNG, JPEG, GIF, or WebP image.");
+      return;
+    }
+
+    if (file.size > MAX_RECEIPT_BYTES) {
+      setError("Receipt image must be 3MB or smaller.");
       return;
     }
 
@@ -94,13 +133,20 @@ export default function CheckoutModal({
     setIsSubmitting(true);
 
     try {
+      const { data: { session }, error: sessionError } =
+        await getSupabaseClient().auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session?.access_token) {
+        throw new Error("Your Discord session expired. Please sign in again.");
+      }
+
       const res = await fetch("/api/orders/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
-          discord_id: user.id,
-          discord_username: user.username,
-          discord_avatar: user.avatarUrl,
           tier: plan.tier,
           amount: plan.price,
           reference_number: referenceNumber.trim(),
@@ -115,7 +161,7 @@ export default function CheckoutModal({
         throw new Error(data.error || "Failed to submit order");
       }
 
-      onSuccess(data.order.order_number);
+      onSuccess(data.orderNumber);
     } catch (err: any) {
       setError(err.message || "Failed to submit payment verification request.");
     } finally {
@@ -123,15 +169,20 @@ export default function CheckoutModal({
     }
   };
 
-  return (
+  return createPortal(
     <div
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md p-3 sm:p-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overscroll-contain bg-black/75 backdrop-blur-md p-3 sm:p-6"
     >
-      <div className="min-h-full flex items-center justify-center py-4 sm:py-8">
-        <div className="relative w-full max-w-lg rounded-2xl bg-[#0e1118] border border-white/[0.1] shadow-2xl p-5 sm:p-7 text-left my-auto animate-in fade-in zoom-in-95 duration-150">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="checkout-modal-title"
+          onClick={(e) => e.stopPropagation()}
+          className="relative my-auto max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-2xl bg-[#0e1118] border border-white/[0.1] shadow-2xl p-5 sm:p-7 text-left animate-in fade-in zoom-in-95 duration-150"
+        >
           {/* Top Brand Accent Line */}
           <div
             className={`absolute top-0 left-0 right-0 h-1 ${
@@ -156,7 +207,7 @@ export default function CheckoutModal({
               <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 block">
                 Purchasing License
               </span>
-              <h3 className="text-xl font-bold text-white font-mono flex items-center gap-2 mt-0.5">
+              <h3 id="checkout-modal-title" className="text-xl font-bold text-white font-mono flex items-center gap-2 mt-0.5">
                 <span>{plan.tier}</span>
                 {plan.isLifetime && (
                   <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
@@ -325,7 +376,7 @@ export default function CheckoutModal({
                 <div className="relative border border-dashed border-white/[0.15] hover:border-red-500/40 rounded-xl p-3 text-center transition-colors bg-black/20">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept={RECEIPT_IMAGE_TYPES.join(",")}
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
@@ -380,14 +431,13 @@ export default function CheckoutModal({
               </button>
             </form>
           </div>
-        </div>
       </div>
 
       {/* Enlarged High-Resolution QR Modal */}
       {showEnlargedQr && (
         <div
           onClick={() => setShowEnlargedQr(false)}
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in cursor-pointer"
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -429,6 +479,7 @@ export default function CheckoutModal({
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -17,8 +17,8 @@ Modern, stream-proof tactical web store for **Red Line VIP**. Built using **Next
 
 3. **GCash QR Checkout & Discord Staff Notifications**:
    - Displays tactical GCash QR and copyable phone number.
-   - Customers enter their GCash Reference Number and upload their receipt screenshot.
-   - Instant rich embed notification sent to your **Discord Staff Webhook** channel with order details and receipt image.
+   - Customers enter their GCash Reference Number and may upload a PNG, JPEG, GIF, or WebP receipt image (up to 3MB).
+   - Order details and uploaded receipt images are sent to your **Discord Staff Webhook** channel; a failed notification is reported instead of silently appearing successful.
 
 4. **Staff Admin Gateway (`/redgate`)**:
    - Protected by `ADMIN_SECRET_KEY`.
@@ -33,6 +33,7 @@ Modern, stream-proof tactical web store for **Red Line VIP**. Built using **Next
    - Shows active license key (with hide/reveal toggle and 1-click copy).
    - Displays remaining time countdown or Permanent Lifetime VIP status.
    - Displays real-time PC Hardware ID binding status.
+   - Shows the signed-in customer's full order history, newest first.
    - Client `.zip` download link and launch guide.
 
 ---

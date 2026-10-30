@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import DiscordIcon from "@/components/DiscordIcon";
+import { getSupabaseClient } from "@/lib/supabase";
 
 interface License {
   id: string;
@@ -49,6 +50,7 @@ export default function DashboardPage() {
   const [licenses, setLicenses] = useState<License[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [revealedKeys, setRevealedKeys] = useState<Record<string, boolean>>({});
 
@@ -64,22 +66,36 @@ export default function DashboardPage() {
   const fetchData = async () => {
     if (!user) return;
     setIsLoading(true);
+    setLoadError(null);
     try {
-      // 1. Fetch user licenses
-      const licRes = await fetch(`/api/licenses/user?discord_id=${user.id}`);
-      const licData = await licRes.json();
-      if (licRes.ok && licData.licenses) {
-        setLicenses(licData.licenses);
+      const { data: { session }, error: sessionError } =
+        await getSupabaseClient().auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session?.access_token) {
+        throw new Error("Your Discord session expired. Please sign in again.");
       }
 
-      // 2. Fetch user orders
-      const ordRes = await fetch(`/api/orders/user?discord_id=${user.id}`);
-      const ordData = await ordRes.json();
-      if (ordRes.ok && ordData.orders) {
-        setOrders(ordData.orders);
-      }
+      const headers = { Authorization: `Bearer ${session.access_token}` };
+      const [licRes, ordRes] = await Promise.all([
+        fetch("/api/licenses/user", { headers }),
+        fetch("/api/orders/user", { headers }),
+      ]);
+      const [licData, ordData] = await Promise.all([
+        licRes.json(),
+        ordRes.json(),
+      ]);
+      if (!licRes.ok) throw new Error(licData.error || "Failed to load licenses.");
+      if (!ordRes.ok) throw new Error(ordData.error || "Failed to load order history.");
+
+      setLicenses(licData.licenses || []);
+      setOrders(ordData.orders || []);
     } catch (err) {
       console.error("Failed to load user portal data", err);
+      setLicenses([]);
+      setOrders([]);
+      setLoadError(
+        err instanceof Error ? err.message : "Failed to load your account history."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -373,7 +389,18 @@ export default function DashboardPage() {
           </span>
         </h2>
 
-        {orders.length === 0 ? (
+        {loadError && (
+          <div
+            role="alert"
+            className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+          >
+            {loadError}
+          </div>
+        )}
+
+        {isLoading ? (
+          <p className="text-xs text-zinc-400 font-mono">Loading your order history…</p>
+        ) : loadError ? null : orders.length === 0 ? (
           <p className="text-xs text-zinc-500 font-mono">
             No pending or past orders recorded for this account.
           </p>
@@ -526,4 +553,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

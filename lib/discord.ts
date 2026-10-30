@@ -1,3 +1,6 @@
+import "server-only";
+import { parseReceiptDataUrl } from "@/lib/receipt-image";
+
 /**
  * Discord Webhook Notification Dispatcher
  * Sends rich tactical embeds to staff logs channel.
@@ -13,8 +16,13 @@ export async function sendDiscordOrderNotification(order: {
   receiptUrl?: string;
 }) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-  if (!webhookUrl) return;
+  if (!webhookUrl) {
+    throw new Error("DISCORD_WEBHOOK_URL is not configured.");
+  }
 
+  const receiptImage = order.receiptUrl?.startsWith("data:")
+    ? parseReceiptDataUrl(order.receiptUrl)
+    : null;
   const embed = {
     title: "⚡ NEW VIP ORDER SUBMITTED (PENDING APPROVAL)",
     color: 0x00ff88, // Cyber Neon Emerald
@@ -51,26 +59,42 @@ export async function sendDiscordOrderNotification(order: {
         inline: true,
       },
     ],
-    image: order.receiptUrl && order.receiptUrl.startsWith("http")
-      ? { url: order.receiptUrl }
-      : undefined,
+    image: receiptImage
+      ? { url: `attachment://${receiptImage.fileName}` }
+      : order.receiptUrl?.startsWith("https://")
+        ? { url: order.receiptUrl }
+        : undefined,
     footer: {
       text: "Red Line VIP Store Engine • Pending Manual Verification",
     },
     timestamp: new Date().toISOString(),
   };
 
-  try {
-    await fetch(webhookUrl, {
+  const payload = {
+    content: `🚨 **New Payment Verification Request!** <@${order.discordId}>`,
+    embeds: [embed],
+  };
+  let response: Response;
+
+  if (receiptImage) {
+    const formData = new FormData();
+    formData.append("payload_json", JSON.stringify(payload));
+    formData.append(
+      "files[0]",
+      new Blob([receiptImage.bytes], { type: receiptImage.contentType }),
+      receiptImage.fileName
+    );
+    response = await fetch(webhookUrl, { method: "POST", body: formData });
+  } else {
+    response = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content: `🚨 **New Payment Verification Request!** <@${order.discordId}>`,
-        embeds: [embed],
-      }),
+      body: JSON.stringify(payload),
     });
-  } catch (err) {
-    console.error("Failed to transmit Discord webhook:", err);
+  }
+
+  if (!response.ok) {
+    throw new Error(`Discord webhook returned HTTP ${response.status}.`);
   }
 }
 
@@ -121,4 +145,3 @@ export async function sendDiscordOrderApproved(order: {
     console.error("Failed to transmit Discord webhook:", err);
   }
 }
-
