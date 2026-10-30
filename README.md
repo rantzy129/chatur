@@ -102,6 +102,9 @@ The API limits are 5 order submissions per 10 minutes per IP, 5 invalid admin au
 
 ## ☁️ Deploying to Vercel
 
+### Vercel Web Analytics
+The app includes Vercel Web Analytics through `@vercel/analytics`. Enable Web Analytics in the Vercel project's **Analytics** tab; page views and supported navigation events are then collected after deployment. Redeploy if Vercel asks you to.
+
 ### Option A: Via GitHub (Recommended)
 1. Push your repository to GitHub.
 2. Go to [vercel.com/new](https://vercel.com/new).

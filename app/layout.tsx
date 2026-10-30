@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { DiscordAuthProvider } from "@/context/DiscordAuthContext";
@@ -38,6 +39,7 @@ export default function RootLayout({
         <DiscordAuthProvider>
           <AppFrame>{children}</AppFrame>
         </DiscordAuthProvider>
+        <Analytics />
       </body>
     </html>
   );
