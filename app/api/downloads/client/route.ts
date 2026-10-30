@@ -23,6 +23,14 @@ export async function GET(req: Request) {
         { status: 503 }
       );
     }
+    const downloadFileName = filePath.split("/").filter(Boolean).at(-1);
+    if (!downloadFileName) {
+      console.error("Client download storage path does not include a file name.");
+      return NextResponse.json(
+        { error: "The client download is not configured. Please contact staff." },
+        { status: 503 }
+      );
+    }
 
     const supabaseAdmin = getSupabaseAdmin();
     const { data: licenses, error: licenseError } = await supabaseAdmin
@@ -57,7 +65,7 @@ export async function GET(req: Request) {
     const { data, error: signedUrlError } = await supabaseAdmin.storage
       .from(bucket)
       .createSignedUrl(filePath, SIGNED_URL_TTL_SECONDS, {
-        download: "client.zip",
+        download: downloadFileName,
       });
 
     if (signedUrlError || !data?.signedUrl) {
