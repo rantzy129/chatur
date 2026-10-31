@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import CheckoutModal from "@/components/CheckoutModal";
 import OrderConfirmationModal from "@/components/OrderConfirmationModal";
+import TermsModal from "@/components/TermsModal";
 import { useDiscordAuth } from "@/context/DiscordAuthContext";
 
 export default function HomePage() {
@@ -34,6 +35,7 @@ export default function HomePage() {
   const [successOrderNumber, setSuccessOrderNumber] = useState<string | null>(
     null
   );
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const plans = [
     {
@@ -329,12 +331,13 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-          <Link
-            href="/terms"
-            className="px-3.5 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white border border-white/[0.08] transition-colors whitespace-nowrap text-[11px]"
+          <button
+            type="button"
+            onClick={() => setShowTermsModal(true)}
+            className="px-3.5 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white border border-white/[0.08] transition-colors whitespace-nowrap text-[11px] cursor-pointer"
           >
             Read Terms of Service →
-          </Link>
+          </button>
         </div>
       </section>
 
@@ -478,6 +481,10 @@ export default function HomePage() {
         isOpen={Boolean(successOrderNumber)}
         orderNumber={successOrderNumber}
         onClose={() => setSuccessOrderNumber(null)}
+      />
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
       />
     </div>
   );

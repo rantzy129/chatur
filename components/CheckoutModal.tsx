@@ -20,6 +20,7 @@ import {
   ZoomIn,
 } from "lucide-react";
 import DiscordIcon from "@/components/DiscordIcon";
+import TermsModal from "@/components/TermsModal";
 
 interface Props {
   isOpen: boolean;
@@ -49,6 +50,7 @@ export default function CheckoutModal({
   const [error, setError] = useState("");
   const [showEnlargedQr, setShowEnlargedQr] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -418,14 +420,13 @@ export default function CheckoutModal({
                   />
                   <span className="text-[11px] text-zinc-300 leading-relaxed font-sans">
                     I agree to the{" "}
-                    <a
-                      href="/terms"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-red-400 hover:text-red-300 underline font-mono font-medium"
+                    <button
+                      type="button"
+                      onClick={() => setShowTermsModal(true)}
+                      className="text-red-400 hover:text-red-300 underline font-mono font-medium inline"
                     >
                       Terms of Service
-                    </a>
+                    </button>
                     . I understand digital licenses are <strong className="text-white">strictly non-refundable</strong>, I use this software <strong className="text-white">at my own risk</strong>, and Red Line is <strong className="text-white">not liable for game bans</strong>. Engine is verified <strong className="text-emerald-400">undetected</strong>.
                   </span>
                 </label>
@@ -458,6 +459,16 @@ export default function CheckoutModal({
             </form>
           </div>
       </div>
+
+      {/* Terms of Service & Disclaimer Modal */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        onAccept={() => {
+          setAgreedTerms(true);
+          setShowTermsModal(false);
+        }}
+      />
 
       {/* Enlarged High-Resolution QR Modal */}
       {showEnlargedQr && (
