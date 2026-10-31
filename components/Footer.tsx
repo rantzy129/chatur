@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ShieldCheck } from "lucide-react";
 
 export default function Footer() {
   const discordInvite =
@@ -46,6 +46,12 @@ export default function Footer() {
             >
               Customer Portal
             </Link>
+            <Link
+              href="/terms"
+              className="text-zinc-400 hover:text-white transition-colors"
+            >
+              Terms of Service
+            </Link>
             <a
               href={discordInvite}
               target="_blank"
@@ -58,13 +64,30 @@ export default function Footer() {
           </nav>
         </div>
 
+        {/* Disclaimer Notice Banner */}
+        <div className="py-4 px-4 rounded-xl bg-white/[0.02] border border-white/[0.06] mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] font-mono text-zinc-400">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+            <span>
+              Engine Status: <strong className="text-emerald-400">UNDETECTED</strong> • Direct Swapchain Invisibility
+            </span>
+          </div>
+          <p className="text-[10px] text-zinc-500 font-sans">
+            Strictly Non-Refundable • Software is used at your own operational risk. Red Line is not liable for game penalties.
+          </p>
+        </div>
+
         {/* Bottom Bar */}
         <div className="pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 font-mono gap-3">
           <p>© 2026 Red Line VIP. All rights reserved.</p>
           <div className="flex items-center gap-4 text-[11px]">
+            <Link href="/terms" className="hover:text-zinc-300 transition-colors">
+              Terms & Non-Refundable Policy
+            </Link>
+            <span>•</span>
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-zinc-400">All Systems Operational</span>
+              <span className="text-zinc-400">Systems Undetected</span>
             </span>
           </div>
         </div>

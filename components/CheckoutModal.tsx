@@ -48,6 +48,7 @@ export default function CheckoutModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [showEnlargedQr, setShowEnlargedQr] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -405,16 +406,41 @@ export default function CheckoutModal({
                 </div>
               </div>
 
+              {/* Terms & Risk Agreement Disclosure */}
+              <div className="rounded-xl border border-white/[0.08] bg-black/50 p-3 space-y-2">
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    id="termsAgreement"
+                    checked={agreedTerms}
+                    onChange={(e) => setAgreedTerms(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-white/20 bg-zinc-900 text-red-600 focus:ring-red-500 cursor-pointer flex-shrink-0"
+                  />
+                  <span className="text-[11px] text-zinc-300 leading-relaxed font-sans">
+                    I agree to the{" "}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-red-400 hover:text-red-300 underline font-mono font-medium"
+                    >
+                      Terms of Service
+                    </a>
+                    . I understand digital licenses are <strong className="text-white">strictly non-refundable</strong>, I use this software <strong className="text-white">at my own risk</strong>, and Red Line is <strong className="text-white">not liable for game bans</strong>. Engine is verified <strong className="text-emerald-400">undetected</strong>.
+                  </span>
+                </label>
+              </div>
+
               {/* Submit CTA */}
               <button
                 type="submit"
-                disabled={isSubmitting || !user}
+                disabled={isSubmitting || !user || !agreedTerms}
                 className={`w-full py-3.5 px-4 rounded-xl font-bold text-sm font-mono tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg min-h-[48px] ${
                   plan.isLifetime
                     ? "bg-amber-500 hover:bg-amber-400 text-black"
                     : "bg-red-600 hover:bg-red-500 text-white"
                 } ${
-                  isSubmitting || !user
+                  isSubmitting || !user || !agreedTerms
                     ? "opacity-50 cursor-not-allowed"
                     : "active:scale-[0.98]"
                 }`}
@@ -424,7 +450,7 @@ export default function CheckoutModal({
                 ) : (
                   <>
                     <ShieldCheck className="h-4 w-4" />
-                    <span>Submit Payment for Verification</span>
+                    {!agreedTerms ? (<span>Agree to Terms to Continue</span>) : (<span>Submit Payment for Verification</span>)}
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}

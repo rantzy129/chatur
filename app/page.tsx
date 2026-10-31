@@ -315,6 +315,27 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+
+        {/* Terms & Operational Notice */}
+        <div className="mt-8 rounded-2xl bg-[#0b0e14] border border-white/[0.08] p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono">
+          <div className="flex items-center gap-3 text-left">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+            <div className="space-y-0.5">
+              <p className="text-white font-bold">
+                Undetected Direct Swapchain Engine
+              </p>
+              <p className="text-zinc-400 font-sans text-[11px]">
+                All digital sales are strictly non-refundable. Operated at your own risk; Red Line is not liable for game bans.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/terms"
+            className="px-3.5 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white border border-white/[0.08] transition-colors whitespace-nowrap text-[11px]"
+          >
+            Read Terms of Service →
+          </Link>
+        </div>
       </section>
 
       {/* ─── SYSTEM ARCHITECTURE (ASYMMETRIC, ANTI-SLOP) ─────────── */}
