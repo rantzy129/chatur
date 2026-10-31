@@ -120,7 +120,7 @@ export default function TermsModal({
                 <span className="text-red-500">01.</span> Strictly Non-Refundable Digital Sale
               </h3>
               <p>
-                Due to the immediate provisioning and cryptographic nature of single-seat digital license keys (<code className="text-zinc-200 bg-white/[0.05] px-1 py-0.5 rounded font-mono text-[10px]">ESM-XXXX-XXXX-XXXX</code>), all transactions conducted via GCash, InstaPay, or cryptocurrency are <strong className="text-white">strictly non-refundable and final</strong> once verified by staff.
+                Due to the immediate provisioning and cryptographic nature of single-seat digital license keys, all transactions conducted via GCash, InstaPay, or cryptocurrency are <strong className="text-white">strictly non-refundable and final</strong> once verified by staff.
               </p>
               <p className="text-zinc-400 text-[11px]">
                 Initiating fraudulent disputes or chargebacks will result in automatic HWID revocation and permanent blacklist from our Discord syndicate.

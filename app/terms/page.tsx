@@ -76,7 +76,7 @@ export default function TermsPage() {
             Strict Non-Refundable Policy
           </h2>
           <p>
-            Due to the immediate provisioning and cryptographic nature of single-seat digital license keys (<code className="text-zinc-200 bg-white/[0.05] px-1.5 py-0.5 rounded font-mono text-xs">ESM-XXXX-XXXX-XXXX</code>), all transactions conducted via GCash, InstaPay, or cryptocurrency are <strong className="text-white">STRICTLY NON-REFUNDABLE AND FINAL</strong> once payment has been submitted and reviewed.
+            Due to the immediate provisioning and cryptographic nature of single-seat digital license keys, all transactions conducted via GCash, InstaPay, or cryptocurrency are <strong className="text-white">STRICTLY NON-REFUNDABLE AND FINAL</strong> once payment has been submitted and reviewed.
           </p>
           <ul className="list-disc list-inside space-y-1.5 text-xs text-zinc-400 pl-2">
             <li>No refunds, returns, or balance exchanges will be granted once an activation key is generated or dispatched.</li>

@@ -317,24 +317,22 @@ export default function DashboardPage() {
               return (
                 <div
                   key={lic.id}
-                  className={`relative p-6 rounded-2xl backdrop-blur-xl border transition-all ${
-                    lic.is_banned
+                  className={`relative p-6 rounded-2xl backdrop-blur-xl border transition-all ${lic.is_banned
                       ? "bg-red-950/20 border-red-500/40"
                       : isPermanent
-                      ? "bg-gradient-to-b from-[#141209] to-cyber-card border-cyber-gold/40 shadow-glow-gold"
-                      : "bg-cyber-card border-white/[0.1] hover:border-cyber-neon/40 shadow-xl"
-                  }`}
+                        ? "bg-gradient-to-b from-[#141209] to-cyber-card border-cyber-gold/40 shadow-glow-gold"
+                        : "bg-cyber-card border-white/[0.1] hover:border-cyber-neon/40 shadow-xl"
+                    }`}
                 >
                   {/* Top Bar */}
                   <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
                     <span
-                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-                        lic.is_banned
+                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${lic.is_banned
                           ? "bg-red-500/20 text-red-400 border border-red-500/40"
                           : isPermanent
-                          ? "bg-cyber-gold/20 text-cyber-gold border border-cyber-gold/40"
-                          : "bg-cyber-neon/20 text-cyber-neon border border-cyber-neon/40"
-                      }`}
+                            ? "bg-cyber-gold/20 text-cyber-gold border border-cyber-gold/40"
+                            : "bg-cyber-neon/20 text-cyber-neon border border-cyber-neon/40"
+                        }`}
                     >
                       {lic.is_banned ? "BANNED" : lic.tier}
                     </span>
@@ -408,7 +406,7 @@ export default function DashboardPage() {
                     </p>
 
                     {isLicenseActive(lic) && (
-                      <div className="pt-2">
+                      <div className="pt-2 space-y-2">
                         <button
                           type="button"
                           onClick={handleClientDownload}
@@ -418,6 +416,9 @@ export default function DashboardPage() {
                           <Download className={`h-3.5 w-3.5 text-cyber-neon ${isDownloading ? "animate-pulse" : ""}`} />
                           <span>{isDownloading ? "Preparing download…" : "Download Client Package (.zip)"}</span>
                         </button>
+                        <p className="text-[11px] text-zinc-400 text-center">
+                          File password: <span className="font-semibold text-cyber-neon">RL2026</span>
+                        </p>
                       </div>
                     )}
                   </div>
@@ -586,7 +587,7 @@ export default function DashboardPage() {
             Launch the client executable as Administrator.
           </li>
           <li>
-            When prompted, paste your VIP license key (<code className="text-red-400 font-bold">ESM-XXXX-XXXX-XXXX</code>).
+            When prompted, paste your VIP license key.
           </li>
           <li>
             The system authenticates your key and locks it securely to your device.
