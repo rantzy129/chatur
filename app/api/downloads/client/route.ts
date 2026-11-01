@@ -99,29 +99,46 @@ export async function GET(req: Request) {
       }
     }
 
-    // Resolve Supabase Storage bucket & paths
+    // Resolve Supabase Storage bucket & candidate file paths
     const bucket = process.env.CLIENT_DOWNLOAD_BUCKET || "subscriber-downloads";
-    const storagePath =
+    const candidatePaths =
       targetProduct === "PC"
-        ? (process.env.PEACE_CLEANER_STORAGE_PATH || "peacecleaner.zip")
-        : (process.env.CLIENT_DOWNLOAD_STORAGE_PATH || "esmiringhoy.zip");
-    const downloadFileName =
-      targetProduct === "PC"
-        ? (storagePath.toLowerCase().endsWith(".rar") ? "PeaceCleaner.rar" : "PeaceCleaner.zip")
-        : (storagePath.toLowerCase().endsWith(".rar") ? "Esmiringhoy.rar" : "Esmiringhoy.zip");
+        ? [
+            process.env.PEACE_CLEANER_STORAGE_PATH,
+            "peacecleaner.rar",
+            "PeaceCleaner.rar",
+            "peacecleaner.zip",
+            "PeaceCleaner.zip",
+          ].filter(Boolean) as string[]
+        : [
+            process.env.CLIENT_DOWNLOAD_STORAGE_PATH,
+            "RedLine.rar",
+            "esmiringhoy.rar",
+            "esmiringhoy.zip",
+            "Esmiringhoy.rar",
+            "Esmiringhoy.zip",
+          ].filter(Boolean) as string[];
 
-    if (bucket && storagePath) {
-      const { data, error: signedUrlError } = await supabaseAdmin.storage
-        .from(bucket)
-        .createSignedUrl(storagePath, SIGNED_URL_TTL_SECONDS, {
-          download: downloadFileName,
-        });
+    if (bucket) {
+      for (const storagePath of candidatePaths) {
+        const isRar = storagePath.toLowerCase().endsWith(".rar");
+        const downloadFileName =
+          targetProduct === "PC"
+            ? (isRar ? "PeaceCleaner.rar" : "PeaceCleaner.zip")
+            : (isRar ? "Esmiringhoy.rar" : "Esmiringhoy.zip");
 
-      if (!signedUrlError && data?.signedUrl) {
-        return NextResponse.json(
-          { url: data.signedUrl, product: targetProduct },
-          { headers: { "Cache-Control": "no-store, private" } }
-        );
+        const { data, error: signedUrlError } = await supabaseAdmin.storage
+          .from(bucket)
+          .createSignedUrl(storagePath, SIGNED_URL_TTL_SECONDS, {
+            download: downloadFileName,
+          });
+
+        if (!signedUrlError && data?.signedUrl) {
+          return NextResponse.json(
+            { url: data.signedUrl, product: targetProduct },
+            { headers: { "Cache-Control": "no-store, private" } }
+          );
+        }
       }
     }
 
