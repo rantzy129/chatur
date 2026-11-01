@@ -105,7 +105,10 @@ export async function GET(req: Request) {
       targetProduct === "PC"
         ? (process.env.PEACE_CLEANER_STORAGE_PATH || "peacecleaner.zip")
         : (process.env.CLIENT_DOWNLOAD_STORAGE_PATH || "esmiringhoy.zip");
-    const downloadFileName = targetProduct === "PC" ? "PeaceCleaner.zip" : "Esmiringhoy.zip";
+    const downloadFileName =
+      targetProduct === "PC"
+        ? (storagePath.toLowerCase().endsWith(".rar") ? "PeaceCleaner.rar" : "PeaceCleaner.zip")
+        : (storagePath.toLowerCase().endsWith(".rar") ? "Esmiringhoy.rar" : "Esmiringhoy.zip");
 
     if (bucket && storagePath) {
       const { data, error: signedUrlError } = await supabaseAdmin.storage
