@@ -35,7 +35,12 @@ export async function POST(req: Request) {
 
     if (action === "approve") {
       // 1. Generate unique license key
-      const key = generateLicenseKey("ESM");
+      const isPeaceCleaner =
+        order.tier.toLowerCase().includes("peace") ||
+        order.tier.toLowerCase().includes("cleaner") ||
+        order.tier.startsWith("PC");
+      const prefix = isPeaceCleaner ? "PC" : "ESM";
+      const key = generateLicenseKey(prefix);
 
       // 2. Determine expiration date
       let expiresAt: string | null = null;

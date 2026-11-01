@@ -571,6 +571,7 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const [showGenModal, setShowGenModal] = useState(false);
+  const [genProduct, setGenProduct] = useState<"ESM" | "PC">("ESM");
   const [genTier, setGenTier] = useState("Monthly VIP");
   const [genDays, setGenDays] = useState("30");
   const [genDiscordId, setGenDiscordId] = useState("");
@@ -737,6 +738,7 @@ export default function AdminPage() {
     try {
       const result = await postAdminAction("/api/admin/licenses", {
         action: "generate",
+        prefix: genProduct,
         tier: genTier,
         duration_days: genDays,
         discord_id: genDiscordId.trim() || null,
@@ -1246,6 +1248,33 @@ export default function AdminPage() {
             </div>
 
             <form onSubmit={handleGenerateManualKey} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-[12px] font-medium text-zinc-300">Target Product</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setGenProduct("ESM")}
+                    className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 text-[12px] font-medium transition ${
+                      genProduct === "ESM"
+                        ? "border-red-500 bg-red-500/10 text-red-400 font-semibold"
+                        : "border-white/[0.08] bg-[#090a0d] text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    <span>Esmiringhoy</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGenProduct("PC")}
+                    className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 text-[12px] font-medium transition ${
+                      genProduct === "PC"
+                        ? "border-cyan-500 bg-cyan-500/10 text-cyan-400 font-semibold"
+                        : "border-white/[0.08] bg-[#090a0d] text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    <span>Peace Cleaner</span>
+                  </button>
+                </div>
+              </div>
               <div>
                 <label htmlFor="license-tier" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Plan</label>
                 <select

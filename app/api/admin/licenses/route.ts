@@ -77,7 +77,8 @@ export async function POST(req: Request) {
 
     // Manual Gen Key
     if (action === "generate") {
-      const key = generateLicenseKey("ESM");
+      const prefix = body.prefix === "PC" ? "PC" : "ESM";
+      const key = generateLicenseKey(prefix);
       let expiresAt: string | null = null;
       if (duration_days && Number(duration_days) > 0) {
         const exp = new Date();
@@ -85,11 +86,14 @@ export async function POST(req: Request) {
         expiresAt = exp.toISOString();
       }
 
+      const productTag = prefix === "PC" ? "[Peace Cleaner]" : "[Esmiringhoy]";
+      const finalTier = tier ? `${productTag} ${tier}` : (expiresAt ? `${productTag} Monthly VIP` : `${productTag} Lifetime VIP`);
+
       const { data, error } = await supabaseAdmin
         .from("esm_licenses")
         .insert({
           license_key: key,
-          tier: tier || (expiresAt ? "Monthly VIP" : "Lifetime VIP"),
+          tier: finalTier,
           notes: notes || "Generated via Admin Dashboard",
           expires_at: expiresAt,
           discord_id: discord_id || null,

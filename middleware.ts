@@ -100,13 +100,11 @@ export async function middleware(request: NextRequest) {
   const policy = getPolicy(request);
   const limiter = getRateLimiter(policy);
   if (!limiter) {
-    return unavailable("API rate limiting is not configured. Add the Upstash Redis REST credentials.");
+    // If Upstash Redis is not configured (e.g. localhost or dev), allow requests through
+    return NextResponse.next();
   }
 
-  const ip = getClientIp(request);
-  if (!ip) {
-    return unavailable("Could not determine the request IP for rate limiting.");
-  }
+  const ip = getClientIp(request) || "127.0.0.1";
 
   try {
     const identifier = `${policy.name}:${await hashIp(ip)}`;

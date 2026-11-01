@@ -45,6 +45,11 @@ interface Order {
   created_at: string;
 }
 
+function isPeaceCleanerLicense(license: License) {
+  const key = (license.license_key || "").toUpperCase();
+  const tier = (license.tier || "").toLowerCase();
+  return key.startsWith("PC-") || tier.includes("peace") || tier.includes("cleaner");
+}
 function isLicenseActive(license: License) {
   if (license.is_banned) return false;
   if (!license.expires_at) return true;
@@ -112,7 +117,7 @@ export default function DashboardPage() {
     }
   }, [user]);
 
-  const handleClientDownload = async () => {
+  const handleClientDownload = async (product?: "PC" | "ESM") => {
     if (!user || isDownloading) return;
 
     setIsDownloading(true);
@@ -127,7 +132,8 @@ export default function DashboardPage() {
         throw new Error("Your Discord session expired. Please sign in again.");
       }
 
-      const response = await fetch("/api/downloads/client", {
+      const endpoint = product ? `/api/downloads/client?product=${product}` : "/api/downloads/client";
+      const response = await fetch(endpoint, {
         headers: { Authorization: `Bearer ${session.access_token}` },
         cache: "no-store",
       });
@@ -242,7 +248,7 @@ export default function DashboardPage() {
           {hasActiveLicense ? (
             <button
               type="button"
-              onClick={handleClientDownload}
+              onClick={() => handleClientDownload()}
               disabled={isDownloading}
               className="py-2.5 px-4 rounded-xl bg-cyber-neon hover:bg-emerald-400 text-black font-bold font-mono text-xs transition-all shadow-glow flex items-center gap-2"
             >
@@ -409,12 +415,16 @@ export default function DashboardPage() {
                       <div className="pt-2 space-y-2">
                         <button
                           type="button"
-                          onClick={handleClientDownload}
+                          onClick={() => handleClientDownload(isPeaceCleanerLicense(lic) ? "PC" : "ESM")}
                           disabled={isDownloading}
                           className="w-full py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-cyber-neon/10 text-zinc-300 hover:text-cyber-neon border border-white/[0.08] hover:border-cyber-neon/30 text-[11px] font-mono font-medium flex items-center justify-center gap-1.5 transition-all disabled:cursor-wait disabled:opacity-60"
                         >
                           <Download className={`h-3.5 w-3.5 text-cyber-neon ${isDownloading ? "animate-pulse" : ""}`} />
-                          <span>{isDownloading ? "Preparing download…" : "Download Client Package (.zip)"}</span>
+                          <span>
+                            {isDownloading
+                              ? "Preparing download…"
+                              : `Download ${isPeaceCleanerLicense(lic) ? "Peace Cleaner (.rar)" : "Esmiringhoy (.zip)"}`}
+                          </span>
                         </button>
                         <p className="text-[11px] text-zinc-400 text-center">
                           File password: <span className="font-semibold text-cyber-neon">RL2026</span>

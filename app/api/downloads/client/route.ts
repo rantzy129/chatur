@@ -4,6 +4,32 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const SIGNED_URL_TTL_SECONDS = 60;
 
+interface LicenseRow {
+  license_key: string;
+  tier: string;
+  expires_at: string | null;
+  is_banned: boolean;
+}
+
+function isLicenseActive(license: LicenseRow) {
+  if (license.is_banned) return false;
+  if (!license.expires_at) return true;
+  const expiresAt = Date.parse(license.expires_at);
+  return Number.isFinite(expiresAt) && expiresAt > Date.now();
+}
+
+function isPeaceCleanerLicense(license: LicenseRow) {
+  const key = (license.license_key || "").toUpperCase();
+  const tier = (license.tier || "").toLowerCase();
+  return key.startsWith("PC-") || tier.includes("peace") || tier.includes("cleaner");
+}
+
+function isEsmiringhoyLicense(license: LicenseRow) {
+  const key = (license.license_key || "").toUpperCase();
+  const tier = (license.tier || "").toLowerCase();
+  return key.startsWith("ESM-") || (!key.startsWith("PC-") && !tier.includes("peace") && !tier.includes("cleaner"));
+}
+
 export async function GET(req: Request) {
   try {
     const user = await getAuthenticatedDiscordUser(req);
@@ -14,28 +40,13 @@ export async function GET(req: Request) {
       );
     }
 
-    const bucket = process.env.CLIENT_DOWNLOAD_BUCKET;
-    const filePath = process.env.CLIENT_DOWNLOAD_STORAGE_PATH;
-    if (!bucket || !filePath) {
-      console.error("Client download bucket or storage path is not configured.");
-      return NextResponse.json(
-        { error: "The client download is not configured. Please contact staff." },
-        { status: 503 }
-      );
-    }
-    const downloadFileName = filePath.split("/").filter(Boolean).at(-1);
-    if (!downloadFileName) {
-      console.error("Client download storage path does not include a file name.");
-      return NextResponse.json(
-        { error: "The client download is not configured. Please contact staff." },
-        { status: 503 }
-      );
-    }
+    const { searchParams } = new URL(req.url);
+    const requestedProduct = (searchParams.get("product") || "").toUpperCase(); // "PC" | "ESM" | ""
 
     const supabaseAdmin = getSupabaseAdmin();
     const { data: licenses, error: licenseError } = await supabaseAdmin
       .from("esm_licenses")
-      .select("expires_at, is_banned")
+      .select("license_key, tier, expires_at, is_banned")
       .eq("discord_id", user.id)
       .eq("is_banned", false);
 
@@ -47,38 +58,92 @@ export async function GET(req: Request) {
       );
     }
 
-    const now = Date.now();
-    const hasActiveLicense = (licenses || []).some((license) => {
-      if (license.is_banned) return false;
-      if (!license.expires_at) return true;
-      const expiresAt = Date.parse(license.expires_at);
-      return Number.isFinite(expiresAt) && expiresAt > now;
-    });
-
-    if (!hasActiveLicense) {
+    const activeLicenses = (licenses || []).filter(isLicenseActive);
+    if (activeLicenses.length === 0) {
       return NextResponse.json(
-        { error: "An active, approved license is required to download the client." },
+        { error: "An active, approved license is required to download software." },
         { status: 403 }
       );
     }
 
-    const { data, error: signedUrlError } = await supabaseAdmin.storage
-      .from(bucket)
-      .createSignedUrl(filePath, SIGNED_URL_TTL_SECONDS, {
-        download: downloadFileName,
-      });
+    // Determine target product based on query or owned active licenses
+    let targetProduct: "PC" | "ESM" = "ESM";
+    if (requestedProduct === "PC") {
+      targetProduct = "PC";
+    } else if (requestedProduct === "ESM") {
+      targetProduct = "ESM";
+    } else {
+      // Default: if user has active PC license and no ESM, choose PC
+      const hasPc = activeLicenses.some(isPeaceCleanerLicense);
+      const hasEsm = activeLicenses.some(isEsmiringhoyLicense);
+      if (hasPc && !hasEsm) targetProduct = "PC";
+      else targetProduct = "ESM";
+    }
 
-    if (signedUrlError || !data?.signedUrl) {
-      console.error("Failed to create private client download URL:", signedUrlError);
+    // Entitlement verification for requested product
+    if (targetProduct === "PC") {
+      const hasActivePc = activeLicenses.some(isPeaceCleanerLicense);
+      if (!hasActivePc) {
+        return NextResponse.json(
+          { error: "An active Peace Cleaner license is required to download this package." },
+          { status: 403 }
+        );
+      }
+    } else {
+      const hasActiveEsm = activeLicenses.some(isEsmiringhoyLicense);
+      if (!hasActiveEsm) {
+        return NextResponse.json(
+          { error: "An active Esmiringhoy license is required to download this package." },
+          { status: 403 }
+        );
+      }
+    }
+
+    // Resolve Supabase Storage bucket & paths
+    const bucket = process.env.CLIENT_DOWNLOAD_BUCKET || "subscriber-downloads";
+    const storagePath =
+      targetProduct === "PC"
+        ? (process.env.PEACE_CLEANER_STORAGE_PATH || "peacecleaner.zip")
+        : (process.env.CLIENT_DOWNLOAD_STORAGE_PATH || "esmiringhoy.zip");
+    const downloadFileName = targetProduct === "PC" ? "PeaceCleaner.zip" : "Esmiringhoy.zip";
+
+    if (bucket && storagePath) {
+      const { data, error: signedUrlError } = await supabaseAdmin.storage
+        .from(bucket)
+        .createSignedUrl(storagePath, SIGNED_URL_TTL_SECONDS, {
+          download: downloadFileName,
+        });
+
+      if (!signedUrlError && data?.signedUrl) {
+        return NextResponse.json(
+          { url: data.signedUrl, product: targetProduct },
+          { headers: { "Cache-Control": "no-store, private" } }
+        );
+      }
+    }
+
+    // Direct / Discord download URL fallback if bucket file is not yet uploaded
+    const fallbackUrl =
+      targetProduct === "PC"
+        ? (process.env.PEACE_CLEANER_DOWNLOAD_URL ||
+           process.env.NEXT_PUBLIC_PEACE_CLEANER_DOWNLOAD_URL ||
+           process.env.CLIENT_DOWNLOAD_URL ||
+           process.env.NEXT_PUBLIC_CLIENT_DOWNLOAD_URL)
+        : (process.env.CLIENT_DOWNLOAD_URL ||
+           process.env.NEXT_PUBLIC_CLIENT_DOWNLOAD_URL);
+
+    if (fallbackUrl) {
       return NextResponse.json(
-        { error: "The client package is unavailable right now. Please try again later." },
-        { status: 503 }
+        { url: fallbackUrl, product: targetProduct },
+        { headers: { "Cache-Control": "no-store, private" } }
       );
     }
 
     return NextResponse.json(
-      { url: data.signedUrl },
-      { headers: { "Cache-Control": "no-store, private" } }
+      {
+        error: `The ${targetProduct === "PC" ? "Peace Cleaner" : "Esmiringhoy"} package is being prepared. Please contact staff or check Discord.`,
+      },
+      { status: 503 }
     );
   } catch (error) {
     console.error("Client download request failed:", error);
