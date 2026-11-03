@@ -8,9 +8,17 @@ CREATE TABLE IF NOT EXISTS public.esm_settings (
     min_client_version TEXT DEFAULT '1.0.0',
     latest_client_version TEXT DEFAULT '1.0.0',
     download_url TEXT DEFAULT 'https://discord.gg/Whwxq9QAEN',
+    peace_cleaner_min_version TEXT DEFAULT '1.0.1',
+    peace_cleaner_latest_version TEXT DEFAULT '1.0.1',
+    peace_cleaner_download_url TEXT DEFAULT 'https://wjpwsrciijwprbgdhgtg.supabase.co/storage/v1/object/public/updates/PeaceCleaner.exe',
     enforce_version_check BOOLEAN DEFAULT true,
     updated_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Ensure columns exist if table was already created
+ALTER TABLE public.esm_settings ADD COLUMN IF NOT EXISTS peace_cleaner_min_version TEXT DEFAULT '1.0.1';
+ALTER TABLE public.esm_settings ADD COLUMN IF NOT EXISTS peace_cleaner_latest_version TEXT DEFAULT '1.0.1';
+ALTER TABLE public.esm_settings ADD COLUMN IF NOT EXISTS peace_cleaner_download_url TEXT DEFAULT 'https://wjpwsrciijwprbgdhgtg.supabase.co/storage/v1/object/public/updates/PeaceCleaner.exe';
 
 -- Insert default row
 INSERT INTO public.esm_settings (id, min_client_version, latest_client_version, download_url, enforce_version_check)

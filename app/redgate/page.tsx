@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
@@ -62,6 +62,9 @@ interface SystemSettings {
   min_client_version: string;
   latest_client_version: string;
   download_url: string;
+  peace_cleaner_min_version?: string;
+  peace_cleaner_latest_version?: string;
+  peace_cleaner_download_url?: string;
   enforce_version_check: boolean;
   table_exists?: boolean;
 }
@@ -578,12 +581,18 @@ function VersionSettingsView({
   const [minVer, setMinVer] = useState(settings.min_client_version);
   const [latestVer, setLatestVer] = useState(settings.latest_client_version);
   const [dlUrl, setDlUrl] = useState(settings.download_url);
+  const [pcMinVer, setPcMinVer] = useState(settings.peace_cleaner_min_version || "1.0.1");
+  const [pcLatestVer, setPcLatestVer] = useState(settings.peace_cleaner_latest_version || "1.0.1");
+  const [pcDlUrl, setPcDlUrl] = useState(settings.peace_cleaner_download_url || "https://wjpwsrciijwprbgdhgtg.supabase.co/storage/v1/object/public/updates/PeaceCleaner.exe");
   const [enforce, setEnforce] = useState(settings.enforce_version_check);
 
   useEffect(() => {
     setMinVer(settings.min_client_version);
     setLatestVer(settings.latest_client_version);
     setDlUrl(settings.download_url);
+    setPcMinVer(settings.peace_cleaner_min_version || "1.0.1");
+    setPcLatestVer(settings.peace_cleaner_latest_version || "1.0.1");
+    setPcDlUrl(settings.peace_cleaner_download_url || "https://wjpwsrciijwprbgdhgtg.supabase.co/storage/v1/object/public/updates/PeaceCleaner.exe");
     setEnforce(settings.enforce_version_check);
   }, [settings]);
 
@@ -594,6 +603,9 @@ function VersionSettingsView({
       min_client_version: minVer,
       latest_client_version: latestVer,
       download_url: dlUrl,
+      peace_cleaner_min_version: pcMinVer,
+      peace_cleaner_latest_version: pcLatestVer,
+      peace_cleaner_download_url: pcDlUrl,
       enforce_version_check: enforce,
     });
   };
@@ -607,7 +619,7 @@ function VersionSettingsView({
               <Activity className="h-4 w-4 text-red-400" /> Client Version & Live Update Control
             </h2>
             <p className="mt-1 text-[12px] text-zinc-400">
-              Control the minimum version required to launch. Old builds below the minimum are blocked on startup.
+              Manage version requirements and auto-download links independently for RedLine VIP and Peace Cleaner.
             </p>
           </div>
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold font-mono ${enforce ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"}`}>
@@ -622,55 +634,129 @@ function VersionSettingsView({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-5 max-w-2xl">
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-200">
-              Minimum Required Client Version
-            </label>
-            <input
-              type="text"
-              value={minVer}
-              onChange={(e) => setMinVer(e.target.value)}
-              placeholder="e.g. 1.0.0"
-              required
-              className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
-            />
-            <p className="mt-1 text-[11px] text-zinc-500">
-              Any client reporting a version below this will be blocked with an update notification on launch.
-            </p>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-8">
+          {/* RedLine VIP Section */}
+          <div className="rounded-lg border border-red-500/20 bg-red-950/10 p-5 space-y-4">
+            <div className="border-b border-red-500/20 pb-3">
+              <h3 className="text-sm font-semibold text-red-300 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-red-500" /> RedLine VIP Client (audiodg.exe)
+              </h3>
+              <p className="text-[11px] text-zinc-400 mt-0.5">Controls version gating for keys starting with <code>RL-</code> and <code>ESM-</code>.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[12px] font-medium text-zinc-200">
+                  Minimum Required Version
+                </label>
+                <input
+                  type="text"
+                  value={minVer}
+                  onChange={(e) => setMinVer(e.target.value)}
+                  placeholder="e.g. 1.0.3"
+                  required
+                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                />
+                <p className="mt-1 text-[11px] text-zinc-500">
+                  Clients below this will auto-update or be blocked.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-medium text-zinc-200">
+                  Latest Build Version
+                </label>
+                <input
+                  type="text"
+                  value={latestVer}
+                  onChange={(e) => setLatestVer(e.target.value)}
+                  placeholder="e.g. 1.0.3"
+                  required
+                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                />
+                <p className="mt-1 text-[11px] text-zinc-500">
+                  Displayed as the latest available build in the terminal.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-200">
+                RedLine Direct Download URL
+              </label>
+              <input
+                type="url"
+                value={dlUrl}
+                onChange={(e) => setDlUrl(e.target.value)}
+                placeholder="https://.../updates/audiodg.exe"
+                className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+              />
+              <p className="mt-1 text-[11px] text-zinc-500">
+                Direct link to <code>audiodg.exe</code> in Supabase storage for the silent in-app auto-updater.
+              </p>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-200">
-              Latest Client Version
-            </label>
-            <input
-              type="text"
-              value={latestVer}
-              onChange={(e) => setLatestVer(e.target.value)}
-              placeholder="e.g. 1.1.0"
-              required
-              className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
-            />
-            <p className="mt-1 text-[11px] text-zinc-500">
-              The latest recommended build version displayed in the client terminal.
-            </p>
-          </div>
+          {/* Peace Cleaner Section */}
+          <div className="rounded-lg border border-indigo-500/20 bg-indigo-950/10 p-5 space-y-4">
+            <div className="border-b border-indigo-500/20 pb-3">
+              <h3 className="text-sm font-semibold text-indigo-300 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-indigo-400" /> Peace Cleaner (PeaceCleaner.exe)
+              </h3>
+              <p className="text-[11px] text-zinc-400 mt-0.5">Controls version gating for keys starting with <code>PC-</code>.</p>
+            </div>
 
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-200">
-              Update / Download URL
-            </label>
-            <input
-              type="url"
-              value={dlUrl}
-              onChange={(e) => setDlUrl(e.target.value)}
-              placeholder="https://discord.gg/... or direct download link"
-              className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
-            />
-            <p className="mt-1 text-[11px] text-zinc-500">
-              The URL automatically opened in the browser when an outdated client is blocked.
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[12px] font-medium text-zinc-200">
+                  Minimum Required Version
+                </label>
+                <input
+                  type="text"
+                  value={pcMinVer}
+                  onChange={(e) => setPcMinVer(e.target.value)}
+                  placeholder="e.g. 1.0.1"
+                  required
+                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                />
+                <p className="mt-1 text-[11px] text-zinc-500">
+                  Peace Cleaner builds below this will prompt the user to download the update.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-[12px] font-medium text-zinc-200">
+                  Latest Build Version
+                </label>
+                <input
+                  type="text"
+                  value={pcLatestVer}
+                  onChange={(e) => setPcLatestVer(e.target.value)}
+                  placeholder="e.g. 1.0.1"
+                  required
+                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                />
+                <p className="mt-1 text-[11px] text-zinc-500">
+                  Latest published build version for Peace Cleaner.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-200">
+                Peace Cleaner Download URL
+              </label>
+              <input
+                type="url"
+                value={pcDlUrl}
+                onChange={(e) => setPcDlUrl(e.target.value)}
+                placeholder="https://.../updates/PeaceCleaner.exe"
+                className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+              />
+              <p className="mt-1 text-[11px] text-zinc-500">
+                Direct link to <code>PeaceCleaner.exe</code> in Supabase storage (opened in browser when outdated).
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 pt-2">
@@ -686,11 +772,11 @@ function VersionSettingsView({
             </label>
           </div>
 
-          <div className="pt-3">
+          <div className="pt-2">
             <button
               type="submit"
               disabled={isSaving}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400 disabled:opacity-50"
             >
               {isSaving ? "Saving Settings..." : "Save Version Settings"}
             </button>
