@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
@@ -57,13 +57,23 @@ interface License {
   created_at: string;
 }
 
-type AdminView = "overview" | "orders" | "licenses";
+interface SystemSettings {
+  id: string;
+  min_client_version: string;
+  latest_client_version: string;
+  download_url: string;
+  enforce_version_check: boolean;
+  table_exists?: boolean;
+}
+
+type AdminView = "overview" | "orders" | "licenses" | "settings";
 type Notice = { tone: "success" | "error"; message: string } | null;
 
 const navigation: { id: AdminView; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "orders", label: "Orders", icon: Wallet },
   { id: "licenses", label: "Licenses", icon: KeyRound },
+  { id: "settings", label: "Version & Updates", icon: Activity },
 ];
 
 function formatCurrency(value: number) {
@@ -556,6 +566,141 @@ function LicensesTable({
   );
 }
 
+function VersionSettingsView({
+  settings,
+  onSave,
+  isSaving,
+}: {
+  settings: SystemSettings;
+  onSave: (updated: SystemSettings) => Promise<void>;
+  isSaving: boolean;
+}) {
+  const [minVer, setMinVer] = useState(settings.min_client_version);
+  const [latestVer, setLatestVer] = useState(settings.latest_client_version);
+  const [dlUrl, setDlUrl] = useState(settings.download_url);
+  const [enforce, setEnforce] = useState(settings.enforce_version_check);
+
+  useEffect(() => {
+    setMinVer(settings.min_client_version);
+    setLatestVer(settings.latest_client_version);
+    setDlUrl(settings.download_url);
+    setEnforce(settings.enforce_version_check);
+  }, [settings]);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    void onSave({
+      ...settings,
+      min_client_version: minVer,
+      latest_client_version: latestVer,
+      download_url: dlUrl,
+      enforce_version_check: enforce,
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <section className="rounded-xl border border-white/[0.08] bg-[#101318] p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+          <div>
+            <h2 className="text-[15px] font-semibold text-zinc-100 flex items-center gap-2">
+              <Activity className="h-4 w-4 text-red-400" /> Client Version & Live Update Control
+            </h2>
+            <p className="mt-1 text-[12px] text-zinc-400">
+              Control the minimum version required to launch. Old builds below the minimum are blocked on startup.
+            </p>
+          </div>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold font-mono ${enforce ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${enforce ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+            {enforce ? "Enforcement Active" : "Enforcement Paused"}
+          </span>
+        </div>
+
+        {settings.table_exists === false && (
+          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3.5 text-[12px] text-amber-300">
+            <strong>Database Notice:</strong> The <code>esm_settings</code> table has not been initialized yet in Supabase. Please copy and run <code>web/schema_settings.sql</code> in your Supabase SQL Editor to save settings permanently.
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5 max-w-2xl">
+          <div>
+            <label className="block text-[12px] font-medium text-zinc-200">
+              Minimum Required Client Version
+            </label>
+            <input
+              type="text"
+              value={minVer}
+              onChange={(e) => setMinVer(e.target.value)}
+              placeholder="e.g. 1.0.0"
+              required
+              className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+            />
+            <p className="mt-1 text-[11px] text-zinc-500">
+              Any client reporting a version below this will be blocked with an update notification on launch.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-[12px] font-medium text-zinc-200">
+              Latest Client Version
+            </label>
+            <input
+              type="text"
+              value={latestVer}
+              onChange={(e) => setLatestVer(e.target.value)}
+              placeholder="e.g. 1.1.0"
+              required
+              className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+            />
+            <p className="mt-1 text-[11px] text-zinc-500">
+              The latest recommended build version displayed in the client terminal.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-[12px] font-medium text-zinc-200">
+              Update / Download URL
+            </label>
+            <input
+              type="url"
+              value={dlUrl}
+              onChange={(e) => setDlUrl(e.target.value)}
+              placeholder="https://discord.gg/... or direct download link"
+              className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+            />
+            <p className="mt-1 text-[11px] text-zinc-500">
+              The URL automatically opened in the browser when an outdated client is blocked.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <input
+              type="checkbox"
+              id="enforceCheck"
+              checked={enforce}
+              onChange={(e) => setEnforce(e.target.checked)}
+              className="h-4 w-4 rounded border-white/[0.2] bg-[#14171d] text-red-600 focus:ring-red-500"
+            />
+            <label htmlFor="enforceCheck" className="text-[13px] font-medium text-zinc-200 cursor-pointer select-none">
+              Strictly enforce minimum client version on license authentication
+            </label>
+          </div>
+
+          <div className="pt-3">
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400 disabled:opacity-50"
+            >
+              {isSaving ? "Saving Settings..." : "Save Version Settings"}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [adminSecret, setAdminSecret] = useState("");
   const [showSecret, setShowSecret] = useState(false);
@@ -567,6 +712,34 @@ export default function AdminPage() {
   const [notice, setNotice] = useState<Notice>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [licenses, setLicenses] = useState<License[]>([]);
+  const [settings, setSettings] = useState<SystemSettings>({
+    id: "global",
+    min_client_version: "1.0.0",
+    latest_client_version: "1.0.0",
+    download_url: "https://discord.gg/Whwxq9QAEN",
+    enforce_version_check: true,
+  });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  const handleSaveSettings = async (updated: SystemSettings) => {
+    setIsSavingSettings(true);
+    setNotice(null);
+    try {
+      const data = await postAdminAction("/api/admin/settings", updated as unknown as Record<string, unknown>);
+      if (data.settings) setSettings(data.settings);
+      setNotice({
+        tone: "success",
+        message: "Version enforcement settings saved successfully!",
+      });
+    } catch (err: any) {
+      setNotice({
+        tone: "error",
+        message: err.message || "Failed to save version settings.",
+      });
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
   const [view, setView] = useState<AdminView>("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
@@ -591,13 +764,15 @@ export default function AdminPage() {
     setIsLoading(true);
     setDashboardError("");
     try {
-      const [ordersResponse, licensesResponse] = await Promise.all([
+            const [ordersResponse, licensesResponse, settingsResponse] = await Promise.all([
         fetch("/api/admin/orders", { headers: { "x-admin-secret": secret } }),
         fetch("/api/admin/licenses", { headers: { "x-admin-secret": secret } }),
+        fetch("/api/admin/settings", { headers: { "x-admin-secret": secret } }),
       ]);
-      const [ordersData, licensesData] = await Promise.all([
+      const [ordersData, licensesData, settingsData] = await Promise.all([
         ordersResponse.json(),
         licensesResponse.json(),
+        settingsResponse.json(),
       ]);
 
       if (!ordersResponse.ok) {
@@ -609,6 +784,9 @@ export default function AdminPage() {
 
       setOrders(ordersData.orders || []);
       setLicenses(licensesData.licenses || []);
+      if (settingsData && settingsData.settings) {
+        setSettings(settingsData.settings);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not load admin data.";
       setDashboardError(message);
@@ -961,6 +1139,7 @@ export default function AdminPage() {
     overview: "Overview",
     orders: "Orders",
     licenses: "Licenses",
+    settings: "Version & Updates",
   }[view];
 
   return (
@@ -1042,9 +1221,10 @@ export default function AdminPage() {
                 {view === "overview" && "A clear view of orders, revenue, and issued licenses."}
                 {view === "orders" && "Review payment proof and resolve customer orders."}
                 {view === "licenses" && "Manage issued keys, hardware bindings, and account status."}
+                {view === "settings" && "Configure minimum client version and live update enforcement."}
               </p>
             </div>
-            {view !== "overview" && (
+            {view !== "overview" && view !== "settings" && (
               <label className="relative w-full sm:w-[280px]">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
                 <input
@@ -1171,7 +1351,7 @@ export default function AdminPage() {
                 onViewReceipt={setSelectedReceipt}
               />
             </section>
-          ) : (
+          ) : view === "licenses" ? (
             <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#101318]">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
                 <div>
@@ -1195,6 +1375,8 @@ export default function AdminPage() {
                 onDelete={handleDeleteLicense}
               />
             </section>
+          ) : (
+            <VersionSettingsView settings={settings} onSave={handleSaveSettings} isSaving={isSavingSettings} />
           )}
         </div>
       </main>
