@@ -253,7 +253,7 @@ export default function DashboardPage() {
               className="py-2.5 px-4 rounded-xl bg-cyber-neon hover:bg-emerald-400 text-black font-bold font-mono text-xs transition-all shadow-glow flex items-center gap-2"
             >
               <Download className={`h-4 w-4 ${isDownloading ? "animate-pulse" : ""}`} />
-              <span>{isDownloading ? "Preparing download…" : "Download Client (.zip)"}</span>
+              <span>{isDownloading ? "Preparing download…" : "Download Client (.rar)"}</span>
             </button>
           ) : (
             <div className="relative group">
@@ -423,7 +423,7 @@ export default function DashboardPage() {
                           <span>
                             {isDownloading
                               ? "Preparing download…"
-                              : `Download ${isPeaceCleanerLicense(lic) ? "Peace Cleaner (.rar)" : "Esmiringhoy (.zip)"}`}
+                              : `Download ${isPeaceCleanerLicense(lic) ? "Peace Cleaner (.rar)" : "RedLine (.rar)"}`}
                           </span>
                         </button>
                         <p className="text-[11px] text-zinc-400 text-center">

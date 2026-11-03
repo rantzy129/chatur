@@ -125,7 +125,7 @@ export async function GET(req: Request) {
         const downloadFileName =
           targetProduct === "PC"
             ? (isRar ? "PeaceCleaner.rar" : "PeaceCleaner.zip")
-            : (isRar ? "Esmiringhoy.rar" : "Esmiringhoy.zip");
+            : (isRar ? "RedLine.rar" : "RedLine.zip");
 
         const { data, error: signedUrlError } = await supabaseAdmin.storage
           .from(bucket)
@@ -161,7 +161,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(
       {
-        error: `The ${targetProduct === "PC" ? "Peace Cleaner" : "Esmiringhoy"} package is being prepared. Please contact staff or check Discord.`,
+        error: `The ${targetProduct === "PC" ? "Peace Cleaner" : "RedLine"} package is being prepared. Please contact staff or check Discord.`,
       },
       { status: 503 }
     );
