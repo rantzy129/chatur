@@ -10,27 +10,37 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        redline: {
-          bg: "#08090d",
-          panel: "#0e1117",
-          card: "#131722",
-          border: "rgba(255, 255, 255, 0.08)",
-          red: "#ef4444",
-          crimson: "#dc2626",
-          blood: "#991b1b",
-          emerald: "#10b981",
-          gold: "#f59e0b",
+        // System Color Hierarchy: Primary = White, Secondary = Black, Tertiary = Red
+        brand: {
+          primary: "#FFFFFF",     // Primary: Crisp Pure White
+          secondary: "#0A0A0B",   // Secondary: Deep Pitch Black
+          tertiary: "#E53935",    // Tertiary: Tactical Crimson Red
         },
-        cyber: {
-          bg: "#08090d",
-          card: "#0f121a",
-          panel: "#141824",
-          border: "#1f2636",
-          neon: "#ef4444",
-          emerald: "#10b981",
-          gold: "#f59e0b",
-          cyan: "#06b6d4",
-          crimson: "#ef4444",
+        obsidian: {
+          bg: "#0A0A0B",          // Main Background (Black)
+          surface: "#151518",     // Secondary Surface (Black/Charcoal)
+          elevated: "#242428",    // Elevated Surface (Deep Slate)
+          border: "#303035",      // Borders / Dividers
+          text: "#FFFFFF",        // Primary Text (White)
+          secondary: "#A1A1AA",   // Secondary Text (Gray)
+          muted: "#77777F",       // Muted Text
+          accent: "#E53935",      // Tertiary Accent (Red)
+          hover: "#A71919",       // Tertiary Hover (Deep Red)
+          deepRed: "#A71919",
+          white: "#FFFFFF",       // Primary
+          black: "#000000",       // Secondary
+        },
+        redline: {
+          bg: "#0A0A0B",
+          graphite: "#151518",
+          panel: "#242428",
+          border: "#303035",
+          red: "#E53935",
+          crimson: "#A71919",
+          blood: "#A71919",
+          text: "#FFFFFF",
+          secondary: "#A1A1AA",
+          muted: "#77777F",
         },
       },
       fontFamily: {
@@ -55,8 +65,10 @@ const config: Config = {
         ],
       },
       boxShadow: {
-        glow: "0 0 25px -5px rgba(239, 68, 68, 0.25)",
-        "glow-gold": "0 0 25px -5px rgba(245, 158, 11, 0.25)",
+        "primary-glow": "0 0 25px rgba(255, 255, 255, 0.18)",
+        "tertiary-glow": "0 0 25px rgba(229, 57, 53, 0.3)",
+        "obsidian-elevated": "0 10px 30px -10px rgba(0, 0, 0, 0.8), 0 0 1px 1px #303035",
+        "tactical-inset": "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
       },
       animation: {
         pulse_slow: "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",

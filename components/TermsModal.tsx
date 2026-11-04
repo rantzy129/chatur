@@ -2,27 +2,15 @@
 
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import {
-  X,
-  FileText,
-  ShieldCheck,
-  AlertTriangle,
-  Ban,
-  Check,
-  Cpu,
-} from "lucide-react";
+import { X, ShieldAlert, Check, AlertTriangle, ShieldCheck, Ban } from "lucide-react";
 
-interface TermsModalProps {
+interface Props {
   isOpen: boolean;
   onClose: () => void;
   onAccept?: () => void;
 }
 
-export default function TermsModal({
-  isOpen,
-  onClose,
-  onAccept,
-}: TermsModalProps) {
+export default function TermsModal({ isOpen, onClose, onAccept }: Props) {
   useEffect(() => {
     if (!isOpen) return;
 
@@ -45,7 +33,7 @@ export default function TermsModal({
   if (!isOpen || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[120] overflow-y-auto bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[120] overflow-y-auto bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
       {/* Centering container with scroll capability */}
       <div
         className="min-h-full flex items-center justify-center p-3 sm:p-6 cursor-pointer"
@@ -53,131 +41,128 @@ export default function TermsModal({
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-2xl rounded-2xl bg-[#0b0e14] border border-white/[0.1] shadow-2xl p-5 sm:p-8 space-y-6 text-zinc-300 my-6 cursor-default"
+          className="relative w-full max-w-2xl rounded-2xl bg-white border border-zinc-200 shadow-2xl p-5 sm:p-8 space-y-6 text-zinc-600 my-6 cursor-default"
         >
           {/* Close button */}
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="absolute top-4 right-4 p-2 rounded-lg text-zinc-500 hover:text-black hover:bg-zinc-100 transition-colors"
             aria-label="Close Terms modal"
           >
             <X className="h-5 w-5" />
           </button>
 
           {/* Header */}
-          <div className="space-y-2 pr-8 border-b border-white/[0.08] pb-5">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-mono tracking-wider uppercase">
-              <FileText className="h-3 w-3" />
-              <span>Legal & Compliance Policy</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black font-mono text-white tracking-tight">
+          <div className="space-y-2 pr-8 border-b border-zinc-200 pb-5">
+            <h2 className="text-xl sm:text-2xl font-black font-sans text-black tracking-tight uppercase">
               TERMS OF SERVICE & DISCLAIMER
             </h2>
-            <p className="text-xs text-zinc-400 font-mono">
-              Effective October 2026 • Single-Seat License Agreement
+            <p className="text-xs text-zinc-500 font-mono">
+              Effective October 2026 • Assault Fire PH Single-Seat License Agreement
             </p>
           </div>
 
           {/* 3 Callout Pillars */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3.5 rounded-xl bg-black/50 border border-red-500/30 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-red-400 font-mono text-xs font-bold uppercase">
+            <div className="p-3.5 rounded-xl bg-red-50/50 border border-red-200 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[#E53935] font-mono text-xs font-bold uppercase">
                 <Ban className="h-3.5 w-3.5" />
                 <span>Non-Refundable</span>
               </div>
-              <p className="text-[11px] text-zinc-300 leading-relaxed font-sans">
+              <p className="text-[11px] text-zinc-600 leading-relaxed font-sans">
                 All sales final once verified. Digital license keys cannot be refunded or recalled.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-black/50 border border-amber-500/30 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-amber-400 font-mono text-xs font-bold uppercase">
-                <AlertTriangle className="h-3.5 w-3.5" />
+            <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-black font-mono text-xs font-bold uppercase">
+                <AlertTriangle className="h-3.5 w-3.5 text-[#E53935]" />
                 <span>Use At Own Risk</span>
               </div>
-              <p className="text-[11px] text-zinc-300 leading-relaxed font-sans">
+              <p className="text-[11px] text-zinc-600 leading-relaxed font-sans">
                 You operate the suite at your own discretion. Red Line is not liable for game penalties.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-black/50 border border-emerald-500/30 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-emerald-400 font-mono text-xs font-bold uppercase">
-                <ShieldCheck className="h-3.5 w-3.5" />
+            <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-emerald-700 font-mono text-xs font-bold uppercase">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
                 <span>Undetected</span>
               </div>
-              <p className="text-[11px] text-zinc-300 leading-relaxed font-sans">
-                Direct swapchain overlay surface with hardware broadcast stream isolation.
+              <p className="text-[11px] text-zinc-600 leading-relaxed font-sans">
+                Full Assault Fire PH stream isolation. Zero broadcast overlay bleed into OBS/Discord.
               </p>
             </div>
           </div>
 
-          {/* Detailed Clauses (Scrollable area if screen height is constrained) */}
-          <div className="max-h-[42vh] overflow-y-auto pr-2 space-y-4 text-xs font-sans text-zinc-300 leading-relaxed divide-y divide-white/[0.06]">
-            {/* Clause 1 */}
-            <div className="pt-3 first:pt-0 space-y-1.5">
-              <h3 className="font-mono font-bold text-white text-xs flex items-center gap-2">
-                <span className="text-red-500">01.</span> Strictly Non-Refundable Digital Sale
+          {/* Detailed Clauses */}
+          <div className="max-h-[360px] overflow-y-auto pr-2 space-y-5 text-xs font-sans leading-relaxed text-zinc-600">
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-black text-sm font-mono flex items-center gap-2">
+                <span>Non-Refundable Digital Goods</span>
               </h3>
               <p>
-                Due to the immediate provisioning and cryptographic nature of single-seat digital license keys, all transactions conducted via GCash, InstaPay, or cryptocurrency are <strong className="text-white">strictly non-refundable and final</strong> once verified by staff.
-              </p>
-              <p className="text-zinc-400 text-[11px]">
-                Initiating fraudulent disputes or chargebacks will result in automatic HWID revocation and permanent blacklist from our Discord syndicate.
+                Due to the cryptographic generation and distribution of unique single-device software authorization keys, all purchases made through GCash, Maya, or manual staff settlement are <strong className="text-black">strictly non-refundable</strong>. Once your order has been verified and an authorization key generated or delivered to your Discord profile, no cancellations, refunds, or chargebacks will be accepted under any circumstances.
               </p>
             </div>
 
-            {/* Clause 2 */}
-            <div className="pt-3 space-y-1.5">
-              <h3 className="font-mono font-bold text-white text-xs flex items-center gap-2">
-                <span className="text-red-500">02.</span> Assumption of Risk ("Use At Your Own Risk")
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-black text-sm font-mono flex items-center gap-2">
+                <span>Single-Seat Device Binding</span>
               </h3>
               <p>
-                All products and tactical visual suites provided by Red Line VIP are offered exclusively for research, competitive display customization, and private performance testing. You expressly agree that you are using this third-party utility entirely <strong className="text-white">at your personal operational risk</strong>.
+                Every license key is bound to a single physical computer system hardware signature (HWID) upon first launch. Sharing your key or attempting to run concurrent sessions on separate devices will result in automatic key termination without refund. Hardware resets (due to system upgrades or replacements) are granted at the sole discretion of staff through the Discord portal.
               </p>
             </div>
 
-            {/* Clause 3 */}
-            <div className="pt-3 space-y-1.5">
-              <h3 className="font-mono font-bold text-white text-xs flex items-center gap-2">
-                <span className="text-red-500">03.</span> Limitation of Liability & Ban Disclaimer
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-black text-sm font-mono flex items-center gap-2">
+                <span>Operational Risk & Game Penalties</span>
               </h3>
               <p>
-                Red Line VIP, its developers, and affiliates shall <strong className="text-white">not be held liable</strong> for any account bans, suspensions, ranking resets, or disciplinary actions enforced by third-party game publishers or anti-cheat systems. While our engine is engineered to bypass detection heuristics, user playstyle and server-side behavioral telemetry remain external factors.
+                Red Line VIP software operates directly at the user&apos;s own risk. While our tactical visual engine utilizes advanced DirectX 9 hardware overlay pipeline and hardware stream-proofing to maintain complete capture isolation, online multiplayer game platforms maintain dynamic security architectures. Red Line VIP and its developers assume zero responsibility or liability for in-game suspensions, account bans, competitive disqualifications, or financial loss incurred from the use of our software.
               </p>
             </div>
 
-            {/* Clause 4 */}
-            <div className="pt-3 space-y-1.5">
-              <h3 className="font-mono font-bold text-white text-xs flex items-center gap-2">
-                <span className="text-red-500">04.</span> Undetected Engine Architecture & Safety
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-black text-sm font-mono flex items-center gap-2">
+                <span>Third-Party Game Updates</span>
               </h3>
               <p>
-                The visual suite operates exclusively through a hardware swapchain surface overlay without directly modifying game executable memory. Full stream isolation is maintained against OBS Studio, Discord Screenshare, and standard capture software. During game patches, the engine may enter temporary maintenance to guarantee undetected status before re-enabling access.
+                Assault Fire PH may release engine updates, game client changes, or maintenance downtimes. In the event of a game client update that affects tactical visual engine operations, our developers will deploy software updates to restore full functionality. Minor delays may occur during major game engine revisions. Active license time will not be paused or extended during standard maintenance windows.
               </p>
             </div>
 
-            {/* Clause 5 */}
-            <div className="pt-3 space-y-1.5">
-              <h3 className="font-mono font-bold text-white text-xs flex items-center gap-2">
-                <span className="text-red-500">05.</span> Hardware Locking (HWID) & Fair Use
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-black text-sm font-mono flex items-center gap-2">
+                <span>Acceptable Conduct & License Revocation</span>
               </h3>
               <p>
-                Each license key is cryptographically bound to a single computer hardware signature upon activation. Key sharing or redistribution is strictly prohibited and leads to immediate key termination. Genuine hardware upgrade resets may be requested through staff in Discord.
+                Attempting to decompile, reverse-engineer, crack, dump memory, or re-distribute Red Line VIP software or Peace Cleaner will result in immediate permanent HWID ban, Discord syndicate expulsion, and blacklisting across all associated systems without refund.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-black text-sm font-mono flex items-center gap-2">
+                <span>Trademark & Ownership Notice</span>
+              </h3>
+              <p>
+                Red Line VIP and Esmiringhoy are independent third-party performance and tactical display tools developed specifically for Assault Fire PH. This software is completely independent and is not endorsed by, sponsored by, or affiliated with the original game developers, creators, or trademark holders. All trademarks, game titles, and assets belong to their respective copyright owners.
               </p>
             </div>
           </div>
 
           {/* Bottom Actions */}
-          <div className="pt-4 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="pt-4 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-3">
             <span className="text-[11px] text-zinc-500 font-mono">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] text-zinc-300">ESC</kbd> or click outside to dismiss
+              Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-700 border border-zinc-200">ESC</kbd> or click outside to dismiss
             </span>
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-white/[0.1] hover:bg-white/[0.06] text-zinc-300 text-xs font-mono transition-colors"
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-zinc-200 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-mono transition-colors"
               >
                 Close
               </button>
@@ -185,18 +170,18 @@ export default function TermsModal({
                 <button
                   type="button"
                   onClick={onAccept}
-                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-lg active:scale-95"
+                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-black hover:bg-zinc-800 active:scale-95 text-white font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md"
                 >
-                  <Check className="h-4 w-4" />
+                  <Check className="h-4 w-4 text-[#E53935]" />
                   <span>Accept Terms</span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-lg active:scale-95"
+                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-black hover:bg-zinc-800 active:scale-95 text-white font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md"
                 >
-                  <Check className="h-4 w-4" />
+                  <Check className="h-4 w-4 text-[#E53935]" />
                   <span>I Understand</span>
                 </button>
               )}

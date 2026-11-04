@@ -39,13 +39,25 @@ export async function POST(req: Request) {
     }
 
     const tierPrices: Record<string, number> = {
-      // Esmiringhoy VIP
+      // Red Line Cheats / Esmiringhoy VIP
       "Weekly VIP": 500,
       "Monthly VIP": 1000,
       "Lifetime VIP Pass": 3000,
-      // Peace Cleaner VIP
+      "Red Line Cheats — 1 Week": 500,
+      "Red Line Cheats — 1 Month": 1000,
+      "Red Line Cheats — Lifetime": 3000,
+      "Red Line Cheats - 1 Week": 500,
+      "Red Line Cheats - 1 Month": 1000,
+      "Red Line Cheats - Lifetime": 3000,
+      "Red Line Cheats - Annual": 3000,
+      "Red Line Cheats - Annual VIP": 3000,
+      // Peace Cleaner VIP (No weekly tier)
       "Peace Cleaner - 1 Month": 1000,
       "Peace Cleaner - Lifetime": 3000,
+      "Peace Cleaner - Annual": 3000,
+      "Peace Cleaner - Annual VIP": 3000,
+      "Peace Cleaner — 1 Month": 1000,
+      "Peace Cleaner — Lifetime": 3000,
     };
     if (tierPrices[String(tier)] !== Number(amount)) {
       return NextResponse.json(

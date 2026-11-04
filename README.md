@@ -1,6 +1,6 @@
 # ⚡ RED LINE VIP — Web Store & Customer Portal
 
-Modern, stream-proof tactical web store for **Red Line VIP**. Built using **Next.js 15 (App Router)**, **Tailwind CSS**, and **Supabase**, ready to deploy directly to **Vercel**.
+Modern, stream-proof tactical web store for **Red Line VIP** targeting **Assault Fire PH**. Built using **Next.js 15 (App Router)**, **Tailwind CSS**, and **Supabase**, ready to deploy directly to **Vercel**.
 
 ---
 

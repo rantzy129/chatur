@@ -18,9 +18,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Red Line VIP — Tactical Visual Engine & Private Syndicate",
+  title: "Red Line | Assault Fire PH",
   description:
-    "Premium stream-proof tactical visual engine with strict single-device hardware security.",
+    "Premium stream-proof tactical visual engine and performance optimization suite engineered specifically for Assault Fire PH with single-device hardware security.",
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
@@ -34,8 +34,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-cyber-bg text-zinc-100 flex flex-col selection:bg-red-600 selection:text-white font-sans antialiased">
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-[#FFFFFF] text-[#0A0A0B] flex flex-col selection:bg-[#E53935] selection:text-[#FFFFFF] font-sans antialiased">
         <DiscordAuthProvider>
           <AppFrame>{children}</AppFrame>
         </DiscordAuthProvider>

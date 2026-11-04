@@ -50,11 +50,21 @@ function isPeaceCleanerLicense(license: License) {
   const tier = (license.tier || "").toLowerCase();
   return key.startsWith("PC-") || tier.includes("peace") || tier.includes("cleaner");
 }
+
 function isLicenseActive(license: License) {
   if (license.is_banned) return false;
   if (!license.expires_at) return true;
   const expiresAt = Date.parse(license.expires_at);
   return Number.isFinite(expiresAt) && expiresAt > Date.now();
+}
+
+function formatExpiry(expiresAt: string | null) {
+  if (!expiresAt) return "Permanent / Lifetime Pass";
+  const date = new Date(expiresAt);
+  if (date.getTime() < Date.now()) return "Expired";
+  return `Expires: ${date.toLocaleDateString()} (${Math.ceil(
+    (date.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  )}d remaining)`;
 }
 
 export default function DashboardPage() {
@@ -67,11 +77,6 @@ export default function DashboardPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [revealedKeys, setRevealedKeys] = useState<Record<string, boolean>>({});
-
-  const hasActiveLicense = licenses.some(isLicenseActive);
-
-  const discordInvite =
-    process.env.NEXT_PUBLIC_DISCORD_INVITE || "https://discord.gg/Whwxq9QAEN";
 
   const fetchData = async () => {
     if (!user) return;
@@ -90,22 +95,17 @@ export default function DashboardPage() {
         fetch("/api/licenses/user", { headers }),
         fetch("/api/orders/user", { headers }),
       ]);
-      const [licData, ordData] = await Promise.all([
-        licRes.json(),
-        ordRes.json(),
-      ]);
-      if (!licRes.ok) throw new Error(licData.error || "Failed to load licenses.");
-      if (!ordRes.ok) throw new Error(ordData.error || "Failed to load order history.");
 
+      if (!licRes.ok || !ordRes.ok) {
+        throw new Error("Failed to load customer profile details from server.");
+      }
+
+      const [licData, ordData] = await Promise.all([licRes.json(), ordRes.json()]);
       setLicenses(licData.licenses || []);
       setOrders(ordData.orders || []);
-    } catch (err) {
-      console.error("Failed to load user portal data", err);
-      setLicenses([]);
-      setOrders([]);
-      setLoadError(
-        err instanceof Error ? err.message : "Failed to load your account history."
-      );
+    } catch (err: any) {
+      console.error("Dashboard fetch error:", err);
+      setLoadError(err.message || "Could not retrieve account licenses.");
     } finally {
       setIsLoading(false);
     }
@@ -117,16 +117,16 @@ export default function DashboardPage() {
     }
   }, [user]);
 
-  const handleClientDownload = async (product?: "PC" | "ESM") => {
-    if (!user || isDownloading) return;
-
-    setIsDownloading(true);
+  const handleClientDownload = async (product?: "ESM" | "PC") => {
     setDownloadError(null);
+    setIsDownloading(true);
+
     try {
       const {
         data: { session },
         error: sessionError,
       } = await getSupabaseClient().auth.getSession();
+
       if (sessionError) throw sessionError;
       if (!session?.access_token) {
         throw new Error("Your Discord session expired. Please sign in again.");
@@ -149,7 +149,9 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Client download failed:", error);
       setDownloadError(
-        error instanceof Error ? error.message : "Unable to download the client."
+        error instanceof Error
+          ? error.message
+          : "Could not start client download. Please try again or ping staff."
       );
     } finally {
       setIsDownloading(false);
@@ -162,46 +164,40 @@ export default function DashboardPage() {
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  const toggleReveal = (keyId: string) => {
-    setRevealedKeys((prev) => ({ ...prev, [keyId]: !prev[keyId] }));
+  const toggleReveal = (id: string) => {
+    setRevealedKeys((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const formatExpiry = (isoString: string | null) => {
-    if (!isoString) return "Permanent Lifetime VIP";
-    try {
-      const date = new Date(isoString);
-      return date.toLocaleDateString("en-PH", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return isoString;
-    }
-  };
-
-  // If not authenticated via Discord
-  if (!user && !authLoading) {
+  if (authLoading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6 space-y-6">
-        <div className="h-16 w-16 rounded-2xl bg-[#5865F2]/10 border border-[#5865F2]/30 flex items-center justify-center text-[#5865F2] shadow-xl">
-          <DiscordIcon className="h-8 w-8 fill-current" />
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+        <RefreshCw className="h-8 w-8 text-[#E53935] animate-spin" />
+        <p className="text-zinc-600 font-mono text-sm">Authenticating Discord Session…</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="p-8 sm:p-12 rounded-3xl bg-white border border-zinc-200 backdrop-blur-xl max-w-xl mx-auto text-center space-y-6 shadow-xl">
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-center shadow-inner">
+          <Key className="h-8 w-8 text-[#E53935]" />
         </div>
-        <div className="max-w-md space-y-2">
-          <h2 className="text-2xl font-bold text-white font-mono">
-            DISCORD AUTHENTICATION REQUIRED
-          </h2>
-          <p className="text-sm text-zinc-400">
-            Please connect your Discord account to view your active VIP licenses, manage PC hardware bindings, and track GCash order approvals.
+
+        <div className="space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-black text-black font-sans tracking-tight">
+            VIP CUSTOMER PORTAL
+          </h1>
+          <p className="text-sm text-zinc-600 font-sans max-w-sm mx-auto leading-relaxed">
+            Connect your verified Discord account to view your active Assault Fire PH licenses, hardware locks, and download client software.
           </p>
         </div>
+
         <button
           onClick={() => loginWithDiscord()}
-          className="py-3 px-8 rounded-xl bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold font-mono text-sm tracking-wider shadow-lg hover:shadow-[#5865F2]/25 transition-all flex items-center gap-2"
+          className="py-3 px-8 rounded-xl bg-black hover:bg-zinc-800 active:scale-[0.98] text-white font-bold font-mono text-sm tracking-wider shadow-lg transition-all flex items-center justify-center gap-2 mx-auto"
         >
-          <DiscordIcon className="h-4 w-4 fill-current" />
+          <DiscordIcon className="h-4 w-4 fill-current text-[#5865F2]" />
           <span>Connect Discord Profile</span>
         </button>
       </div>
@@ -211,24 +207,25 @@ export default function DashboardPage() {
   return (
     <div className="space-y-10 animate-in fade-in">
       {/* ─── USER PROFILE HEADER ──────────────────────────────────── */}
-      <div className="p-6 rounded-3xl bg-cyber-card border border-white/[0.08] backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+      <div className="p-6 rounded-3xl bg-white border border-zinc-200 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
         <div className="flex items-center gap-4 text-center sm:text-left">
           <img
             src={user?.avatarUrl}
             alt={user?.username}
-            className="h-16 w-16 rounded-2xl border-2 border-cyber-neon/60 shadow-glow object-cover"
+            className="h-16 w-16 rounded-2xl border-2 border-[#E53935]/40 shadow-sm object-cover"
           />
           <div>
             <div className="flex items-center justify-center sm:justify-start gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-white font-mono">
+              <h1 className="text-xl sm:text-2xl font-black text-black font-sans tracking-tight">
                 {user?.username}
               </h1>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyber-neon/10 text-cyber-neon border border-cyber-neon/30">
-                VIP Portal
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#E53935]/10 text-[#E53935] border border-[#E53935]/30 flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#E53935] animate-pulse" />
+                <span>VIP Portal</span>
               </span>
             </div>
-            <p className="text-xs text-zinc-400 font-mono mt-0.5">
-              Discord ID: <span className="text-zinc-300">{user?.id}</span>
+            <p className="text-xs text-zinc-500 font-mono mt-0.5">
+              Discord ID: <span className="text-zinc-700">{user?.id}</span>
             </p>
           </div>
         </div>
@@ -237,44 +234,18 @@ export default function DashboardPage() {
           <button
             onClick={fetchData}
             disabled={isLoading}
-            className="p-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white border border-white/[0.08] transition-all"
+            className="p-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 active:scale-95 text-zinc-700 hover:text-black border border-zinc-200 transition-all"
             title="Refresh Status"
           >
             <RefreshCw
-              className={`h-4 w-4 ${isLoading ? "animate-spin text-cyber-neon" : ""}`}
+              className={`h-4 w-4 ${isLoading ? "animate-spin text-[#E53935]" : ""}`}
             />
           </button>
-
-          {hasActiveLicense ? (
-            <button
-              type="button"
-              onClick={() => handleClientDownload()}
-              disabled={isDownloading}
-              className="py-2.5 px-4 rounded-xl bg-cyber-neon hover:bg-emerald-400 text-black font-bold font-mono text-xs transition-all shadow-glow flex items-center gap-2"
-            >
-              <Download className={`h-4 w-4 ${isDownloading ? "animate-pulse" : ""}`} />
-              <span>{isDownloading ? "Preparing download…" : "Download Client (.rar)"}</span>
-            </button>
-          ) : (
-            <div className="relative group">
-              <button
-                disabled
-                className="py-2.5 px-4 rounded-xl bg-white/[0.04] text-zinc-500 border border-white/[0.08] font-mono text-xs flex items-center gap-2 cursor-not-allowed opacity-75"
-                title="Download requires an active license"
-              >
-                <Lock className="h-3.5 w-3.5 text-zinc-500" />
-                <span>Download Locked</span>
-              </button>
-              <div className="absolute right-0 top-full mt-2 hidden group-hover:block w-64 p-2.5 rounded-xl bg-cyber-card border border-white/[0.1] text-[11px] text-zinc-400 font-mono shadow-2xl z-30 pointer-events-none">
-                An active license is required. Downloads unlock after staff approves your order.
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
       {downloadError && (
-        <p role="alert" className="text-sm text-red-300">
+        <p role="alert" className="text-sm text-[#E53935] font-mono bg-red-50 border border-red-200 p-3 rounded-xl">
           {downloadError}
         </p>
       )}
@@ -282,33 +253,33 @@ export default function DashboardPage() {
       {/* ─── ACTIVE VIP LICENSES ──────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white font-mono flex items-center gap-2">
-            <Key className="h-5 w-5 text-cyber-neon" />
+          <h2 className="text-xl font-bold text-black font-mono flex items-center gap-2">
+            <Key className="h-5 w-5 text-[#E53935]" />
             <span>MY VIP LICENSES</span>
-            <span className="text-xs font-normal text-zinc-500 font-mono">
+            <span className="text-xs font-normal text-zinc-500 font-mono tabular-nums">
               ({licenses.length})
             </span>
           </h2>
           <Link
             href="/#pricing"
-            className="text-xs text-cyber-neon hover:underline font-mono"
+            className="text-xs text-[#E53935] hover:text-[#A71919] font-mono transition-colors"
           >
             + Buy Another Plan
           </Link>
         </div>
 
         {licenses.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-black/40 border border-dashed border-white/[0.1] text-center space-y-3">
-            <p className="text-sm text-zinc-400 font-mono">
+          <div className="p-8 rounded-2xl bg-zinc-50 border border-dashed border-zinc-300 text-center space-y-3">
+            <p className="text-sm text-zinc-700 font-mono">
               No active licenses detected for this Discord account yet.
             </p>
-            <p className="text-xs text-zinc-500 max-w-md mx-auto">
+            <p className="text-xs text-zinc-500 max-w-md mx-auto font-sans leading-relaxed">
               If you recently submitted a GCash payment, please wait for staff verification below. Your key will automatically appear here once approved!
             </p>
             <div className="pt-2">
               <Link
                 href="/#pricing"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold font-mono text-xs transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-black hover:bg-zinc-800 active:scale-[0.98] text-white font-bold font-mono text-xs transition-all shadow-md hover:-translate-y-0.5"
               >
                 <span>Purchase VIP Access (from ₱500)</span>
               </Link>
@@ -323,27 +294,29 @@ export default function DashboardPage() {
               return (
                 <div
                   key={lic.id}
-                  className={`relative p-6 rounded-2xl backdrop-blur-xl border transition-all ${lic.is_banned
-                      ? "bg-red-950/20 border-red-500/40"
+                  className={`relative p-6 rounded-2xl border transition-all ${
+                    lic.is_banned
+                      ? "bg-red-50 border-red-200 text-zinc-900"
                       : isPermanent
-                        ? "bg-gradient-to-b from-[#141209] to-cyber-card border-cyber-gold/40 shadow-glow-gold"
-                        : "bg-cyber-card border-white/[0.1] hover:border-cyber-neon/40 shadow-xl"
-                    }`}
+                      ? "bg-white border-2 border-black shadow-lg"
+                      : "bg-white border border-zinc-200 hover:border-zinc-400 shadow-sm"
+                  }`}
                 >
                   {/* Top Bar */}
-                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
                     <span
-                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${lic.is_banned
-                          ? "bg-red-500/20 text-red-400 border border-red-500/40"
+                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                        lic.is_banned
+                          ? "bg-red-100 text-[#E53935] border border-red-200"
                           : isPermanent
-                            ? "bg-cyber-gold/20 text-cyber-gold border border-cyber-gold/40"
-                            : "bg-cyber-neon/20 text-cyber-neon border border-cyber-neon/40"
-                        }`}
+                          ? "bg-[#E53935]/10 text-[#E53935] border border-[#E53935]/30"
+                          : "bg-zinc-100 text-zinc-800 border border-zinc-200"
+                      }`}
                     >
                       {lic.is_banned ? "BANNED" : lic.tier}
                     </span>
 
-                    <span className="text-[11px] text-zinc-400 font-mono flex items-center gap-1">
+                    <span className="text-[11px] text-zinc-500 font-mono flex items-center gap-1">
                       <Clock className="h-3 w-3 text-zinc-400" />
                       <span>{formatExpiry(lic.expires_at)}</span>
                     </span>
@@ -351,11 +324,11 @@ export default function DashboardPage() {
 
                   {/* License Key Display */}
                   <div className="my-5">
-                    <p className="text-[10px] text-zinc-400 uppercase font-mono tracking-widest mb-1.5">
+                    <p className="text-[10px] text-zinc-500 uppercase font-mono tracking-widest mb-1.5 font-semibold">
                       VIP Authorization Key
                     </p>
-                    <div className="flex items-center gap-2 p-3 rounded-xl bg-black/60 border border-white/[0.1]">
-                      <code className="text-xs sm:text-base font-mono font-bold tracking-wider text-white flex-1 select-all break-all">
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-zinc-50 border border-zinc-200">
+                      <code className="text-xs sm:text-base font-mono font-bold tracking-wider text-black flex-1 select-all break-all">
                         {isRevealed
                           ? lic.license_key
                           : lic.license_key.slice(0, 8) + "••••-••••"}
@@ -363,7 +336,7 @@ export default function DashboardPage() {
 
                       <button
                         onClick={() => toggleReveal(lic.id)}
-                        className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors"
+                        className="p-1.5 rounded-lg bg-zinc-200 hover:bg-zinc-300 text-zinc-700 hover:text-black transition-colors"
                         title={isRevealed ? "Hide Key" : "Reveal Key"}
                       >
                         {isRevealed ? (
@@ -375,37 +348,43 @@ export default function DashboardPage() {
 
                       <button
                         onClick={() => handleCopy(lic.license_key)}
-                        className="p-1.5 rounded-lg bg-cyber-neon/10 hover:bg-cyber-neon/20 text-cyber-neon border border-cyber-neon/30 transition-colors"
+                        className="px-2.5 py-1.5 rounded-lg bg-[#E53935]/10 hover:bg-[#E53935]/20 text-[#E53935] border border-[#E53935]/30 transition-all flex items-center gap-1.5 text-xs font-mono font-bold active:scale-95"
                         title="Copy Key to Clipboard"
                       >
                         {copiedKey === lic.license_key ? (
-                          <Check className="h-4 w-4" />
+                          <>
+                            <Check className="h-3.5 w-3.5 text-[#E53935]" />
+                            <span className="text-[#E53935]">COPIED!</span>
+                          </>
                         ) : (
-                          <Copy className="h-4 w-4" />
+                          <>
+                            <Copy className="h-3.5 w-3.5" />
+                            <span>COPY</span>
+                          </>
                         )}
                       </button>
                     </div>
                   </div>
 
                   {/* 1 Key = 1 PC Binding Status */}
-                  <div className="pt-3 border-t border-white/[0.06] text-xs font-mono space-y-2">
+                  <div className="pt-3 border-t border-zinc-200 text-xs font-mono space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-zinc-400 flex items-center gap-1.5">
+                      <span className="text-zinc-600 flex items-center gap-1.5 font-sans">
                         <Laptop className="h-3.5 w-3.5 text-zinc-400" />
                         <span>PC Hardware Lock:</span>
                       </span>
                       {lic.hwid ? (
-                        <span className="text-cyber-neon font-semibold truncate max-w-[190px]">
+                        <span className="text-emerald-700 font-semibold truncate max-w-[190px]">
                           Bound ({lic.hwid.slice(0, 16)}...)
                         </span>
                       ) : (
-                        <span className="text-cyber-cyan font-semibold">
+                        <span className="text-black font-semibold">
                           Unbound (Ready for first PC)
                         </span>
                       )}
                     </div>
 
-                    <p className="text-[11px] text-zinc-500 leading-normal">
+                    <p className="text-[11px] text-zinc-500 font-sans leading-relaxed">
                       {lic.hwid
                         ? "Permanently locked to your registered PC. To switch PCs, request a reset from staff in Discord."
                         : "Launch the client application on your gaming PC and paste this key. It will bind permanently to your device."}
@@ -417,17 +396,17 @@ export default function DashboardPage() {
                           type="button"
                           onClick={() => handleClientDownload(isPeaceCleanerLicense(lic) ? "PC" : "ESM")}
                           disabled={isDownloading}
-                          className="w-full py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-cyber-neon/10 text-zinc-300 hover:text-cyber-neon border border-white/[0.08] hover:border-cyber-neon/30 text-[11px] font-mono font-medium flex items-center justify-center gap-1.5 transition-all disabled:cursor-wait disabled:opacity-60"
+                          className="w-full py-2 px-3 rounded-xl bg-black hover:bg-zinc-800 text-white border border-zinc-800 text-[11px] font-mono font-medium flex items-center justify-center gap-1.5 transition-all disabled:cursor-wait disabled:opacity-60 hover:-translate-y-0.5 active:scale-[0.98]"
                         >
-                          <Download className={`h-3.5 w-3.5 text-cyber-neon ${isDownloading ? "animate-pulse" : ""}`} />
+                          <Download className={`h-3.5 w-3.5 text-[#E53935] ${isDownloading ? "animate-pulse" : ""}`} />
                           <span>
                             {isDownloading
                               ? "Preparing download…"
                               : `Download ${isPeaceCleanerLicense(lic) ? "Peace Cleaner (.rar)" : "RedLine (.rar)"}`}
                           </span>
                         </button>
-                        <p className="text-[11px] text-zinc-400 text-center">
-                          File password: <span className="font-semibold text-cyber-neon">RL2026</span>
+                        <p className="text-[11px] text-zinc-500 text-center font-mono">
+                          File password: <span className="font-semibold text-[#E53935]">RL2026</span>
                         </p>
                       </div>
                     )}
@@ -441,10 +420,10 @@ export default function DashboardPage() {
 
       {/* ─── PENDING & RECENT ORDERS ──────────────────────────────── */}
       <section className="space-y-4 pt-4">
-        <h2 className="text-xl font-bold text-white font-mono flex items-center gap-2">
-          <Clock className="h-5 w-5 text-cyber-cyan" />
+        <h2 className="text-xl font-bold text-black font-mono flex items-center gap-2">
+          <Clock className="h-5 w-5 text-[#E53935]" />
           <span>ORDER STATUS & GCASH VERIFICATION</span>
-          <span className="text-xs font-normal text-zinc-500 font-mono">
+          <span className="text-xs font-normal text-zinc-500 font-mono tabular-nums">
             ({orders.length})
           </span>
         </h2>
@@ -452,14 +431,14 @@ export default function DashboardPage() {
         {loadError && (
           <div
             role="alert"
-            className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+            className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#E53935] font-mono"
           >
             {loadError}
           </div>
         )}
 
         {isLoading ? (
-          <p className="text-xs text-zinc-400 font-mono">Loading your order history…</p>
+          <p className="text-xs text-zinc-500 font-mono">Loading your order history…</p>
         ) : loadError ? null : orders.length === 0 ? (
           <p className="text-xs text-zinc-500 font-mono">
             No pending or past orders recorded for this account.
@@ -471,44 +450,44 @@ export default function DashboardPage() {
               {orders.map((ord) => (
                 <div
                   key={ord.id}
-                  className="p-4 rounded-xl bg-cyber-card border border-white/[0.08] space-y-2.5 text-xs"
+                  className="p-4 rounded-xl bg-white border border-zinc-200 shadow-sm space-y-2.5 text-xs"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-white">{ord.order_number}</span>
+                    <span className="font-bold text-black">{ord.order_number}</span>
                     {ord.status === "pending" && (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-[10px]">
-                        <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-ping"></span>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E53935]/10 text-[#E53935] border border-[#E53935]/30 text-[10px]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#E53935] animate-pulse" />
                         Pending Review
                       </span>
                     )}
                     {ord.status === "approved" && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px]">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">
                         <Check className="h-3 w-3" /> Approved
                       </span>
                     )}
                     {ord.status === "rejected" && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/30 text-[10px]">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-50 text-[#E53935] border border-red-200 text-[10px]">
                         Rejected
                       </span>
                     )}
                   </div>
 
-                  <div className="flex justify-between items-center text-zinc-300">
+                  <div className="flex justify-between items-center text-zinc-800">
                     <span>{ord.tier}</span>
-                    <span className="text-red-400 font-bold">
+                    <span className="text-[#E53935] font-bold tabular-nums">
                       ₱{ord.amount.toLocaleString()} PHP
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center text-zinc-400 text-[11px] pt-1 border-t border-white/[0.04]">
+                  <div className="flex justify-between items-center text-zinc-500 text-[11px] pt-1 border-t border-zinc-100">
                     <span>GCash Ref: {ord.reference_number}</span>
                     <span>{new Date(ord.created_at).toLocaleDateString()}</span>
                   </div>
 
                   {ord.license_key && (
-                    <div className="p-2 rounded-lg bg-black/50 border border-white/[0.08] flex items-center justify-between">
-                      <span className="text-[10px] text-zinc-400 uppercase">Key:</span>
-                      <code className="text-red-400 font-bold select-all text-xs break-all">
+                    <div className="p-2 rounded-lg bg-zinc-50 border border-zinc-200 flex items-center justify-between">
+                      <span className="text-[10px] text-zinc-500 uppercase">Key:</span>
+                      <code className="text-emerald-700 font-bold select-all text-xs break-all">
                         {ord.license_key}
                       </code>
                     </div>
@@ -518,9 +497,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Desktop View: Full Table */}
-            <div className="hidden sm:block overflow-x-auto rounded-2xl border border-white/[0.08] bg-cyber-card/60">
+            <div className="hidden sm:block overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
               <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-black/50 text-zinc-400 uppercase text-[10px] tracking-wider border-b border-white/[0.06]">
+                <thead className="bg-zinc-50 text-zinc-600 uppercase text-[10px] tracking-wider border-b border-zinc-200">
                   <tr>
                     <th className="py-3 px-4">Order #</th>
                     <th className="py-3 px-4">Plan</th>
@@ -531,47 +510,47 @@ export default function DashboardPage() {
                     <th className="py-3 px-4">Date</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.04]">
+                <tbody className="divide-y divide-zinc-100">
                   {orders.map((ord) => (
-                    <tr key={ord.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-white">
+                    <tr key={ord.id} className="hover:bg-zinc-50/80 transition-colors">
+                      <td className="py-3.5 px-4 font-bold text-black tabular-nums">
                         {ord.order_number}
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-300">{ord.tier}</td>
-                      <td className="py-3.5 px-4 text-cyber-neon font-bold">
+                      <td className="py-3.5 px-4 text-zinc-800">{ord.tier}</td>
+                      <td className="py-3.5 px-4 text-black font-bold tabular-nums">
                         ₱{ord.amount.toLocaleString()} PHP
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-400">
+                      <td className="py-3.5 px-4 text-zinc-600 tabular-nums">
                         {ord.reference_number}
                       </td>
                       <td className="py-3.5 px-4">
                         {ord.status === "pending" && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-[10px]">
-                            <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-ping"></span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E53935]/10 text-[#E53935] border border-[#E53935]/30 text-[10px]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#E53935] animate-pulse" />
                             Pending Review
                           </span>
                         )}
                         {ord.status === "approved" && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px]">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">
                             <Check className="h-3 w-3" /> Approved
                           </span>
                         )}
                         {ord.status === "rejected" && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/30 text-[10px]">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-50 text-[#E53935] border border-red-200 text-[10px]">
                             Rejected
                           </span>
                         )}
                       </td>
                       <td className="py-3.5 px-4">
                         {ord.license_key ? (
-                          <code className="text-cyber-neon font-bold">
+                          <code className="text-emerald-700 font-bold">
                             {ord.license_key}
                           </code>
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-zinc-400">—</span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-500 text-[11px]">
+                      <td className="py-3.5 px-4 text-zinc-500 text-[11px] tabular-nums">
                         {new Date(ord.created_at).toLocaleDateString()}
                       </td>
                     </tr>
@@ -584,14 +563,14 @@ export default function DashboardPage() {
       </section>
 
       {/* ─── QUICK ACTIVATION GUIDE ───────────────────────────────── */}
-      <section className="p-6 rounded-2xl bg-black/40 border border-white/[0.08] space-y-3 font-mono text-xs">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <HelpCircle className="h-4 w-4 text-cyber-neon" />
+      <section className="p-6 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3 font-mono text-xs shadow-sm">
+        <h3 className="text-sm font-bold text-black flex items-center gap-2">
+          <HelpCircle className="h-4 w-4 text-[#E53935]" />
           <span>HOW TO LAUNCH & ACTIVATE RED LINE VIP</span>
         </h3>
-        <ol className="list-decimal list-inside space-y-1.5 text-zinc-400 leading-relaxed">
+        <ol className="list-decimal list-inside space-y-1.5 text-zinc-600 leading-relaxed font-sans text-xs">
           <li>
-            Download the client bundle using the green button above (unlocked once your VIP order is approved) and extract it to a clean folder.
+            Download the client bundle using the button above (unlocked once your VIP order is approved) and extract it to a clean folder.
           </li>
           <li>
             Launch the client executable as Administrator.
@@ -603,10 +582,10 @@ export default function DashboardPage() {
             The system authenticates your key and locks it securely to your device.
           </li>
           <li>
-            Launch your game. The tactical overlay attaches automatically!
+            Launch Assault Fire PH in Windowed or Borderless mode. The tactical overlay attaches automatically upon launch!
           </li>
           <li>
-            Press <code className="text-white font-bold bg-white/[0.1] px-1.5 py-0.5 rounded">[INSERT]</code> to toggle the overlay on/off, and <code className="text-white font-bold bg-white/[0.1] px-1.5 py-0.5 rounded">[END]</code> to close safely.
+            Press <code className="text-black font-bold bg-zinc-200 border border-zinc-300 px-1.5 py-0.5 rounded font-mono">[INSERT]</code> to toggle the overlay on/off, and <code className="text-black font-bold bg-zinc-200 border border-zinc-300 px-1.5 py-0.5 rounded font-mono">[END]</code> to close safely.
           </li>
         </ol>
       </section>

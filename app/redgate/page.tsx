@@ -113,9 +113,9 @@ function Sidebar({
   onLogout: () => void;
 }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-white/[0.08] bg-[#0b0d11] lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-white/[0.08] bg-[#151518] lg:flex">
       <a href="/redgate" className="flex h-[76px] items-center gap-3 border-b border-white/[0.08] px-6">
-        <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-red-500/30 bg-[#14171d] p-1.5">
+        <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-red-500/30 bg-[#242428] p-1.5">
           <img src="/logo.png" alt="" className="h-full w-full object-contain" />
         </span>
         <span>
@@ -167,7 +167,7 @@ function Sidebar({
           View storefront
         </a>
         <div className="flex items-center gap-3 rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#242831] text-zinc-300">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#242428] text-zinc-300">
             <ShieldCheck className="h-4 w-4" />
           </span>
           <span className="min-w-0 flex-1">
@@ -210,7 +210,7 @@ function Metric({
   }[accent];
 
   return (
-    <article className="min-w-0 rounded-xl border border-white/[0.08] bg-[#101318] p-4 sm:p-5">
+    <article className="min-w-0 rounded-xl border border-white/[0.08] bg-[#151518] p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[12px] font-medium text-zinc-400">{label}</p>
         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${accentClasses}`}>
@@ -263,8 +263,8 @@ function RevenueChart({ points }: { points: { label: string; value: number }[] }
         >
           <defs>
             <linearGradient id="revenue-fill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+              <stop offset="0%" stopColor="#E53935" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="#E53935" stopOpacity="0" />
             </linearGradient>
           </defs>
           {ticks.map((tick, index) => {
@@ -284,7 +284,7 @@ function RevenueChart({ points }: { points: { label: string; value: number }[] }
           <polyline
             points={line}
             fill="none"
-            stroke="#ef4444"
+            stroke="#E53935"
             strokeWidth="2.5"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -612,7 +612,7 @@ function VersionSettingsView({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-white/[0.08] bg-[#101318] p-5 sm:p-6">
+      <section className="rounded-xl border border-white/[0.08] bg-[#151518] p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
           <div>
             <h2 className="text-[15px] font-semibold text-zinc-100 flex items-center gap-2">
@@ -655,7 +655,7 @@ function VersionSettingsView({
                   onChange={(e) => setMinVer(e.target.value)}
                   placeholder="e.g. 1.0.3"
                   required
-                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
                 />
                 <p className="mt-1 text-[11px] text-zinc-500">
                   Clients below this will auto-update or be blocked.
@@ -672,7 +672,7 @@ function VersionSettingsView({
                   onChange={(e) => setLatestVer(e.target.value)}
                   placeholder="e.g. 1.0.3"
                   required
-                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
                 />
                 <p className="mt-1 text-[11px] text-zinc-500">
                   Displayed as the latest available build in the terminal.
@@ -689,7 +689,7 @@ function VersionSettingsView({
                 value={dlUrl}
                 onChange={(e) => setDlUrl(e.target.value)}
                 placeholder="https://.../updates/audiodg.exe"
-                className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
               />
               <p className="mt-1 text-[11px] text-zinc-500">
                 Direct link to <code>audiodg.exe</code> in Supabase storage for the silent in-app auto-updater.
@@ -717,7 +717,7 @@ function VersionSettingsView({
                   onChange={(e) => setPcMinVer(e.target.value)}
                   placeholder="e.g. 1.0.1"
                   required
-                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
                 />
                 <p className="mt-1 text-[11px] text-zinc-500">
                   Peace Cleaner builds below this will prompt the user to download the update.
@@ -734,7 +734,7 @@ function VersionSettingsView({
                   onChange={(e) => setPcLatestVer(e.target.value)}
                   placeholder="e.g. 1.0.1"
                   required
-                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
                 />
                 <p className="mt-1 text-[11px] text-zinc-500">
                   Latest published build version for Peace Cleaner.
@@ -751,7 +751,7 @@ function VersionSettingsView({
                 value={pcDlUrl}
                 onChange={(e) => setPcDlUrl(e.target.value)}
                 placeholder="https://.../updates/PeaceCleaner.exe"
-                className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#14171d] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
               />
               <p className="mt-1 text-[11px] text-zinc-500">
                 Direct link to <code>PeaceCleaner.exe</code> in Supabase storage (opened in browser when outdated).
@@ -765,7 +765,7 @@ function VersionSettingsView({
               id="enforceCheck"
               checked={enforce}
               onChange={(e) => setEnforce(e.target.checked)}
-              className="h-4 w-4 rounded border-white/[0.2] bg-[#14171d] text-red-600 focus:ring-red-500"
+              className="h-4 w-4 rounded border-white/[0.2] bg-[#242428] text-red-600 focus:ring-red-500"
             />
             <label htmlFor="enforceCheck" className="text-[13px] font-medium text-zinc-200 cursor-pointer select-none">
               Strictly enforce minimum client version on license authentication
@@ -1102,12 +1102,12 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="admin-console min-h-screen bg-[#090a0d] text-zinc-100">
+      <div className="admin-console min-h-screen bg-[#0A0A0B] text-zinc-100">
         <div className="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.85fr)]">
-          <section className="relative hidden min-h-screen flex-col justify-between overflow-hidden border-r border-white/[0.08] bg-[#0d0f13] p-10 lg:flex xl:p-14">
+          <section className="relative hidden min-h-screen flex-col justify-between overflow-hidden border-r border-white/[0.08] bg-[#151518] p-10 lg:flex xl:p-14">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_22%,rgba(127,29,29,0.18),transparent_44%)]" />
             <a href="/" className="relative flex w-fit items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg border border-red-500/30 bg-[#14171d] p-1.5">
+              <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg border border-red-500/30 bg-[#242428] p-1.5">
                 <img src="/logo.png" alt="" className="h-full w-full object-contain" />
               </span>
               <span>
@@ -1139,7 +1139,7 @@ export default function AdminPage() {
           <main className="flex min-h-screen flex-col">
             <header className="flex h-[72px] items-center justify-between border-b border-white/[0.08] px-5 sm:px-8">
               <a href="/" className="flex items-center gap-2.5 lg:hidden">
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-red-500/30 bg-[#14171d] p-1">
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-red-500/30 bg-[#242428] p-1">
                   <img src="/logo.png" alt="" className="h-full w-full object-contain" />
                 </span>
                 <span className="text-xs font-semibold tracking-[0.12em] text-white">RED LINE ADMIN</span>
@@ -1180,7 +1180,7 @@ export default function AdminPage() {
                         value={adminSecret}
                         onChange={(event) => setAdminSecret(event.target.value)}
                         placeholder="Enter your secret key"
-                        className="h-12 w-full rounded-lg border border-white/[0.12] bg-[#101318] px-3.5 pr-12 text-[14px] text-white placeholder:text-zinc-500 focus:border-red-400/70 focus:outline-none focus:ring-2 focus:ring-red-400/15"
+                        className="h-12 w-full rounded-lg border border-white/[0.12] bg-[#151518] px-3.5 pr-12 text-[14px] text-white placeholder:text-zinc-500 focus:border-red-400/70 focus:outline-none focus:ring-2 focus:ring-red-400/15"
                       />
                       <button
                         type="button"
@@ -1229,7 +1229,7 @@ export default function AdminPage() {
   }[view];
 
   return (
-    <div className="admin-console min-h-screen bg-[#090a0d] text-zinc-100 selection:bg-red-500/40 selection:text-white">
+    <div className="admin-console min-h-screen bg-[#0A0A0B] text-zinc-100 selection:bg-red-500/40 selection:text-white">
       <Sidebar
         view={view}
         onNavigate={(nextView) => {
@@ -1242,7 +1242,7 @@ export default function AdminPage() {
       />
 
       <main className="min-h-screen min-w-0 lg:ml-[252px]">
-        <header className="sticky top-0 z-20 flex min-h-[72px] items-center justify-between gap-4 border-b border-white/[0.08] bg-[#090a0d]/95 px-4 backdrop-blur-sm sm:px-7 lg:px-9">
+        <header className="sticky top-0 z-20 flex min-h-[72px] items-center justify-between gap-4 border-b border-white/[0.08] bg-[#0A0A0B]/95 px-4 backdrop-blur-sm sm:px-7 lg:px-9">
           <div className="min-w-0">
             <p className="truncate text-[14px] font-semibold text-zinc-100">{heading}</p>
             <p className="mt-0.5 hidden text-[11px] text-zinc-500 sm:block">Red Line / Admin workspace</p>
@@ -1318,7 +1318,7 @@ export default function AdminPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder={`Search ${view}…`}
-                  className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#101318] pl-9 pr-3 text-[12px] text-white placeholder:text-zinc-500 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10"
+                  className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#151518] pl-9 pr-3 text-[12px] text-white placeholder:text-zinc-500 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10"
                 />
               </label>
             )}
@@ -1352,10 +1352,10 @@ export default function AdminPage() {
             <div className="space-y-5" aria-label="Loading admin data" aria-busy="true">
               <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
                 {Array.from({ length: 4 }, (_, index) => (
-                  <div key={index} className="h-[118px] animate-pulse rounded-xl border border-white/[0.06] bg-[#101318]" />
+                  <div key={index} className="h-[118px] animate-pulse rounded-xl border border-white/[0.06] bg-[#151518]" />
                 ))}
               </div>
-              <div className="h-[320px] animate-pulse rounded-xl border border-white/[0.06] bg-[#101318]" />
+              <div className="h-[320px] animate-pulse rounded-xl border border-white/[0.06] bg-[#151518]" />
             </div>
           ) : view === "overview" ? (
             <div className="space-y-5">
@@ -1391,15 +1391,15 @@ export default function AdminPage() {
               </section>
 
               <section className="grid gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.9fr)]">
-                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-[#101318] p-4 sm:p-5">
+                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-[#151518] p-4 sm:p-5">
                   <RevenueChart points={revenuePoints} />
                 </div>
-                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-[#101318] p-4 sm:p-5">
+                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-[#151518] p-4 sm:p-5">
                   <PlanBreakdown licenses={licenses} />
                 </div>
               </section>
 
-              <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#101318]">
+              <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#151518]">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
                   <div>
                     <h2 className="text-[14px] font-semibold text-zinc-100">Recent orders</h2>
@@ -1422,7 +1422,7 @@ export default function AdminPage() {
               </section>
             </div>
           ) : view === "orders" ? (
-            <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#101318]">
+            <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#151518]">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
                 <div>
                   <h2 className="text-[14px] font-semibold text-zinc-100">Order queue</h2>
@@ -1438,7 +1438,7 @@ export default function AdminPage() {
               />
             </section>
           ) : view === "licenses" ? (
-            <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#101318]">
+            <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#151518]">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
                 <div>
                   <h2 className="text-[14px] font-semibold text-zinc-100">License registry</h2>
@@ -1477,7 +1477,7 @@ export default function AdminPage() {
             if (event.target === event.currentTarget) setSelectedReceipt(null);
           }}
         >
-          <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col rounded-xl border border-white/[0.12] bg-[#101318] p-4">
+          <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col rounded-xl border border-white/[0.12] bg-[#151518] p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-semibold text-white">Payment receipt</h2>
@@ -1525,7 +1525,7 @@ export default function AdminPage() {
                     className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 text-[12px] font-medium transition ${
                       genProduct === "ESM"
                         ? "border-red-500 bg-red-500/10 text-red-400 font-semibold"
-                        : "border-white/[0.08] bg-[#090a0d] text-zinc-400 hover:text-white"
+                        : "border-white/[0.08] bg-[#0A0A0B] text-zinc-400 hover:text-white"
                     }`}
                   >
                     <span>Esmiringhoy</span>
@@ -1536,7 +1536,7 @@ export default function AdminPage() {
                     className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 text-[12px] font-medium transition ${
                       genProduct === "PC"
                         ? "border-cyan-500 bg-cyan-500/10 text-cyan-400 font-semibold"
-                        : "border-white/[0.08] bg-[#090a0d] text-zinc-400 hover:text-white"
+                        : "border-white/[0.08] bg-[#0A0A0B] text-zinc-400 hover:text-white"
                     }`}
                   >
                     <span>Peace Cleaner</span>
@@ -1555,7 +1555,7 @@ export default function AdminPage() {
                     else if (event.target.value === "Weekly VIP") setGenDays("7");
                     else if (event.target.value === "1 Day Trial") setGenDays("1");
                   }}
-                  className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10"
+                  className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10"
                 >
                   <option value="Monthly VIP">Monthly VIP · 30 days</option>
                   <option value="Lifetime VIP">Lifetime VIP · permanent</option>
@@ -1565,21 +1565,21 @@ export default function AdminPage() {
               </div>
               <div>
                 <label htmlFor="license-duration" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Duration in days <span className="font-normal text-zinc-500">(0 for lifetime)</span></label>
-                <input id="license-duration" type="number" min="0" value={genDays} onChange={(event) => setGenDays(event.target.value)} className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                <input id="license-duration" type="number" min="0" value={genDays} onChange={(event) => setGenDays(event.target.value)} className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="recipient-discord-id" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Discord ID <span className="font-normal text-zinc-500">(optional)</span></label>
-                  <input id="recipient-discord-id" type="text" value={genDiscordId} onChange={(event) => setGenDiscordId(event.target.value)} placeholder="User ID" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                  <input id="recipient-discord-id" type="text" value={genDiscordId} onChange={(event) => setGenDiscordId(event.target.value)} placeholder="User ID" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
                 </div>
                 <div>
                   <label htmlFor="recipient-discord-name" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Username <span className="font-normal text-zinc-500">(optional)</span></label>
-                  <input id="recipient-discord-name" type="text" value={genDiscordUsername} onChange={(event) => setGenDiscordUsername(event.target.value)} placeholder="Discord username" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                  <input id="recipient-discord-name" type="text" value={genDiscordUsername} onChange={(event) => setGenDiscordUsername(event.target.value)} placeholder="Discord username" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
                 </div>
               </div>
               <div>
                 <label htmlFor="license-notes" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Admin notes <span className="font-normal text-zinc-500">(optional)</span></label>
-                <input id="license-notes" type="text" value={genNotes} onChange={(event) => setGenNotes(event.target.value)} placeholder="Internal note" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#090a0d] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                <input id="license-notes" type="text" value={genNotes} onChange={(event) => setGenNotes(event.target.value)} placeholder="Internal note" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
               </div>
               <div className="flex justify-end gap-2 border-t border-white/[0.08] pt-4">
                 <button type="button" onClick={() => setShowGenModal(false)} className="h-10 rounded-lg border border-white/[0.1] px-4 text-[12px] font-medium text-zinc-300 hover:bg-white/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">Cancel</button>

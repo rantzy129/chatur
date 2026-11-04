@@ -3,8 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --background: #08090d;
-  --foreground: #f4f4f5;
+  /* Primary: White (#FFFFFF) | Secondary: Black (#0A0A0B) | Tertiary: Red (#E53935) */
+  --background: #FFFFFF;
+  --foreground: #0A0A0B;
+  --surface: #F4F4F5;
+  --elevated: #FFFFFF;
+  --border: #E4E4E7;
+  --text-primary: #0A0A0B;
+  --text-secondary: #52525B;
+  --text-muted: #71717A;
+  --accent: #E53935;
+  --accent-hover: #A71919;
+  --pure-white: #FFFFFF;
+  --pure-black: #000000;
 }
 
 body {
@@ -17,36 +28,44 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Tactical Hairline Grid Pattern */
+/* Tactical Hairline Grid Pattern (Light Theme) */
 .bg-tactical-grid {
   background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
 }
 
 /* Glass & Solid Panels */
 .glass-panel {
-  background: rgba(14, 17, 23, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #E4E4E7;
 }
 
-/* Custom Tactical Scrollbar */
+.glass-panel-elevated {
+  background: rgba(244, 244, 245, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #E4E4E7;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #08090d;
+  background: #FFFFFF;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #E4E4E7;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ef4444;
+  background: #E53935;
 }
 
 /* Tabular number alignment for telemetry */
@@ -56,6 +75,117 @@ body {
 
 /* Custom text selection */
 ::selection {
-  background-color: #ef4444;
-  color: #ffffff;
+  background-color: #E53935;
+  color: #FFFFFF;
+}
+
+/* ─── TASTE-SKILL SIGNATURE: MASKED LINE REVEAL (EDITORIAL HEADLINE) ─── */
+.lines-reveal .line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.lines-reveal [data-line] {
+  display: block;
+  transform: translateY(115%);
+  animation: line-reveal-up 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes line-reveal-up {
+  0% {
+    transform: translateY(115%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+/* Stagger delays for masked lines */
+.anim-delay-0 {
+  animation-delay: 80ms !important;
+}
+
+.anim-delay-1 {
+  animation-delay: 180ms !important;
+}
+
+.anim-delay-2 {
+  animation-delay: 280ms !important;
+}
+
+.anim-delay-3 {
+  animation-delay: 380ms !important;
+}
+
+/* De-blur and glide fade for subtitles and buttons */
+.fade-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: fade-reveal-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-reveal-up {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Snappy Element Reveal Animations */
+@keyframes text-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-text-appear {
+  animation: text-appear 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.anim-delay-75 {
+  animation-delay: 75ms;
+}
+
+.anim-delay-150 {
+  animation-delay: 150ms;
+}
+
+.anim-delay-225 {
+  animation-delay: 225ms;
+}
+
+.anim-delay-300 {
+  animation-delay: 300ms;
+}
+
+.anim-delay-375 {
+  animation-delay: 375ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lines-reveal [data-line],
+  .fade-reveal,
+  .animate-text-appear {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
 }
