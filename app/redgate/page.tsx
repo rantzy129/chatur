@@ -97,7 +97,7 @@ function formatDate(value: string) {
 function formatTime(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
-    ? "—"
+    ? "-"
     : date.toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" });
 }
 
@@ -113,21 +113,21 @@ function Sidebar({
   onLogout: () => void;
 }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-white/[0.08] bg-[#151518] lg:flex">
-      <a href="/redgate" className="flex h-[76px] items-center gap-3 border-b border-white/[0.08] px-6">
-        <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-red-500/30 bg-[#242428] p-1.5">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-zinc-200 bg-white lg:flex">
+      <a href="/redgate" className="flex h-[76px] items-center gap-3 border-b border-zinc-200 px-6">
+        <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-zinc-200 bg-white p-1.5 shadow-sm">
           <img src="/logo.png" alt="" className="h-full w-full object-contain" />
         </span>
         <span>
-          <span className="block text-sm font-bold tracking-[0.12em] text-white">RED LINE</span>
-          <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-500">
+          <span className="block text-sm font-black tracking-tight text-black font-sans">RED LINE</span>
+          <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500 font-mono">
             Admin workspace
           </span>
         </span>
       </a>
 
       <div className="px-4 pt-7">
-        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+        <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-wider text-zinc-400 font-mono">
           Workspace
         </p>
         <nav aria-label="Admin navigation" className="space-y-1">
@@ -139,16 +139,16 @@ function Sidebar({
                 type="button"
                 onClick={() => onNavigate(id)}
                 aria-current={selected ? "page" : undefined}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400 ${
+                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-[13px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935] ${
                   selected
-                    ? "bg-red-500/[0.11] text-red-300"
-                    : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-100"
+                    ? "bg-red-50 text-[#E53935] border border-red-200 shadow-sm"
+                    : "text-zinc-600 hover:bg-zinc-100 hover:text-black"
                 }`}
               >
-                <Icon className="h-[17px] w-[17px]" strokeWidth={1.8} />
+                <Icon className={`h-[17px] w-[17px] ${selected ? "text-[#E53935]" : "text-zinc-500"}`} strokeWidth={1.8} />
                 <span className="flex-1">{label}</span>
                 {id === "orders" && pendingCount > 0 && (
-                  <span className="min-w-5 rounded bg-red-500/15 px-1.5 py-0.5 text-center text-[10px] tabular-nums text-red-300">
+                  <span className="min-w-5 rounded-full bg-[#E53935] px-1.5 py-0.5 text-center text-[10px] font-bold tabular-nums text-white font-mono">
                     {pendingCount}
                   </span>
                 )}
@@ -158,28 +158,28 @@ function Sidebar({
         </nav>
       </div>
 
-      <div className="mt-auto border-t border-white/[0.08] p-4">
+      <div className="mt-auto border-t border-zinc-200 p-4">
         <a
           href="/"
-          className="mb-3 flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-zinc-400 transition-colors hover:bg-white/[0.04] hover:text-white"
+          className="mb-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-black"
         >
-          <ArrowUpRight className="h-4 w-4" />
+          <ArrowUpRight className="h-4 w-4 text-zinc-500" />
           View storefront
         </a>
-        <div className="flex items-center gap-3 rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#242428] text-zinc-300">
-            <ShieldCheck className="h-4 w-4" />
+        <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-zinc-200 text-zinc-700 shadow-sm">
+            <ShieldCheck className="h-4 w-4 text-emerald-600" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-xs font-semibold text-zinc-100">Admin session</span>
-            <span className="mt-0.5 block text-[10px] text-emerald-400">Authenticated</span>
+            <span className="block truncate text-xs font-bold text-black">Admin session</span>
+            <span className="mt-0.5 block text-[10px] font-medium text-emerald-600 font-mono">Authenticated</span>
           </span>
           <button
             type="button"
             onClick={onLogout}
             aria-label="Sign out"
             title="Sign out"
-            className="rounded-md p-2 text-zinc-500 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+            className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]"
           >
             <LogOut className="h-4 w-4" />
           </button>
@@ -203,24 +203,24 @@ function Metric({
   accent: "red" | "amber" | "green" | "blue";
 }) {
   const accentClasses = {
-    red: "text-red-300 bg-red-400/10",
-    amber: "text-amber-300 bg-amber-400/10",
-    green: "text-emerald-300 bg-emerald-400/10",
-    blue: "text-sky-300 bg-sky-400/10",
+    red: "text-[#E53935] bg-red-50 border border-red-200",
+    amber: "text-amber-700 bg-amber-50 border border-amber-200",
+    green: "text-emerald-700 bg-emerald-50 border border-emerald-200",
+    blue: "text-sky-700 bg-sky-50 border border-sky-200",
   }[accent];
 
   return (
-    <article className="min-w-0 rounded-xl border border-white/[0.08] bg-[#151518] p-4 sm:p-5">
+    <article className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-sm">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[12px] font-medium text-zinc-400">{label}</p>
-        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${accentClasses}`}>
+        <p className="text-[12px] font-semibold text-zinc-600">{label}</p>
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${accentClasses}`}>
           <Icon className="h-4 w-4" strokeWidth={1.8} />
         </span>
       </div>
-      <p className="mt-4 truncate text-[25px] font-semibold leading-none tracking-[-0.03em] text-white tabular-nums sm:text-[28px]">
+      <p className="mt-4 truncate text-[25px] font-black leading-none tracking-tight text-black tabular-nums font-mono sm:text-[28px]">
         {value}
       </p>
-      <p className="mt-2 text-[11px] text-zinc-500">{detail}</p>
+      <p className="mt-2 text-[11px] font-medium text-zinc-500">{detail}</p>
     </article>
   );
 }
@@ -246,11 +246,11 @@ function RevenueChart({ points }: { points: { label: string; value: number }[] }
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-[14px] font-semibold text-zinc-100">Approved revenue</h2>
+          <h2 className="text-[14px] font-bold text-black font-sans">Approved revenue</h2>
           <p className="mt-1 text-[11px] text-zinc-500">Daily totals · last 7 days</p>
         </div>
-        <span className="inline-flex items-center gap-2 text-[11px] text-zinc-400">
-          <span className="h-2 w-2 rounded-full bg-red-400" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-semibold text-zinc-700 font-mono">
+          <span className="h-2 w-2 rounded-full bg-[#E53935]" />
           PHP
         </span>
       </div>
@@ -263,7 +263,7 @@ function RevenueChart({ points }: { points: { label: string; value: number }[] }
         >
           <defs>
             <linearGradient id="revenue-fill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#E53935" stopOpacity="0.22" />
+              <stop offset="0%" stopColor="#E53935" stopOpacity="0.18" />
               <stop offset="100%" stopColor="#E53935" stopOpacity="0" />
             </linearGradient>
           </defs>
@@ -271,8 +271,8 @@ function RevenueChart({ points }: { points: { label: string; value: number }[] }
             const y = bottom - (index / 3) * (bottom - top);
             return (
               <g key={index}>
-                <line x1={left} x2={right} y1={y} y2={y} stroke="#ffffff" strokeOpacity="0.08" />
-                <text x={left - 10} y={y + 4} textAnchor="end" fill="#9298a2" fontSize="10">
+                <line x1={left} x2={right} y1={y} y2={y} stroke="#e4e4e7" strokeDasharray="3 3" />
+                <text x={left - 10} y={y + 4} textAnchor="end" fill="#71717a" fontSize="10" fontFamily="monospace">
                   {Math.round(tick).toLocaleString()}
                 </text>
               </g>
@@ -291,9 +291,9 @@ function RevenueChart({ points }: { points: { label: string; value: number }[] }
           />
           {coordinates.map((point) => (
             <g key={point.label}>
-              <circle cx={point.x} cy={point.y} r="4" fill="#0f1116" stroke="#f87171" strokeWidth="2" />
+              <circle cx={point.x} cy={point.y} r="4" fill="#ffffff" stroke="#E53935" strokeWidth="2.5" />
               <title>{`${point.label}: ${formatCurrency(point.value)}`}</title>
-              <text x={point.x} y={bottom + 24} textAnchor="middle" fill="#9298a2" fontSize="10">
+              <text x={point.x} y={bottom + 24} textAnchor="middle" fill="#71717a" fontSize="10" fontFamily="monospace">
                 {point.label}
               </text>
             </g>
@@ -301,7 +301,7 @@ function RevenueChart({ points }: { points: { label: string; value: number }[] }
         </svg>
       </div>
       {points.every((point) => point.value === 0) && (
-        <p className="mt-2 text-center text-[11px] text-zinc-500">
+        <p className="mt-2 text-center text-[11px] text-zinc-500 font-mono">
           No approved revenue recorded in this period.
         </p>
       )}
@@ -320,7 +320,7 @@ function PlanBreakdown({ licenses }: { licenses: License[] }) {
   return (
     <div>
       <div>
-        <h2 className="text-[14px] font-semibold text-zinc-100">License mix</h2>
+        <h2 className="text-[14px] font-bold text-black font-sans">License mix</h2>
         <p className="mt-1 text-[11px] text-zinc-500">Issued licenses by plan</p>
       </div>
       {entries.length === 0 ? (
@@ -330,11 +330,11 @@ function PlanBreakdown({ licenses }: { licenses: License[] }) {
           {entries.map(([tier, count]) => (
             <div key={tier}>
               <div className="mb-2 flex items-center justify-between gap-3 text-[12px]">
-                <span className="truncate text-zinc-300">{tier}</span>
-                <span className="shrink-0 font-medium tabular-nums text-white">{count}</span>
+                <span className="truncate font-medium text-zinc-700">{tier}</span>
+                <span className="shrink-0 font-bold tabular-nums text-black font-mono">{count}</span>
               </div>
               <div
-                className="h-2 overflow-hidden rounded-full bg-white/[0.07]"
+                className="h-2 overflow-hidden rounded-full bg-zinc-100"
                 role="meter"
                 aria-label={`${tier} licenses`}
                 aria-valuemin={0}
@@ -342,7 +342,7 @@ function PlanBreakdown({ licenses }: { licenses: License[] }) {
                 aria-valuenow={count}
               >
                 <div
-                  className="h-full rounded-full bg-red-400 transition-[width] duration-300"
+                  className="h-full rounded-full bg-[#E53935] transition-[width] duration-300"
                   style={{ width: `${(count / maximum) * 100}%` }}
                 />
               </div>
@@ -350,9 +350,9 @@ function PlanBreakdown({ licenses }: { licenses: License[] }) {
           ))}
         </div>
       )}
-      <div className="mt-7 flex items-center justify-between border-t border-white/[0.08] pt-4 text-[11px]">
+      <div className="mt-7 flex items-center justify-between border-t border-zinc-200 pt-4 text-[11px]">
         <span className="text-zinc-500">Total issued</span>
-        <span className="font-semibold tabular-nums text-zinc-200">{licenses.length}</span>
+        <span className="font-bold tabular-nums text-black font-mono">{licenses.length}</span>
       </div>
     </div>
   );
@@ -372,8 +372,8 @@ function OrdersTable({
   if (orders.length === 0) {
     return (
       <div className="px-5 py-14 text-center">
-        <Wallet className="mx-auto h-6 w-6 text-zinc-500" />
-        <p className="mt-3 text-sm font-medium text-zinc-200">No matching orders</p>
+        <Wallet className="mx-auto h-6 w-6 text-zinc-400" />
+        <p className="mt-3 text-sm font-semibold text-black">No matching orders</p>
         <p className="mt-1 text-xs text-zinc-500">Try another search or check back when a customer places an order.</p>
       </div>
     );
@@ -382,34 +382,34 @@ function OrdersTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[860px] text-left text-[12px]">
-        <thead className="border-b border-white/[0.08] bg-white/[0.02] text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+        <thead className="border-b border-zinc-200 bg-zinc-50 text-[10px] uppercase tracking-wider text-zinc-500 font-mono font-semibold">
           <tr>
-            <th className="px-4 py-3 font-medium">Order</th>
-            <th className="px-4 py-3 font-medium">Customer</th>
-            <th className="px-4 py-3 font-medium">Plan / amount</th>
-            <th className="px-4 py-3 font-medium">Reference</th>
-            <th className="px-4 py-3 font-medium">Proof</th>
-            <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 text-right font-medium">Actions</th>
+            <th className="px-4 py-3 font-semibold">Order</th>
+            <th className="px-4 py-3 font-semibold">Customer</th>
+            <th className="px-4 py-3 font-semibold">Plan / amount</th>
+            <th className="px-4 py-3 font-semibold">Reference</th>
+            <th className="px-4 py-3 font-semibold">Proof</th>
+            <th className="px-4 py-3 font-semibold">Status</th>
+            <th className="px-4 py-3 text-right font-semibold">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/[0.06]">
+        <tbody className="divide-y divide-zinc-200">
           {orders.map((order) => (
-            <tr key={order.id} className="transition-colors hover:bg-white/[0.025]">
+            <tr key={order.id} className="transition-colors hover:bg-zinc-50/80">
               <td className="px-4 py-3.5">
-                <span className="font-medium text-zinc-100">{order.order_number}</span>
-                <span className="mt-1 block text-[10px] text-zinc-500">{formatDate(order.created_at)} · {formatTime(order.created_at)}</span>
+                <span className="font-bold text-black font-mono">{order.order_number}</span>
+                <span className="mt-1 block text-[10px] text-zinc-500 font-mono">{formatDate(order.created_at)} · {formatTime(order.created_at)}</span>
               </td>
               <td className="px-4 py-3.5">
-                <span className="block max-w-[150px] truncate font-medium text-zinc-200">{order.discord_username}</span>
-                <span className="mt-1 block text-[10px] text-zinc-500">{order.discord_id}</span>
+                <span className="block max-w-[150px] truncate font-semibold text-black">{order.discord_username}</span>
+                <span className="mt-1 block text-[10px] text-zinc-500 font-mono">{order.discord_id}</span>
               </td>
               <td className="px-4 py-3.5">
-                <span className="block text-zinc-300">{order.tier}</span>
-                <span className="mt-1 block font-medium tabular-nums text-zinc-100">{formatCurrency(Number(order.amount) || 0)}</span>
+                <span className="block font-medium text-zinc-700">{order.tier}</span>
+                <span className="mt-1 block font-bold tabular-nums text-black font-mono">{formatCurrency(Number(order.amount) || 0)}</span>
               </td>
               <td className="px-4 py-3.5">
-                <code className="rounded bg-black/30 px-2 py-1 text-[11px] text-zinc-300">{order.reference_number}</code>
+                <code className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-[11px] font-mono text-zinc-800">{order.reference_number}</code>
                 {order.sender_name && <span className="mt-1 block text-[10px] text-zinc-500">From {order.sender_name}</span>}
               </td>
               <td className="px-4 py-3.5">
@@ -417,12 +417,12 @@ function OrdersTable({
                   <button
                     type="button"
                     onClick={() => onViewReceipt(order.receipt_url!)}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.1] px-2.5 py-1.5 text-[11px] text-zinc-300 transition-colors hover:border-red-400/40 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-700 shadow-sm transition-colors hover:border-[#E53935] hover:text-[#E53935] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]"
                   >
                     <Eye className="h-3.5 w-3.5" />
                     View
                   </button>
-                ) : <span className="text-zinc-500">No proof</span>}
+                ) : <span className="text-zinc-400 font-mono text-[11px]">No proof</span>}
               </td>
               <td className="px-4 py-3.5"><StatusBadge status={order.status} /></td>
               <td className="px-4 py-3.5">
@@ -433,7 +433,7 @@ function OrdersTable({
                       onClick={() => onApprove(order.id)}
                       aria-label={`Approve ${order.order_number}`}
                       title="Approve and issue license"
-                      className="rounded-md p-2 text-emerald-300 transition-colors hover:bg-emerald-400/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400"
+                      className="rounded-lg p-2 text-emerald-600 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                     >
                       <CheckCircle2 className="h-4 w-4" />
                     </button>
@@ -442,13 +442,13 @@ function OrdersTable({
                       onClick={() => onReject(order.id)}
                       aria-label={`Reject ${order.order_number}`}
                       title="Reject order"
-                      className="rounded-md p-2 text-red-300 transition-colors hover:bg-red-400/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                      className="rounded-lg p-2 text-[#E53935] transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]"
                     >
                       <XCircle className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="block max-w-[140px] truncate text-right text-[10px] text-zinc-500">
+                  <span className="block max-w-[140px] truncate text-right text-[10px] font-mono text-zinc-500">
                     {order.license_key || "Resolved"}
                   </span>
                 )}
@@ -463,13 +463,13 @@ function OrdersTable({
 
 function StatusBadge({ status }: { status: Order["status"] }) {
   const styles = {
-    pending: "border-amber-400/20 bg-amber-400/[0.08] text-amber-200",
-    approved: "border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-200",
-    rejected: "border-red-400/20 bg-red-400/[0.08] text-red-200",
+    pending: "border-amber-200 bg-amber-50 text-amber-700",
+    approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    rejected: "border-red-200 bg-red-50 text-[#E53935]",
   }[status];
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] capitalize ${styles}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold font-mono capitalize ${styles}`}>
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
       {status}
     </span>
@@ -494,8 +494,8 @@ function LicensesTable({
   if (licenses.length === 0) {
     return (
       <div className="px-5 py-14 text-center">
-        <KeyRound className="mx-auto h-6 w-6 text-zinc-500" />
-        <p className="mt-3 text-sm font-medium text-zinc-200">No matching licenses</p>
+        <KeyRound className="mx-auto h-6 w-6 text-zinc-400" />
+        <p className="mt-3 text-sm font-semibold text-black">No matching licenses</p>
         <p className="mt-1 text-xs text-zinc-500">Try another search or issue a license to get started.</p>
       </div>
     );
@@ -504,59 +504,59 @@ function LicensesTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[900px] text-left text-[12px]">
-        <thead className="border-b border-white/[0.08] bg-white/[0.02] text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+        <thead className="border-b border-zinc-200 bg-zinc-50 text-[10px] uppercase tracking-wider text-zinc-500 font-mono font-semibold">
           <tr>
-            <th className="px-4 py-3 font-medium">License key</th>
-            <th className="px-4 py-3 font-medium">Plan</th>
-            <th className="px-4 py-3 font-medium">Customer</th>
-            <th className="px-4 py-3 font-medium">Hardware ID</th>
-            <th className="px-4 py-3 font-medium">Expires</th>
-            <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 text-right font-medium">Manage</th>
+            <th className="px-4 py-3 font-semibold">License key</th>
+            <th className="px-4 py-3 font-semibold">Plan</th>
+            <th className="px-4 py-3 font-semibold">Customer</th>
+            <th className="px-4 py-3 font-semibold">Hardware ID</th>
+            <th className="px-4 py-3 font-semibold">Expires</th>
+            <th className="px-4 py-3 font-semibold">Status</th>
+            <th className="px-4 py-3 text-right font-semibold">Manage</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/[0.06]">
+        <tbody className="divide-y divide-zinc-200">
           {licenses.map((license) => (
-            <tr key={license.id} className={`transition-colors hover:bg-white/[0.025] ${license.is_banned ? "bg-red-950/10" : ""}`}>
+            <tr key={license.id} className={`transition-colors hover:bg-zinc-50/80 ${license.is_banned ? "bg-red-50/50" : ""}`}>
               <td className="px-4 py-3.5">
                 <span className="flex items-center gap-2">
-                  <code className="font-medium text-red-200">{license.license_key}</code>
+                  <code className="font-mono font-bold text-black">{license.license_key}</code>
                   <button
                     type="button"
                     onClick={() => onCopy(license.license_key)}
                     aria-label={`Copy ${license.license_key}`}
-                    className="rounded p-1 text-zinc-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                    className="rounded-md p-1 text-zinc-500 hover:text-black hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]"
                   >
-                    {copiedKey === license.license_key ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copiedKey === license.license_key ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
                   </button>
                 </span>
               </td>
-              <td className="px-4 py-3.5 text-zinc-300">{license.tier}</td>
+              <td className="px-4 py-3.5 text-zinc-700 font-medium">{license.tier}</td>
               <td className="px-4 py-3.5">
-                <span className="block text-zinc-200">{license.discord_username || "Unassigned"}</span>
-                <span className="mt-1 block text-[10px] text-zinc-500">{license.discord_id || "No Discord ID"}</span>
+                <span className="block font-semibold text-black">{license.discord_username || "Unassigned"}</span>
+                <span className="mt-1 block text-[10px] text-zinc-500 font-mono">{license.discord_id || "No Discord ID"}</span>
               </td>
               <td className="px-4 py-3.5">
                 {license.hwid ? (
-                  <code title={license.hwid} className="block max-w-[130px] truncate text-[11px] text-zinc-300">{license.hwid}</code>
-                ) : <span className="text-zinc-500">Not bound</span>}
+                  <code title={license.hwid} className="block max-w-[130px] truncate text-[11px] font-mono text-zinc-700">{license.hwid}</code>
+                ) : <span className="text-zinc-400 font-mono text-[11px]">Not bound</span>}
               </td>
-              <td className="px-4 py-3.5 text-zinc-400">{license.expires_at ? formatDate(license.expires_at) : "Lifetime"}</td>
+              <td className="px-4 py-3.5 text-zinc-600 font-mono text-[11px]">{license.expires_at ? formatDate(license.expires_at) : "Lifetime"}</td>
               <td className="px-4 py-3.5">
-                <span className={`inline-flex items-center gap-1.5 text-[11px] ${license.is_banned ? "text-red-300" : "text-emerald-300"}`}>
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold font-mono border ${license.is_banned ? "border-red-200 bg-red-50 text-[#E53935]" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
                   {license.is_banned ? "Banned" : "Active"}
                 </span>
               </td>
               <td className="px-4 py-3.5">
                 <div className="flex justify-end gap-1">
-                  <button type="button" onClick={() => onResetHwid(license.license_key)} aria-label={`Reset hardware lock for ${license.license_key}`} title="Reset hardware lock" className="rounded-md p-2 text-zinc-400 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">
+                  <button type="button" onClick={() => onResetHwid(license.license_key)} aria-label={`Reset hardware lock for ${license.license_key}`} title="Reset hardware lock" className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]">
                     <RotateCcw className="h-3.5 w-3.5" />
                   </button>
-                  <button type="button" onClick={() => onToggleBan(license.license_key, license.is_banned)} aria-label={`${license.is_banned ? "Unban" : "Ban"} ${license.license_key}`} title={license.is_banned ? "Unban license" : "Ban license"} className="rounded-md p-2 text-zinc-400 hover:bg-amber-400/10 hover:text-amber-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300">
+                  <button type="button" onClick={() => onToggleBan(license.license_key, license.is_banned)} aria-label={`${license.is_banned ? "Unban" : "Ban"} ${license.license_key}`} title={license.is_banned ? "Unban license" : "Ban license"} className="rounded-lg p-2 text-zinc-600 hover:bg-amber-50 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
                     <Ban className="h-3.5 w-3.5" />
                   </button>
-                  <button type="button" onClick={() => onDelete(license.license_key)} aria-label={`Delete ${license.license_key}`} title="Delete license" className="rounded-md p-2 text-zinc-400 hover:bg-red-400/10 hover:text-red-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">
+                  <button type="button" onClick={() => onDelete(license.license_key)} aria-label={`Delete ${license.license_key}`} title="Delete license" className="rounded-lg p-2 text-zinc-600 hover:bg-red-50 hover:text-[#E53935] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -612,41 +612,41 @@ function VersionSettingsView({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-white/[0.08] bg-[#151518] p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-4">
           <div>
-            <h2 className="text-[15px] font-semibold text-zinc-100 flex items-center gap-2">
-              <Activity className="h-4 w-4 text-red-400" /> Client Version & Live Update Control
+            <h2 className="text-[15px] font-bold text-black flex items-center gap-2 font-sans">
+              <Activity className="h-4 w-4 text-[#E53935]" /> Client Version & Live Update Control
             </h2>
-            <p className="mt-1 text-[12px] text-zinc-400">
+            <p className="mt-1 text-[12px] text-zinc-500">
               Manage version requirements and auto-download links independently for RedLine VIP and Peace Cleaner.
             </p>
           </div>
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold font-mono ${enforce ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${enforce ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono border ${enforce ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${enforce ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
             {enforce ? "Enforcement Active" : "Enforcement Paused"}
           </span>
         </div>
 
         {settings.table_exists === false && (
-          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3.5 text-[12px] text-amber-300">
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-[12px] text-amber-800">
             <strong>Database Notice:</strong> The <code>esm_settings</code> table has not been initialized yet in Supabase. Please copy and run <code>web/schema_settings.sql</code> in your Supabase SQL Editor to save settings permanently.
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-8">
           {/* RedLine VIP Section */}
-          <div className="rounded-lg border border-red-500/20 bg-red-950/10 p-5 space-y-4">
-            <div className="border-b border-red-500/20 pb-3">
-              <h3 className="text-sm font-semibold text-red-300 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-red-500" /> RedLine VIP Client (audiodg.exe)
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-5 space-y-4">
+            <div className="border-b border-zinc-200 pb-3">
+              <h3 className="text-sm font-bold text-black flex items-center gap-2 font-sans">
+                <span className="h-2 w-2 rounded-full bg-[#E53935]" /> RedLine VIP Client (audiodg.exe)
               </h3>
-              <p className="text-[11px] text-zinc-400 mt-0.5">Controls version gating for keys starting with <code>RL-</code> and <code>ESM-</code>.</p>
+              <p className="text-[11px] text-zinc-500 mt-0.5">Controls version gating for keys starting with <code>RL-</code> and <code>ESM-</code>.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[12px] font-medium text-zinc-200">
+                <label className="block text-[12px] font-bold text-zinc-700">
                   Minimum Required Version
                 </label>
                 <input
@@ -655,7 +655,7 @@ function VersionSettingsView({
                   onChange={(e) => setMinVer(e.target.value)}
                   placeholder="e.g. 1.0.3"
                   required
-                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-mono text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
                 />
                 <p className="mt-1 text-[11px] text-zinc-500">
                   Clients below this will auto-update or be blocked.
@@ -663,7 +663,7 @@ function VersionSettingsView({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-zinc-200">
+                <label className="block text-[12px] font-bold text-zinc-700">
                   Latest Build Version
                 </label>
                 <input
@@ -672,7 +672,7 @@ function VersionSettingsView({
                   onChange={(e) => setLatestVer(e.target.value)}
                   placeholder="e.g. 1.0.3"
                   required
-                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-mono text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
                 />
                 <p className="mt-1 text-[11px] text-zinc-500">
                   Displayed as the latest available build in the terminal.
@@ -681,7 +681,7 @@ function VersionSettingsView({
             </div>
 
             <div>
-              <label className="block text-[12px] font-medium text-zinc-200">
+              <label className="block text-[12px] font-bold text-zinc-700">
                 RedLine Direct Download URL
               </label>
               <input
@@ -689,7 +689,7 @@ function VersionSettingsView({
                 value={dlUrl}
                 onChange={(e) => setDlUrl(e.target.value)}
                 placeholder="https://.../updates/audiodg.exe"
-                className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
+                className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-mono text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
               />
               <p className="mt-1 text-[11px] text-zinc-500">
                 Direct link to <code>audiodg.exe</code> in Supabase storage for the silent in-app auto-updater.
@@ -698,17 +698,17 @@ function VersionSettingsView({
           </div>
 
           {/* Peace Cleaner Section */}
-          <div className="rounded-lg border border-indigo-500/20 bg-indigo-950/10 p-5 space-y-4">
-            <div className="border-b border-indigo-500/20 pb-3">
-              <h3 className="text-sm font-semibold text-indigo-300 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-indigo-400" /> Peace Cleaner (PeaceCleaner.exe)
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-5 space-y-4">
+            <div className="border-b border-zinc-200 pb-3">
+              <h3 className="text-sm font-bold text-black flex items-center gap-2 font-sans">
+                <span className="h-2 w-2 rounded-full bg-[#E53935]" /> Peace Cleaner (PeaceCleaner.exe)
               </h3>
-              <p className="text-[11px] text-zinc-400 mt-0.5">Controls version gating for keys starting with <code>PC-</code>.</p>
+              <p className="text-[11px] text-zinc-500 mt-0.5">Controls version gating for keys starting with <code>PC-</code>.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[12px] font-medium text-zinc-200">
+                <label className="block text-[12px] font-bold text-zinc-700">
                   Minimum Required Version
                 </label>
                 <input
@@ -717,7 +717,7 @@ function VersionSettingsView({
                   onChange={(e) => setPcMinVer(e.target.value)}
                   placeholder="e.g. 1.0.1"
                   required
-                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-mono text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
                 />
                 <p className="mt-1 text-[11px] text-zinc-500">
                   Peace Cleaner builds below this will prompt the user to download the update.
@@ -725,7 +725,7 @@ function VersionSettingsView({
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium text-zinc-200">
+                <label className="block text-[12px] font-bold text-zinc-700">
                   Latest Build Version
                 </label>
                 <input
@@ -734,7 +734,7 @@ function VersionSettingsView({
                   onChange={(e) => setPcLatestVer(e.target.value)}
                   placeholder="e.g. 1.0.1"
                   required
-                  className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-mono text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
                 />
                 <p className="mt-1 text-[11px] text-zinc-500">
                   Latest published build version for Peace Cleaner.
@@ -743,7 +743,7 @@ function VersionSettingsView({
             </div>
 
             <div>
-              <label className="block text-[12px] font-medium text-zinc-200">
+              <label className="block text-[12px] font-bold text-zinc-700">
                 Peace Cleaner Download URL
               </label>
               <input
@@ -751,7 +751,7 @@ function VersionSettingsView({
                 value={pcDlUrl}
                 onChange={(e) => setPcDlUrl(e.target.value)}
                 placeholder="https://.../updates/PeaceCleaner.exe"
-                className="mt-1.5 w-full rounded-lg border border-white/[0.1] bg-[#242428] px-3.5 py-2.5 text-sm font-mono text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none"
+                className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-mono text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
               />
               <p className="mt-1 text-[11px] text-zinc-500">
                 Direct link to <code>PeaceCleaner.exe</code> in Supabase storage (opened in browser when outdated).
@@ -765,9 +765,9 @@ function VersionSettingsView({
               id="enforceCheck"
               checked={enforce}
               onChange={(e) => setEnforce(e.target.checked)}
-              className="h-4 w-4 rounded border-white/[0.2] bg-[#242428] text-red-600 focus:ring-red-500"
+              className="h-4 w-4 rounded border-zinc-300 text-[#E53935] focus:ring-[#E53935]"
             />
-            <label htmlFor="enforceCheck" className="text-[13px] font-medium text-zinc-200 cursor-pointer select-none">
+            <label htmlFor="enforceCheck" className="text-[13px] font-semibold text-zinc-800 cursor-pointer select-none">
               Strictly enforce minimum client version on license authentication
             </label>
           </div>
@@ -776,7 +776,7 @@ function VersionSettingsView({
             <button
               type="submit"
               disabled={isSaving}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-2.5 text-[13px] font-bold text-white shadow-md transition-all hover:bg-zinc-800 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black disabled:opacity-50"
             >
               {isSaving ? "Saving Settings..." : "Save Version Settings"}
             </button>
@@ -850,7 +850,7 @@ export default function AdminPage() {
     setIsLoading(true);
     setDashboardError("");
     try {
-            const [ordersResponse, licensesResponse, settingsResponse] = await Promise.all([
+      const [ordersResponse, licensesResponse, settingsResponse] = await Promise.all([
         fetch("/api/admin/orders", { headers: { "x-admin-secret": secret } }),
         fetch("/api/admin/licenses", { headers: { "x-admin-secret": secret } }),
         fetch("/api/admin/settings", { headers: { "x-admin-secret": secret } }),
@@ -1078,7 +1078,7 @@ export default function AdminPage() {
     }
 
     return days.map(({ label, value }) => ({ label, value }));
-  }, [orders]);
+  }, [orders, approvedOrders]);
 
   const filteredOrders = orders.filter((order) => {
     const term = searchTerm.toLowerCase().trim();
@@ -1102,61 +1102,61 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="admin-console min-h-screen bg-[#0A0A0B] text-zinc-100">
-        <div className="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.85fr)]">
-          <section className="relative hidden min-h-screen flex-col justify-between overflow-hidden border-r border-white/[0.08] bg-[#151518] p-10 lg:flex xl:p-14">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_22%,rgba(127,29,29,0.18),transparent_44%)]" />
+      <div className="admin-console min-h-screen bg-[#FAFAFA] text-zinc-900 selection:bg-[#E53935] selection:text-white">
+        <div className="grid min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(440px,0.85fr)]">
+          <section className="relative hidden min-h-screen flex-col justify-between overflow-hidden border-r border-zinc-200 bg-white p-10 lg:flex xl:p-14">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_22%,rgba(229,57,53,0.06),transparent_50%)]" />
             <a href="/" className="relative flex w-fit items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg border border-red-500/30 bg-[#242428] p-1.5">
+              <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-zinc-200 bg-white p-1.5 shadow-sm">
                 <img src="/logo.png" alt="" className="h-full w-full object-contain" />
               </span>
               <span>
-                <span className="block text-sm font-bold tracking-[0.13em] text-white">RED LINE</span>
-                <span className="mt-0.5 block text-[10px] uppercase tracking-[0.18em] text-zinc-500">Admin workspace</span>
+                <span className="block text-sm font-black tracking-tight text-black font-sans">RED LINE</span>
+                <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500 font-mono">Admin workspace</span>
               </span>
             </a>
             <div className="relative max-w-xl py-16">
-              <div className="mb-7 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.15em] text-red-300">
-                <Shield className="h-4 w-4" />
+              <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#E53935] font-mono">
+                <Shield className="h-3.5 w-3.5" />
                 Restricted access
               </div>
-              <h1 className="max-w-[12ch] text-5xl font-semibold leading-[1.06] tracking-[-0.04em] text-white xl:text-6xl">
+              <h1 className="max-w-[12ch] text-5xl font-black leading-[1.06] tracking-tight text-black font-sans xl:text-6xl">
                 Operations, at a glance.
               </h1>
-              <p className="mt-6 max-w-[46ch] text-[15px] leading-7 text-zinc-400">
+              <p className="mt-6 max-w-[46ch] text-[15px] leading-7 text-zinc-600 font-sans">
                 Review customer orders, track license activity, and manage access from one secure workspace.
               </p>
-              <div className="mt-12 flex items-center gap-3 border-t border-white/[0.08] pt-6 text-xs text-zinc-500">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.03]">
-                  <ShieldCheck className="h-4 w-4 text-zinc-300" />
+              <div className="mt-12 flex items-center gap-3 border-t border-zinc-200 pt-6 text-xs text-zinc-500 font-medium">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-700 shadow-sm">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
                 </span>
                 <span>Admin credentials are validated by the server.</span>
               </div>
             </div>
-            <p className="relative text-[11px] text-zinc-600">RED LINE VIP · ADMINISTRATOR ACCESS</p>
+            <p className="relative text-[11px] font-mono font-medium text-zinc-400">RED LINE VIP · ADMINISTRATOR ACCESS</p>
           </section>
 
-          <main className="flex min-h-screen flex-col">
-            <header className="flex h-[72px] items-center justify-between border-b border-white/[0.08] px-5 sm:px-8">
+          <main className="flex min-h-screen flex-col bg-[#FAFAFA]">
+            <header className="flex h-[72px] items-center justify-between border-b border-zinc-200 bg-white px-5 sm:px-8">
               <a href="/" className="flex items-center gap-2.5 lg:hidden">
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-red-500/30 bg-[#242428] p-1">
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl border border-zinc-200 bg-white p-1 shadow-sm">
                   <img src="/logo.png" alt="" className="h-full w-full object-contain" />
                 </span>
-                <span className="text-xs font-semibold tracking-[0.12em] text-white">RED LINE ADMIN</span>
+                <span className="text-xs font-black tracking-tight text-black font-sans">RED LINE ADMIN</span>
               </a>
-              <span className="hidden text-[12px] text-zinc-500 lg:inline">Secure sign in</span>
-              <a href="/" className="ml-auto text-[12px] text-zinc-400 transition-colors hover:text-white">
+              <span className="hidden text-[12px] font-mono text-zinc-500 lg:inline">Secure sign in</span>
+              <a href="/" className="ml-auto text-[12px] font-medium text-zinc-600 transition-colors hover:text-black">
                 Back to storefront
               </a>
             </header>
 
             <div className="flex flex-1 items-center justify-center px-5 py-12 sm:px-8">
-              <div className="w-full max-w-[390px]">
-                <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-xl border border-red-400/20 bg-red-400/[0.08] text-red-300">
+              <div className="w-full max-w-[400px] rounded-2xl border border-zinc-200 bg-white p-7 sm:p-9 shadow-xl">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-[#E53935] shadow-sm">
                   <KeyRound className="h-5 w-5" />
                 </div>
-                <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-white">Sign in to admin</h2>
-                <p className="mt-2 text-[13px] leading-6 text-zinc-400">
+                <h2 className="text-[26px] font-black tracking-tight text-black font-sans">Sign in to admin</h2>
+                <p className="mt-1.5 text-[13px] leading-6 text-zinc-600 font-sans">
                   Enter your administrator key to open the management workspace.
                 </p>
 
@@ -1165,10 +1165,10 @@ export default function AdminPage() {
                     event.preventDefault();
                     void verifySecret(adminSecret);
                   }}
-                  className="mt-8 space-y-5"
+                  className="mt-7 space-y-5"
                 >
                   <div>
-                    <label htmlFor="admin-secret" className="mb-2 block text-[12px] font-medium text-zinc-300">
+                    <label htmlFor="admin-secret" className="mb-2 block text-[12px] font-bold text-zinc-700">
                       Admin secret key
                     </label>
                     <div className="relative">
@@ -1180,13 +1180,13 @@ export default function AdminPage() {
                         value={adminSecret}
                         onChange={(event) => setAdminSecret(event.target.value)}
                         placeholder="Enter your secret key"
-                        className="h-12 w-full rounded-lg border border-white/[0.12] bg-[#151518] px-3.5 pr-12 text-[14px] text-white placeholder:text-zinc-500 focus:border-red-400/70 focus:outline-none focus:ring-2 focus:ring-red-400/15"
+                        className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-3.5 pr-12 text-[14px] text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
                       />
                       <button
                         type="button"
                         onClick={() => setShowSecret((visible) => !visible)}
                         aria-label={showSecret ? "Hide admin secret" : "Show admin secret"}
-                        className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-zinc-500 hover:text-zinc-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                        className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-zinc-400 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]"
                       >
                         {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -1194,7 +1194,7 @@ export default function AdminPage() {
                   </div>
 
                   {authError && (
-                    <div role="alert" className="flex items-start gap-2.5 rounded-lg border border-red-400/20 bg-red-400/[0.07] p-3 text-[12px] leading-5 text-red-200">
+                    <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-[12px] leading-5 text-[#E53935]">
                       <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                       <span>{authError}</span>
                     </div>
@@ -1203,14 +1203,14 @@ export default function AdminPage() {
                   <button
                     type="submit"
                     disabled={isAuthenticating || !adminSecret.trim()}
-                    className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-red-500 px-4 text-[13px] font-semibold text-white transition-colors hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300 disabled:cursor-not-allowed disabled:bg-red-500/40 disabled:text-white/60"
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-black px-4 text-[13px] font-bold text-white shadow-md transition-all hover:bg-zinc-800 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black disabled:cursor-not-allowed disabled:bg-zinc-200 disabled:text-zinc-500"
                   >
-                    {isAuthenticating && <RefreshCw className="h-4 w-4 animate-spin" />}
-                    {isAuthenticating ? "Verifying access…" : "Continue to admin"}
+                    {isAuthenticating && <RefreshCw className="h-4 w-4 animate-spin text-[#E53935]" />}
+                    {isAuthenticating ? "Verifying access..." : "Continue to admin"}
                   </button>
                 </form>
 
-                <p className="mt-8 border-t border-white/[0.08] pt-5 text-[11px] leading-5 text-zinc-500">
+                <p className="mt-7 border-t border-zinc-100 pt-5 text-[11px] leading-5 text-zinc-400 font-mono">
                   This area is restricted to authorized staff. Keep your admin key private.
                 </p>
               </div>
@@ -1229,7 +1229,7 @@ export default function AdminPage() {
   }[view];
 
   return (
-    <div className="admin-console min-h-screen bg-[#0A0A0B] text-zinc-100 selection:bg-red-500/40 selection:text-white">
+    <div className="admin-console min-h-screen bg-[#FAFAFA] text-zinc-900 selection:bg-[#E53935] selection:text-white">
       <Sidebar
         view={view}
         onNavigate={(nextView) => {
@@ -1242,13 +1242,13 @@ export default function AdminPage() {
       />
 
       <main className="min-h-screen min-w-0 lg:ml-[252px]">
-        <header className="sticky top-0 z-20 flex min-h-[72px] items-center justify-between gap-4 border-b border-white/[0.08] bg-[#0A0A0B]/95 px-4 backdrop-blur-sm sm:px-7 lg:px-9">
+        <header className="sticky top-0 z-20 flex min-h-[72px] items-center justify-between gap-4 border-b border-zinc-200 bg-white/90 px-4 backdrop-blur-md sm:px-7 lg:px-9">
           <div className="min-w-0">
-            <p className="truncate text-[14px] font-semibold text-zinc-100">{heading}</p>
-            <p className="mt-0.5 hidden text-[11px] text-zinc-500 sm:block">Red Line / Admin workspace</p>
+            <p className="truncate text-[15px] font-black text-black font-sans">{heading}</p>
+            <p className="mt-0.5 hidden text-[11px] text-zinc-500 font-mono sm:block">Red Line / Admin workspace</p>
           </div>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <span className="hidden text-[11px] text-zinc-500 md:block">
+            <span className="hidden text-[11px] text-zinc-500 font-mono md:block">
               {new Date().toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric" })}
             </span>
             <button
@@ -1257,16 +1257,16 @@ export default function AdminPage() {
               disabled={isLoading}
               aria-label="Refresh admin data"
               title="Refresh data"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.1] text-zinc-400 transition-colors hover:bg-white/[0.05] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400 disabled:cursor-wait disabled:opacity-50"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-600 shadow-sm transition-colors hover:bg-zinc-100 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935] disabled:cursor-wait disabled:opacity-50"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin text-[#E53935]" : ""}`} />
             </button>
             <button
               type="button"
               onClick={() => setShowGenModal(true)}
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-red-500 px-3 text-[12px] font-semibold text-white transition-colors hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300 sm:px-3.5"
+              className="inline-flex h-9 items-center gap-2 rounded-xl bg-black px-3.5 text-[12px] font-bold text-white shadow-sm transition-all hover:bg-zinc-800 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black sm:px-4"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 text-[#E53935]" />
               <span className="hidden sm:inline">Issue license</span>
               <span className="sm:hidden">Issue</span>
             </button>
@@ -1274,7 +1274,7 @@ export default function AdminPage() {
         </header>
 
         <div className="mx-auto w-full max-w-[1500px] px-4 pb-12 pt-6 sm:px-7 sm:pt-8 lg:px-9">
-          <nav aria-label="Admin navigation" className="mb-6 flex gap-1 overflow-x-auto border-b border-white/[0.08] lg:hidden">
+          <nav aria-label="Admin navigation" className="mb-6 flex gap-1 overflow-x-auto border-b border-zinc-200 lg:hidden">
             {navigation.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -1285,16 +1285,16 @@ export default function AdminPage() {
                   setNotice(null);
                 }}
                 aria-current={view === id ? "page" : undefined}
-                className={`inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-[12px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400 ${
+                className={`inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-[12px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935] ${
                   view === id
-                    ? "border-red-400 text-red-200"
-                    : "border-transparent text-zinc-500 hover:text-zinc-200"
+                    ? "border-[#E53935] text-[#E53935]"
+                    : "border-transparent text-zinc-500 hover:text-black"
                 }`}
               >
                 <Icon className="h-4 w-4" />
                 {label}
                 {id === "orders" && pendingOrders.length > 0 && (
-                  <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-[10px] tabular-nums text-red-200">{pendingOrders.length}</span>
+                  <span className="rounded-full bg-[#E53935] px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-white font-mono">{pendingOrders.length}</span>
                 )}
               </button>
             ))}
@@ -1302,8 +1302,8 @@ export default function AdminPage() {
 
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-[26px] font-semibold tracking-[-0.035em] text-white sm:text-[30px]">{heading}</h1>
-              <p className="mt-1.5 max-w-[62ch] text-[12px] leading-5 text-zinc-400">
+              <h1 className="text-[26px] font-black tracking-tight text-black font-sans sm:text-[30px]">{heading}</h1>
+              <p className="mt-1.5 max-w-[62ch] text-[12px] leading-5 text-zinc-600 font-sans">
                 {view === "overview" && "A clear view of orders, revenue, and issued licenses."}
                 {view === "orders" && "Review payment proof and resolve customer orders."}
                 {view === "licenses" && "Manage issued keys, hardware bindings, and account status."}
@@ -1312,13 +1312,13 @@ export default function AdminPage() {
             </div>
             {view !== "overview" && view !== "settings" && (
               <label className="relative w-full sm:w-[280px]">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                 <input
                   type="search"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder={`Search ${view}…`}
-                  className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#151518] pl-9 pr-3 text-[12px] text-white placeholder:text-zinc-500 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10"
+                  placeholder={`Search ${view}...`}
+                  className="h-10 w-full rounded-xl border border-zinc-200 bg-white pl-9 pr-3 text-[12px] text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
                 />
               </label>
             )}
@@ -1327,24 +1327,24 @@ export default function AdminPage() {
           {notice && (
             <div
               role={notice.tone === "error" ? "alert" : "status"}
-              className={`mb-5 flex items-start gap-2.5 rounded-lg border px-3.5 py-3 text-[12px] ${
+              className={`mb-5 flex items-start gap-2.5 rounded-xl border px-3.5 py-3 text-[12px] font-medium ${
                 notice.tone === "success"
-                  ? "border-emerald-400/20 bg-emerald-400/[0.06] text-emerald-200"
-                  : "border-red-400/20 bg-red-400/[0.06] text-red-200"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                  : "border-red-200 bg-red-50 text-[#E53935]"
               }`}
             >
-              {notice.tone === "success" ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />}
+              {notice.tone === "success" ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#E53935]" />}
               <span>{notice.message}</span>
             </div>
           )}
 
           {dashboardError && (
-            <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-400/20 bg-red-400/[0.06] px-3.5 py-3 text-[12px] text-red-200">
+            <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-[12px] text-[#E53935]">
               <span className="flex items-start gap-2.5">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 {dashboardError}
               </span>
-              <button type="button" onClick={refreshData} className="font-semibold underline underline-offset-4 hover:text-white">Retry</button>
+              <button type="button" onClick={refreshData} className="font-bold underline underline-offset-4 hover:text-[#A71919]">Retry</button>
             </div>
           )}
 
@@ -1352,10 +1352,10 @@ export default function AdminPage() {
             <div className="space-y-5" aria-label="Loading admin data" aria-busy="true">
               <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
                 {Array.from({ length: 4 }, (_, index) => (
-                  <div key={index} className="h-[118px] animate-pulse rounded-xl border border-white/[0.06] bg-[#151518]" />
+                  <div key={index} className="h-[118px] animate-pulse rounded-2xl border border-zinc-200 bg-white shadow-sm" />
                 ))}
               </div>
-              <div className="h-[320px] animate-pulse rounded-xl border border-white/[0.06] bg-[#151518]" />
+              <div className="h-[320px] animate-pulse rounded-2xl border border-zinc-200 bg-white shadow-sm" />
             </div>
           ) : view === "overview" ? (
             <div className="space-y-5">
@@ -1391,24 +1391,24 @@ export default function AdminPage() {
               </section>
 
               <section className="grid gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.9fr)]">
-                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-[#151518] p-4 sm:p-5">
+                <div className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-sm">
                   <RevenueChart points={revenuePoints} />
                 </div>
-                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-[#151518] p-4 sm:p-5">
+                <div className="min-w-0 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-sm">
                   <PlanBreakdown licenses={licenses} />
                 </div>
               </section>
 
-              <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#151518]">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
+              <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 px-4 py-4 sm:px-5">
                   <div>
-                    <h2 className="text-[14px] font-semibold text-zinc-100">Recent orders</h2>
+                    <h2 className="text-[14px] font-bold text-black font-sans">Recent orders</h2>
                     <p className="mt-1 text-[11px] text-zinc-500">Latest customer activity</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setView("orders")}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-300 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-zinc-600 transition-colors hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]"
                   >
                     All orders <ArrowUpRight className="h-3.5 w-3.5" />
                   </button>
@@ -1422,13 +1422,13 @@ export default function AdminPage() {
               </section>
             </div>
           ) : view === "orders" ? (
-            <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#151518]">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
+            <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 px-4 py-4 sm:px-5">
                 <div>
-                  <h2 className="text-[14px] font-semibold text-zinc-100">Order queue</h2>
+                  <h2 className="text-[14px] font-bold text-black font-sans">Order queue</h2>
                   <p className="mt-1 text-[11px] text-zinc-500">{pendingOrders.length} awaiting review · {orders.length} total</p>
                 </div>
-                <span className="text-[11px] text-zinc-500">Updated {new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}</span>
+                <span className="text-[11px] text-zinc-500 font-mono">Updated {new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}</span>
               </div>
               <OrdersTable
                 orders={filteredOrders}
@@ -1438,18 +1438,18 @@ export default function AdminPage() {
               />
             </section>
           ) : view === "licenses" ? (
-            <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#151518]">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-4 sm:px-5">
+            <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 px-4 py-4 sm:px-5">
                 <div>
-                  <h2 className="text-[14px] font-semibold text-zinc-100">License registry</h2>
+                  <h2 className="text-[14px] font-bold text-black font-sans">License registry</h2>
                   <p className="mt-1 text-[11px] text-zinc-500">{activeLicenses.length} active · {lifetimeLicenses.length} lifetime</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowGenModal(true)}
-                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/[0.1] px-3 text-[11px] font-medium text-zinc-200 transition-colors hover:bg-white/[0.05] focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                  className="inline-flex h-9 items-center gap-2 rounded-xl bg-black px-3.5 text-[11px] font-bold text-white shadow-sm transition-all hover:bg-zinc-800 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Issue license
+                  <Plus className="h-3.5 w-3.5 text-[#E53935]" /> Issue license
                 </button>
               </div>
               <LicensesTable
@@ -1469,7 +1469,7 @@ export default function AdminPage() {
 
       {selectedReceipt && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Payment receipt"
@@ -1477,18 +1477,24 @@ export default function AdminPage() {
             if (event.target === event.currentTarget) setSelectedReceipt(null);
           }}
         >
-          <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col rounded-xl border border-white/[0.12] bg-[#151518] p-4">
-            <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-2xl overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-[#E53935]" />
+            <div className="mb-4 flex items-center justify-between gap-3 pb-3 border-b border-zinc-200">
               <div>
-                <h2 className="text-sm font-semibold text-white">Payment receipt</h2>
-                <p className="mt-1 text-[11px] text-zinc-500">Customer-submitted payment proof</p>
+                <h2 className="text-base font-black text-black font-sans">Payment receipt</h2>
+                <p className="mt-0.5 text-[11px] text-zinc-500">Customer-submitted payment proof</p>
               </div>
-              <button type="button" onClick={() => setSelectedReceipt(null)} aria-label="Close receipt" className="rounded-md p-2 text-zinc-400 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">
+              <button
+                type="button"
+                onClick={() => setSelectedReceipt(null)}
+                aria-label="Close receipt"
+                className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-black transition-colors"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto rounded-lg bg-black/30">
-              <img src={selectedReceipt} alt="Customer payment receipt" className="max-h-[76vh] max-w-full object-contain" />
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto rounded-xl border border-zinc-200 bg-zinc-50 p-2">
+              <img src={selectedReceipt} alt="Customer payment receipt" className="max-h-[72vh] max-w-full object-contain rounded-lg" />
             </div>
           </div>
         </div>
@@ -1496,7 +1502,7 @@ export default function AdminPage() {
 
       {showGenModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="issue-license-title"
@@ -1504,28 +1510,34 @@ export default function AdminPage() {
             if (event.target === event.currentTarget) setShowGenModal(false);
           }}
         >
-          <div className="my-auto w-full max-w-[480px] rounded-xl border border-white/[0.1] bg-[#111419] p-5 shadow-2xl sm:p-6">
-            <div className="mb-5 flex items-start justify-between gap-4 border-b border-white/[0.08] pb-4">
+          <div className="my-auto w-full max-w-[480px] rounded-2xl border border-zinc-200 bg-white p-6 sm:p-7 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-[#E53935]" />
+            <div className="mb-5 flex items-start justify-between gap-4 border-b border-zinc-200 pb-4">
               <div>
-                <h2 id="issue-license-title" className="text-[17px] font-semibold text-white">Issue a license</h2>
-                <p className="mt-1 text-[12px] text-zinc-400">Create a key and optionally assign it to a Discord user.</p>
+                <h2 id="issue-license-title" className="text-[17px] font-black text-black font-sans">Issue a license</h2>
+                <p className="mt-1 text-[12px] text-zinc-500">Create a key and optionally assign it to a Discord user.</p>
               </div>
-              <button type="button" onClick={() => setShowGenModal(false)} aria-label="Close form" className="rounded-md p-2 text-zinc-400 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">
+              <button
+                type="button"
+                onClick={() => setShowGenModal(false)}
+                aria-label="Close form"
+                className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-black transition-colors"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             <form onSubmit={handleGenerateManualKey} className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-[12px] font-medium text-zinc-300">Target Product</label>
+                <label className="mb-1.5 block text-[12px] font-bold text-zinc-700">Target Product</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setGenProduct("ESM")}
-                    className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 text-[12px] font-medium transition ${
+                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[12px] font-bold transition ${
                       genProduct === "ESM"
-                        ? "border-red-500 bg-red-500/10 text-red-400 font-semibold"
-                        : "border-white/[0.08] bg-[#0A0A0B] text-zinc-400 hover:text-white"
+                        ? "border-red-200 bg-red-50 text-[#E53935] shadow-sm"
+                        : "border-zinc-200 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-black"
                     }`}
                   >
                     <span>Esmiringhoy</span>
@@ -1533,10 +1545,10 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => setGenProduct("PC")}
-                    className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 text-[12px] font-medium transition ${
+                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[12px] font-bold transition ${
                       genProduct === "PC"
-                        ? "border-cyan-500 bg-cyan-500/10 text-cyan-400 font-semibold"
-                        : "border-white/[0.08] bg-[#0A0A0B] text-zinc-400 hover:text-white"
+                        ? "border-red-200 bg-red-50 text-[#E53935] shadow-sm"
+                        : "border-zinc-200 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-black"
                     }`}
                   >
                     <span>Peace Cleaner</span>
@@ -1544,7 +1556,7 @@ export default function AdminPage() {
                 </div>
               </div>
               <div>
-                <label htmlFor="license-tier" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Plan</label>
+                <label htmlFor="license-tier" className="mb-1.5 block text-[12px] font-bold text-zinc-700">Plan</label>
                 <select
                   id="license-tier"
                   value={genTier}
@@ -1555,7 +1567,7 @@ export default function AdminPage() {
                     else if (event.target.value === "Weekly VIP") setGenDays("7");
                     else if (event.target.value === "1 Day Trial") setGenDays("1");
                   }}
-                  className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10"
+                  className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-[12px] font-medium text-black focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
                 >
                   <option value="Monthly VIP">Monthly VIP · 30 days</option>
                   <option value="Lifetime VIP">Lifetime VIP · permanent</option>
@@ -1564,26 +1576,26 @@ export default function AdminPage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="license-duration" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Duration in days <span className="font-normal text-zinc-500">(0 for lifetime)</span></label>
-                <input id="license-duration" type="number" min="0" value={genDays} onChange={(event) => setGenDays(event.target.value)} className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                <label htmlFor="license-duration" className="mb-1.5 block text-[12px] font-bold text-zinc-700">Duration in days <span className="font-normal text-zinc-400">(0 for lifetime)</span></label>
+                <input id="license-duration" type="number" min="0" value={genDays} onChange={(event) => setGenDays(event.target.value)} className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-[12px] font-mono text-black focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm" />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="recipient-discord-id" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Discord ID <span className="font-normal text-zinc-500">(optional)</span></label>
-                  <input id="recipient-discord-id" type="text" value={genDiscordId} onChange={(event) => setGenDiscordId(event.target.value)} placeholder="User ID" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                  <label htmlFor="recipient-discord-id" className="mb-1.5 block text-[12px] font-bold text-zinc-700">Discord ID <span className="font-normal text-zinc-400">(optional)</span></label>
+                  <input id="recipient-discord-id" type="text" value={genDiscordId} onChange={(event) => setGenDiscordId(event.target.value)} placeholder="User ID" className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-[12px] font-mono text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm" />
                 </div>
                 <div>
-                  <label htmlFor="recipient-discord-name" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Username <span className="font-normal text-zinc-500">(optional)</span></label>
-                  <input id="recipient-discord-name" type="text" value={genDiscordUsername} onChange={(event) => setGenDiscordUsername(event.target.value)} placeholder="Discord username" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                  <label htmlFor="recipient-discord-name" className="mb-1.5 block text-[12px] font-bold text-zinc-700">Username <span className="font-normal text-zinc-400">(optional)</span></label>
+                  <input id="recipient-discord-name" type="text" value={genDiscordUsername} onChange={(event) => setGenDiscordUsername(event.target.value)} placeholder="Discord username" className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-[12px] text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm" />
                 </div>
               </div>
               <div>
-                <label htmlFor="license-notes" className="mb-1.5 block text-[12px] font-medium text-zinc-300">Admin notes <span className="font-normal text-zinc-500">(optional)</span></label>
-                <input id="license-notes" type="text" value={genNotes} onChange={(event) => setGenNotes(event.target.value)} placeholder="Internal note" className="h-10 w-full rounded-lg border border-white/[0.1] bg-[#0A0A0B] px-3 text-[12px] text-white placeholder:text-zinc-600 focus:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-400/10" />
+                <label htmlFor="license-notes" className="mb-1.5 block text-[12px] font-bold text-zinc-700">Admin notes <span className="font-normal text-zinc-400">(optional)</span></label>
+                <input id="license-notes" type="text" value={genNotes} onChange={(event) => setGenNotes(event.target.value)} placeholder="Internal note" className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-[12px] text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm" />
               </div>
-              <div className="flex justify-end gap-2 border-t border-white/[0.08] pt-4">
-                <button type="button" onClick={() => setShowGenModal(false)} className="h-10 rounded-lg border border-white/[0.1] px-4 text-[12px] font-medium text-zinc-300 hover:bg-white/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400">Cancel</button>
-                <button type="submit" className="h-10 rounded-lg bg-red-500 px-4 text-[12px] font-semibold text-white transition-colors hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300">
+              <div className="flex justify-end gap-2 border-t border-zinc-200 pt-4">
+                <button type="button" onClick={() => setShowGenModal(false)} className="h-10 rounded-xl border border-zinc-200 bg-white px-4 text-[12px] font-semibold text-zinc-700 hover:bg-zinc-50 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400">Cancel</button>
+                <button type="submit" className="h-10 rounded-xl bg-black px-4 text-[12px] font-bold text-white shadow-md transition-all hover:bg-zinc-800 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black">
                   Create license
                 </button>
               </div>
