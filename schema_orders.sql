@@ -32,17 +32,11 @@ CREATE INDEX IF NOT EXISTS idx_esm_orders_created_at ON public.esm_orders (creat
 -- Enable RLS
 ALTER TABLE public.esm_orders ENABLE ROW LEVEL SECURITY;
 
--- Allow public/service role access policies
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'esm_orders' AND policyname = 'Service role full access on orders'
-    ) THEN
-        CREATE POLICY "Service role full access on orders" ON public.esm_orders 
-        FOR ALL USING (true);
-    END IF;
-END $$;
+-- All order access goes through server routes using the service-role key.
+-- Do not add a public/authenticated policy for this sensitive table.
+DROP POLICY IF EXISTS "Service role full access on orders" ON public.esm_orders;
+REVOKE ALL PRIVILEGES ON TABLE public.esm_orders FROM PUBLIC, anon, authenticated;
+GRANT ALL PRIVILEGES ON TABLE public.esm_orders TO service_role;
 
 NOTIFY pgrst, 'reload schema';
 

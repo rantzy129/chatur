@@ -28,18 +28,11 @@ ON CONFLICT (id) DO NOTHING;
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.esm_settings ENABLE ROW LEVEL SECURITY;
 
--- Allow service role full access
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'esm_settings' AND policyname = 'Service role full access on settings'
-    ) THEN
-        CREATE POLICY "Service role full access on settings" ON public.esm_settings 
-        FOR ALL USING (true);
-    END IF;
-END $$;
+-- Settings are managed through authenticated server routes only.
+-- Do not add a public/authenticated policy for this table.
+DROP POLICY IF EXISTS "Service role full access on settings" ON public.esm_settings;
+REVOKE ALL PRIVILEGES ON TABLE public.esm_settings FROM PUBLIC, anon, authenticated;
+GRANT ALL PRIVILEGES ON TABLE public.esm_settings TO service_role;
 
 -- Reload Supabase PostgREST schema cache
 NOTIFY pgrst, 'reload schema';
-

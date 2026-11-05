@@ -67,6 +67,8 @@ CREATE TABLE IF NOT EXISTS public.esm_orders (
 );
 ```
 
+Run `schema_settings.sql` as well if it has not already been applied. For an existing deployment, run `schema_security_hardening.sql` after both tables exist. It removes the previous unrestricted policies and revokes direct table access from `anon`, `authenticated`, and `PUBLIC`; the app's server routes continue to access them using the service-role key. Do not recreate broad `USING (true)` policies.
+
 ### Step 2: Configure Environment Variables
 Copy `.env.example` to `.env.local` or set these in **Vercel Project Settings -> Environment Variables**:
 

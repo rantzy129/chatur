@@ -21,19 +21,20 @@ export async function getAuthenticatedDiscordUser(
   const discordIdentity = user.identities?.find(
     (identity) => identity.provider === "discord"
   );
-  if (
-    user.app_metadata?.provider !== "discord" &&
-    !discordIdentity
-  ) {
-    return null;
-  }
+  if (!discordIdentity) return null;
 
   const metadata = user.user_metadata || {};
-  const discordId =
-    metadata.provider_id ||
-    metadata.sub ||
-    discordIdentity?.identity_data?.provider_id ||
-    user.id;
+  const identityData = discordIdentity.identity_data || {};
+  const discordId = [
+    identityData.provider_id,
+    identityData.sub,
+    identityData.id,
+    discordIdentity.identity_id,
+  ].find((value): value is string =>
+    typeof value === "string" && /^\d{17,20}$/.test(value)
+  );
+  if (!discordId) return null;
+
   const username =
     metadata.custom_claims?.global_name ||
     metadata.full_name ||
