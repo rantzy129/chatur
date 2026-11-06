@@ -263,44 +263,59 @@ export default function CheckoutModal({
           </div>
         </div>
 
-        {/* Discord Authentication Check */}
+        {/* Discord Gate: Only logged in users can see payment details & form */}
         {!user ? (
-          <div className="my-5 p-4 rounded-xl bg-blue-50 border border-blue-200 text-center space-y-3">
-            <div className="flex items-center justify-center gap-2 text-[#5865F2] font-semibold text-sm">
-              <AlertCircle className="h-4 w-4" />
-              <span>Discord Identity Required</span>
+          <div className="my-6 p-6 sm:p-7 rounded-2xl bg-zinc-50 border border-zinc-200 text-center space-y-4 shadow-sm animate-in fade-in duration-150">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#5865F2]/10 border border-[#5865F2]/30 text-[#5865F2] shadow-sm">
+              <DiscordIcon className="h-7 w-7 fill-current" />
             </div>
-            <p className="text-xs text-zinc-600 font-sans">
-              Your license key and PC hardware lock are securely bound to your Discord account. Please sign in before submitting.
-            </p>
+
+            <div className="space-y-1.5">
+              <h4 className="text-base font-bold text-black font-sans tracking-tight">
+                Discord Sign-In Required to Purchase
+              </h4>
+              <p className="text-xs text-zinc-600 font-sans max-w-sm mx-auto leading-relaxed">
+                To prevent payment fraud and automatically bind your hardware ID and license key, you must sign in with Discord before accessing payment details.
+              </p>
+            </div>
+
+            <div className="py-2 px-3 rounded-xl bg-white border border-zinc-200 text-[11px] font-mono text-zinc-600 flex items-center justify-center gap-2">
+              <ShieldCheck className="h-3.5 w-3.5 text-[#E53935] flex-shrink-0" />
+              <span>InstaPay QR, GCash details & order form unlock immediately</span>
+            </div>
+
             <button
               type="button"
               onClick={loginWithDiscord}
-              className="w-full py-3 px-4 rounded-xl bg-[#5865F2] hover:bg-[#4752c4] active:scale-[0.98] text-white text-xs font-bold font-mono transition-all flex items-center justify-center gap-2 shadow-md min-h-[44px]"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#5865F2] hover:bg-[#4752c4] active:scale-[0.98] text-white text-xs sm:text-sm font-bold font-mono transition-all flex items-center justify-center gap-2.5 shadow-md shadow-[#5865F2]/20 min-h-[46px] cursor-pointer"
             >
               <DiscordIcon className="h-4 w-4 fill-current" />
-              <span>Connect Discord Account</span>
+              <span>Sign In with Discord to View Payment Form</span>
             </button>
+
+            <p className="text-[10px] text-zinc-400 font-mono">
+              Secure OAuth 2.0 • No password shared • Instant activation
+            </p>
           </div>
         ) : (
-          <div className="my-4 p-3 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2.5">
-              <img
-                src={user.avatarUrl}
-                alt={user.username}
-                className="h-7 w-7 rounded-full border border-[#E53935]/40 object-cover"
-              />
-              <div>
-                <p className="font-semibold text-black">{user.username}</p>
-                <p className="text-[10px] text-zinc-500 font-mono">ID: {user.id}</p>
+          <>
+            <div className="my-4 p-3 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={user.avatarUrl}
+                  alt={user.username}
+                  className="h-7 w-7 rounded-full border border-[#E53935]/40 object-cover"
+                />
+                <div>
+                  <p className="font-semibold text-black">{user.username}</p>
+                  <p className="text-[10px] text-zinc-500 font-mono">ID: {user.id}</p>
+                </div>
               </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 font-semibold">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Verified Bound</span>
+              </span>
             </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 font-semibold">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Verified Bound</span>
-            </span>
-          </div>
-        )}
 
         {/* GCash / InstaPay QR & Account Section */}
         <div className="space-y-4 pt-1">
@@ -533,7 +548,9 @@ export default function CheckoutModal({
             </button>
           </form>
         </div>
-      </div>
+      </>
+    )}
+  </div>
 
       {/* Enlarged QR Modal */}
       {showEnlargedQr && (
