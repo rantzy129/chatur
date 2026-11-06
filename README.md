@@ -76,6 +76,7 @@ Never commit `.env.local`. The service-role key and admin secret must only be co
 
 | Variable | Description | Example |
 |---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Canonical public URL used for metadata and sitemap | `https://redline-skills.vercel.app` |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project URL | `https://wjpwsrciijwprbgdhgtg.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase Service Role Secret | `sb_secret_...` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Anon Key | Public anon key |
@@ -106,6 +107,9 @@ The API limits are 5 order submissions per 10 minutes per IP, 5 invalid admin au
 
 ### Vercel Web Analytics
 The app includes Vercel Web Analytics through `@vercel/analytics`. Enable Web Analytics in the Vercel project's **Analytics** tab; page views and supported navigation events are then collected after deployment. Redeploy if Vercel asks you to.
+
+### Search engine indexing
+The app publishes `/robots.txt` and `/sitemap.xml`. The sitemap includes only the public homepage and terms page; `/dashboard` and `/redgate` send `noindex` metadata, and API routes are disallowed from crawling. Set `NEXT_PUBLIC_SITE_URL` in Vercel to the preferred canonical origin (`https://redline-skills.vercel.app`, or your custom domain) before deployment. Submit `https://redline-skills.vercel.app/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
 
 ### Option A: Via GitHub (Recommended)
 1. Push your repository to GitHub.

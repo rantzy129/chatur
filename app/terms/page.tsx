@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { ShieldCheck, AlertTriangle, ArrowLeft, Lock, FileText, Ban, RefreshCw } from "lucide-react";
+import type { Metadata } from "next";
+import { siteUrl } from "@/lib/site";
 
-export const metadata = {
-  title: "Terms of Service | Red Line VIP for Assault Fire PH",
+export const metadata: Metadata = {
+  title: "Terms of Service for Assault Fire PH",
   description: "Terms of service, refund policy, and operational risk disclaimer for Red Line VIP.",
+  alternates: {
+    canonical: new URL("/terms", siteUrl).toString(),
+  },
 };
 
 export default function TermsPage() {
