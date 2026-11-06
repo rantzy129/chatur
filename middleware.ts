@@ -2,6 +2,9 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Blocked country codes (ISO 3166-1 alpha-2)
+const BLOCKED_COUNTRIES = new Set(["TH"]); // Thailand
+
 type Policy = {
   name: string;
   limit: number;
@@ -54,6 +57,12 @@ function checkMemoryRateLimit(
   return { success: true, remaining: limit - existing.count, reset: existing.resetAt };
 }
 
+function getClientCountry(request: NextRequest): string {
+  const vercelCountry = request.headers.get("x-vercel-ip-country");
+  const cfCountry = request.headers.get("cf-ipcountry");
+  return (vercelCountry || cfCountry || "").trim().toUpperCase();
+}
+
 function getPolicy(request: NextRequest): Policy {
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/api/admin/");
@@ -82,7 +91,11 @@ function getPolicy(request: NextRequest): Policy {
     return { name: "admin-read", limit: 120, window: "1 m" };
   }
 
-  return { name: "api-read", limit: 60, window: "1 m" };
+  if (pathname.startsWith("/api/")) {
+    return { name: "api-read", limit: 60, window: "1 m" };
+  }
+
+  return { name: "page-view", limit: 120, window: "1 m" };
 }
 
 function getClientIp(request: NextRequest): string | null {
@@ -133,6 +146,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // 1. Regional Geo-Block Enforcement (e.g. Thailand)
+  const country = getClientCountry(request);
+  if (BLOCKED_COUNTRIES.has(country)) {
+    return new NextResponse(
+      "Bawal ka diri bai.",
+      {
+        status: 403,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store, private",
+        },
+      }
+    );
+  }
+
+  // 2. Rate Limiting & Throttling
   const policy = getPolicy(request);
   const ip = getClientIp(request) || "127.0.0.1";
   const identifier = `${policy.name}:${await hashIp(ip)}`;
@@ -185,5 +214,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/redgate", "/staff-vault"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - static media files (png, jpg, webp, svg, pdf)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf)$).*)",
+  ],
 };
