@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EA580C"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#bg2)"/>
+  <!-- Torso -->
+  <path d="M22 100 C22 75, 78 75, 78 100 Z" fill="#09090B"/>
+  <!-- Collar -->
+  <path d="M42 75 L50 84 L58 75 Z" fill="#EF4444"/>
+  <!-- Neck -->
+  <rect x="44" y="58" width="12" height="14" fill="#E2A782" rx="3"/>
+  <!-- Face -->
+  <rect x="31" y="28" width="38" height="38" rx="14" fill="#F4C2A1"/>
+  <!-- Glasses -->
+  <rect x="34" y="40" width="13" height="10" rx="3" fill="none" stroke="#000000" stroke-width="2.5"/>
+  <rect x="53" y="40" width="13" height="10" rx="3" fill="none" stroke="#000000" stroke-width="2.5"/>
+  <line x1="47" y1="45" x2="53" y2="45" stroke="#000000" stroke-width="2.5"/>
+  <!-- Eyes -->
+  <circle cx="40.5" cy="45" r="2.5" fill="#000000"/>
+  <circle cx="59.5" cy="45" r="2.5" fill="#000000"/>
+  <circle cx="41.5" cy="44" r="0.8" fill="#FFFFFF"/>
+  <circle cx="60.5" cy="44" r="0.8" fill="#FFFFFF"/>
+  <!-- Smile -->
+  <path d="M46 56 Q50 59 54 56" stroke="#000000" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Hair / Cap -->
+  <path d="M29 34 C29 18, 71 18, 71 34 C71 36, 68 37, 65 37 C60 30, 40 30, 35 37 C32 37, 29 36, 29 34 Z" fill="#27272A"/>
+  <path d="M25 32 Q50 20 75 32 Q50 26 25 32 Z" fill="#EF4444"/>
+  <!-- Headset -->
+  <rect x="25" y="38" width="6" height="13" rx="3" fill="#18181B"/>
+  <rect x="69" y="38" width="6" height="13" rx="3" fill="#18181B"/>
+</svg>
+

@@ -220,44 +220,42 @@ export default function CheckoutModal({
         aria-modal="true"
         aria-labelledby="checkout-modal-title"
         onClick={(e) => e.stopPropagation()}
-        className="relative my-auto max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-2xl bg-white border border-zinc-200 shadow-2xl p-5 sm:p-7 text-left animate-in fade-in zoom-in-95 duration-150"
+        className="relative my-auto max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-3xl bg-white border border-zinc-200/90 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.2)] p-6 sm:p-8 text-left animate-in fade-in zoom-in-95 duration-150 font-sans"
       >
-        {/* Top Brand Accent Line */}
-        <div
-          className={`absolute top-0 left-0 right-0 h-1 bg-[#E53935] shadow-[0_0_15px_rgba(229,57,53,0.35)]`}
-        />
-
         {/* Close Button */}
         <button
           onClick={onClose}
           aria-label="Close checkout modal"
-          className="absolute top-4 right-4 z-10 text-zinc-500 hover:text-black p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition-colors"
+          className="absolute top-5 right-5 z-10 text-zinc-400 hover:text-black p-2 rounded-full bg-zinc-100/80 hover:bg-zinc-200/80 transition-colors cursor-pointer"
         >
           <X className="h-4 w-4" />
         </button>
 
         {/* Plan Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-zinc-200 pr-10">
+        <div className="flex items-start justify-between gap-4 pb-5 border-b border-zinc-100 pr-8">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-semibold">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
                 Purchasing License
               </span>
               {plan.isLifetime && (
-                <span className="whitespace-nowrap flex-shrink-0 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-red-50 text-[#E53935] border border-red-200">
+                <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-red-50 text-[#E53935] border border-red-200/80">
                   Lifetime VIP
                 </span>
               )}
             </div>
-            <h3 id="checkout-modal-title" className="text-xl font-black text-black font-sans tracking-tight">
+            <h3 id="checkout-modal-title" className="text-xl sm:text-2xl font-black text-black font-sans tracking-tight">
               {plan.tier}
             </h3>
+            <p className="text-xs text-zinc-500 font-sans">
+              Undetected ring-0 driver • Instant Discord delivery
+            </p>
           </div>
-          <div className="text-right flex-shrink-0 ml-4">
-            <span className="text-2xl font-black text-black font-mono tabular-nums">
+          <div className="text-right shrink-0">
+            <span className="text-2xl sm:text-3xl font-black text-black font-sans tracking-tight">
               ₱{plan.price.toLocaleString()}
             </span>
-            <span className="block text-[10px] text-zinc-500 font-mono">
+            <span className="block text-[11px] font-medium text-zinc-400">
               PHP / InstaPay
             </span>
           </div>
@@ -265,148 +263,153 @@ export default function CheckoutModal({
 
         {/* Discord Gate: Only logged in users can see payment details & form */}
         {!user ? (
-          <div className="my-6 p-6 sm:p-7 rounded-2xl bg-zinc-50 border border-zinc-200 text-center space-y-4 shadow-sm animate-in fade-in duration-150">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#5865F2]/10 border border-[#5865F2]/30 text-[#5865F2] shadow-sm">
-              <DiscordIcon className="h-7 w-7 fill-current" />
+          <div className="py-8 text-center space-y-6">
+            <div className="mx-auto h-16 w-16 rounded-3xl bg-[#5865F2]/10 border border-[#5865F2]/20 flex items-center justify-center text-[#5865F2] shadow-sm">
+              <DiscordIcon className="h-8 w-8 fill-current" />
             </div>
 
-            <div className="space-y-1.5">
-              <h4 className="text-base font-bold text-black font-sans tracking-tight">
-                Discord Sign-In Required to Purchase
+            <div className="space-y-2 max-w-sm mx-auto">
+              <h4 className="text-xl font-bold text-black font-sans tracking-tight">
+                Discord Sign-In Required
               </h4>
-              <p className="text-xs text-zinc-600 font-sans max-w-sm mx-auto leading-relaxed">
-                To prevent payment fraud and automatically bind your hardware ID and license key, you must sign in with Discord before accessing payment details.
+              <p className="text-xs sm:text-sm text-zinc-500 font-sans leading-relaxed">
+                To prevent payment fraud and automatically bind your hardware ID and license key, please sign in with Discord before accessing payment details.
               </p>
             </div>
 
-            <div className="py-2 px-3 rounded-xl bg-white border border-zinc-200 text-[11px] font-mono text-zinc-600 flex items-center justify-center gap-2">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#E53935] flex-shrink-0" />
+            <div className="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200/80 text-xs font-sans text-zinc-600 flex items-center justify-center gap-2 max-w-sm mx-auto">
+              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
               <span>InstaPay QR, GCash details & order form unlock immediately</span>
             </div>
 
-            <button
-              type="button"
-              onClick={loginWithDiscord}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#5865F2] hover:bg-[#4752c4] active:scale-[0.98] text-white text-xs sm:text-sm font-bold font-mono transition-all flex items-center justify-center gap-2.5 shadow-md shadow-[#5865F2]/20 min-h-[46px] cursor-pointer"
-            >
-              <DiscordIcon className="h-4 w-4 fill-current" />
-              <span>Sign In with Discord to View Payment Form</span>
-            </button>
+            <div className="pt-1 max-w-sm mx-auto">
+              <button
+                type="button"
+                onClick={loginWithDiscord}
+                className="w-full py-3.5 px-5 rounded-2xl bg-[#5865F2] hover:bg-[#4752C4] active:scale-[0.98] text-white text-sm font-bold font-sans transition-all flex items-center justify-center gap-2.5 shadow-md shadow-[#5865F2]/25 cursor-pointer"
+              >
+                <DiscordIcon className="h-4 w-4 fill-current" />
+                <span>Sign In with Discord to View Payment Form</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
 
-            <p className="text-[10px] text-zinc-400 font-mono">
+            <p className="text-xs text-zinc-400 font-sans">
               Secure OAuth 2.0 • No password shared • Instant activation
             </p>
           </div>
         ) : (
           <>
-            <div className="my-4 p-3 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2.5">
+            <div className="my-4 p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-3">
                 <img
                   src={user.avatarUrl}
                   alt={user.username}
-                  className="h-7 w-7 rounded-full border border-[#E53935]/40 object-cover"
+                  className="h-8 w-8 rounded-full border border-zinc-200 object-cover"
                 />
                 <div>
-                  <p className="font-semibold text-black">{user.username}</p>
-                  <p className="text-[10px] text-zinc-500 font-mono">ID: {user.id}</p>
+                  <p className="font-bold text-black font-sans">{user.username}</p>
+                  <p className="text-[10px] text-zinc-400 font-mono">ID: {user.id}</p>
                 </div>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 font-semibold">
+              <span className="text-[11px] font-sans font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Verified Bound</span>
+                <span>Discord Linked</span>
               </span>
             </div>
 
         {/* GCash / InstaPay QR & Account Section */}
         <div className="space-y-4 pt-1">
-          <div className="p-3.5 sm:p-4 rounded-xl bg-zinc-50 border border-zinc-200 flex flex-col sm:flex-row items-center gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex flex-col sm:flex-row items-center gap-4">
             {/* QR Image Box */}
             <div
               onClick={() => setShowEnlargedQr(true)}
-              className="relative group cursor-pointer flex-shrink-0"
+              className="relative group cursor-pointer shrink-0"
               title="Click to zoom QR code"
             >
-              <div className="h-28 w-28 rounded-xl bg-white p-1.5 flex items-center justify-center shadow-md border border-zinc-200 group-hover:border-[#E53935] transition-colors overflow-hidden">
+              <div className="h-28 w-28 rounded-2xl bg-white p-2 flex items-center justify-center shadow-xs border border-zinc-200 group-hover:border-[#E53935] transition-colors overflow-hidden">
                 <img
                   src={qrUrl}
                   alt="InstaPay GCash QR"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-[10px] font-mono text-center flex items-center justify-center gap-1 text-zinc-500 group-hover:text-[#E53935] mt-1 transition-colors">
+              <span className="text-[11px] font-sans font-semibold text-center flex items-center justify-center gap-1 text-zinc-400 group-hover:text-[#E53935] mt-1.5 transition-colors">
                 <ZoomIn className="h-3 w-3" />
                 <span>Enlarge QR</span>
               </span>
             </div>
 
             {/* Account Details */}
-            <div className="flex-1 space-y-1.5 text-center sm:text-left font-mono w-full">
-              <span className="text-[10px] uppercase text-[#E53935] bg-[#E53935]/10 px-2 py-0.5 rounded border border-[#E53935]/30 font-bold inline-block">
+            <div className="flex-1 space-y-2 text-center sm:text-left w-full font-sans">
+              <span className="text-[10px] uppercase text-[#E53935] bg-red-50 px-2.5 py-1 rounded-full border border-red-200/80 font-bold inline-block">
                 Universal InstaPay QR
               </span>
 
-              <div className="flex items-center justify-center sm:justify-between gap-2 pt-0.5">
-                <span className="text-xs text-zinc-600 font-sans">Account:</span>
-                <button
-                  type="button"
-                  onClick={handleCopyAccount}
-                  className="text-xs font-bold font-mono transition-colors active:scale-95 flex items-center gap-1.5 py-0.5 px-1.5 rounded hover:bg-zinc-200"
-                  title="Copy Account Name"
-                >
-                  {copiedAccount ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                      <Check className="h-3 w-3" />
-                      <span>COPIED!</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-black hover:text-[#E53935]">
-                      <span>{gcashName}</span>
-                      <Copy className="h-3 w-3 text-zinc-400" />
-                    </span>
-                  )}
-                </button>
+              <div className="space-y-1.5 pt-0.5 text-xs">
+                <div className="flex items-center justify-between py-1.5 px-3 rounded-xl bg-white border border-zinc-200/60">
+                  <span className="text-zinc-500 font-medium">Account:</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyAccount}
+                    className="font-bold font-sans text-xs transition-colors active:scale-95 flex items-center gap-1.5 py-0.5 px-1.5 rounded hover:bg-zinc-100 cursor-pointer"
+                    title="Copy Account Name"
+                  >
+                    {copiedAccount ? (
+                      <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
+                        <Check className="h-3 w-3" />
+                        <span>Copied!</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-black hover:text-[#E53935]">
+                        <span>{gcashName}</span>
+                        <Copy className="h-3 w-3 text-zinc-400" />
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5 px-3 rounded-xl bg-white border border-zinc-200/60">
+                  <span className="text-zinc-500 font-medium">Amount:</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyAmount}
+                    className="font-bold font-sans text-xs transition-colors active:scale-95 flex items-center gap-1.5 py-0.5 px-1.5 rounded hover:bg-zinc-100 cursor-pointer"
+                    title="Copy exact amount"
+                  >
+                    {copiedAmount ? (
+                      <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
+                        <Check className="h-3.5 w-3.5" />
+                        <span>Copied!</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[#E53935] hover:text-black">
+                        <span>₱{plan.price.toLocaleString()} PHP</span>
+                        <Copy className="h-3 w-3 text-zinc-400" />
+                      </span>
+                    )}
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center justify-center sm:justify-between gap-2">
-                <span className="text-xs text-zinc-600 font-sans">Amount:</span>
-                <button
-                  type="button"
-                  onClick={handleCopyAmount}
-                  className="text-sm font-bold font-mono tabular-nums transition-colors active:scale-95 flex items-center gap-1.5 py-0.5 px-1.5 rounded hover:bg-zinc-200"
-                  title="Copy exact amount"
-                >
-                  {copiedAmount ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                      <Check className="h-3.5 w-3.5" />
-                      <span>COPIED!</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-[#E53935] hover:text-black">
-                      <span>₱{plan.price.toLocaleString()} PHP</span>
-                      <Copy className="h-3 w-3 text-zinc-400" />
-                    </span>
-                  )}
-                </button>
-              </div>
-
-              <p className="text-[10px] text-zinc-500 font-sans leading-tight pt-1">
+              <p className="text-[11px] text-zinc-400 font-sans leading-tight">
                 Compatible with GCash, Maya, ShopeePay, BDO, BPI, GoTyme, or any PH banking app.
               </p>
             </div>
           </div>
 
           {/* Verification Form */}
-          <form onSubmit={handleSubmitOrder} className="space-y-3.5 pt-1">
+          <form onSubmit={handleSubmitOrder} className="space-y-4 pt-1">
             {error && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-[#E53935] text-xs flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-[#E53935] text-xs font-sans flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-zinc-700 font-mono mb-1 font-semibold">
-                GCash Reference Number (13 Digits) *
+              <label className="block text-xs font-bold text-zinc-700 font-sans mb-1.5">
+                GCash Reference Number (13 Digits) <span className="text-[#E53935]">*</span>
               </label>
               <input
                 type="text"
@@ -414,38 +417,38 @@ export default function CheckoutModal({
                 value={referenceNumber}
                 onChange={(e) => setReferenceNumber(e.target.value)}
                 placeholder="e.g. 1029384756102"
-                className="w-full px-3.5 py-3 rounded-xl bg-white border border-zinc-300 text-black placeholder:text-zinc-400 text-base sm:text-sm focus:outline-none focus:border-black font-mono transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black placeholder:text-zinc-400 text-sm font-sans focus:bg-white focus:outline-none focus:border-black transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-zinc-700 font-mono mb-1 font-semibold">
-                Sender Name / Mobile (Optional)
+              <label className="block text-xs font-bold text-zinc-700 font-sans mb-1.5">
+                Sender Name / Mobile <span className="text-zinc-400 font-normal">(Optional)</span>
               </label>
               <input
                 type="text"
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
                 placeholder="e.g. Juan D. / 0917xxxxxxx"
-                className="w-full px-3.5 py-3 rounded-xl bg-white border border-zinc-300 text-black placeholder:text-zinc-400 text-base sm:text-sm focus:outline-none focus:border-black font-mono transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black placeholder:text-zinc-400 text-sm font-sans focus:bg-white focus:outline-none focus:border-black transition-all"
               />
             </div>
 
             {/* Receipt Screenshot Upload with Drag & Drop & Visual Preview */}
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-zinc-700 font-mono mb-1 font-semibold">
-                Receipt Screenshot (Speeds up approval)
+              <label className="block text-xs font-bold text-zinc-700 font-sans mb-1.5">
+                Receipt Screenshot <span className="text-zinc-400 font-normal">(Speeds up approval)</span>
               </label>
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-xl p-3.5 text-center transition-all ${
+                className={`relative border-2 border-dashed rounded-2xl p-4 text-center transition-all ${
                   isDragging
-                    ? "border-emerald-500 bg-emerald-50"
+                    ? "border-emerald-500 bg-emerald-50/50"
                     : receiptBase64
-                    ? "border-emerald-500/50 bg-emerald-50/30"
-                    : "border-zinc-300 hover:border-black bg-zinc-50"
+                    ? "border-emerald-500/50 bg-emerald-50/20"
+                    : "border-zinc-200 hover:border-zinc-400 bg-zinc-50/50"
                 }`}
               >
                 <input
@@ -461,13 +464,13 @@ export default function CheckoutModal({
                       <img
                         src={receiptBase64}
                         alt="Receipt preview"
-                        className="h-12 w-12 object-contain rounded-lg border border-emerald-500/50 bg-white flex-shrink-0"
+                        className="h-12 w-12 object-contain rounded-xl border border-emerald-500/40 bg-white shrink-0"
                       />
-                      <div className="text-left text-xs min-w-0">
-                        <p className="text-emerald-700 font-medium font-mono truncate">
+                      <div className="text-left text-xs min-w-0 font-sans">
+                        <p className="text-emerald-700 font-bold truncate">
                           {receiptFileName || "receipt.png"}
                         </p>
-                        <p className="text-zinc-500 text-[10px] font-mono">
+                        <p className="text-zinc-400 text-[11px]">
                           {receiptFileSize} • Click to replace
                         </p>
                       </div>
@@ -479,15 +482,15 @@ export default function CheckoutModal({
                         e.stopPropagation();
                         clearReceipt();
                       }}
-                      className="p-1.5 rounded-lg bg-red-50 text-[#E53935] hover:bg-red-100 border border-red-200 transition-colors z-20 flex-shrink-0"
+                      className="p-2 rounded-xl bg-red-50 text-[#E53935] hover:bg-red-100 border border-red-200 transition-colors z-20 shrink-0 cursor-pointer"
                       title="Remove receipt"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-zinc-600 py-2 font-mono">
-                    <Upload className="h-4 w-4 text-[#E53935] flex-shrink-0" />
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-zinc-500 py-1 font-sans">
+                    <Upload className="h-4 w-4 text-[#E53935] shrink-0" />
                     <span>
                       {isDragging
                         ? "Drop screenshot to attach"
@@ -499,37 +502,37 @@ export default function CheckoutModal({
             </div>
 
             {/* Terms & Risk Agreement Disclosure */}
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 space-y-2">
+            <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50 p-3.5 space-y-2">
               <label className="flex items-start gap-2.5 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   id="termsAgreement"
                   checked={agreedTerms}
                   onChange={(e) => setAgreedTerms(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-black focus:ring-black cursor-pointer flex-shrink-0"
+                  className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-black focus:ring-black cursor-pointer shrink-0"
                 />
-                <span className="text-[11px] text-zinc-600 leading-relaxed font-sans">
+                <span className="text-[11px] text-zinc-500 leading-relaxed font-sans">
                   I agree to the{" "}
                   <button
                     type="button"
                     onClick={() => setShowTermsModal(true)}
-                    className="text-[#E53935] hover:text-[#A71919] underline font-mono font-medium inline"
+                    className="text-[#E53935] hover:underline font-semibold inline cursor-pointer"
                   >
                     Terms of Service
                   </button>
-                  . I understand digital licenses are <strong className="text-black">strictly non-refundable</strong>, I use this software <strong className="text-black">at my own risk</strong>, and Red Line is <strong className="text-black">not liable for game bans</strong>. Engine is verified <strong className="text-emerald-600 font-semibold">undetected</strong>.
+                  . I understand digital licenses are <strong className="text-black font-semibold">strictly non-refundable</strong>, I use this software <strong className="text-black font-semibold">at my own risk</strong>, and Red Line is <strong className="text-black font-semibold">not liable for game bans</strong>. Engine is verified <strong className="text-emerald-600 font-semibold">undetected</strong>.
                 </span>
               </label>
             </div>
 
-            {/* Submit CTA (Primary White background, Secondary Black button, Tertiary Red icon) */}
+            {/* Submit CTA */}
             <button
               type="submit"
               disabled={isSubmitting || !user || !agreedTerms}
-              className={`w-full py-3.5 px-4 rounded-xl font-bold text-sm font-mono tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg min-h-[48px] bg-black hover:bg-zinc-800 text-white hover:-translate-y-0.5 ${
+              className={`w-full py-4 px-5 rounded-2xl font-bold text-sm font-sans tracking-wide transition-all flex items-center justify-center gap-2 shadow-md bg-black hover:bg-zinc-800 text-white cursor-pointer ${
                 isSubmitting || !user || !agreedTerms
-                  ? "opacity-50 cursor-not-allowed hover:translate-y-0"
-                  : "active:scale-[0.98]"
+                  ? "opacity-50 cursor-not-allowed"
+                  : "active:scale-[0.98] hover:shadow-lg"
               }`}
             >
               {isSubmitting ? (
@@ -537,11 +540,7 @@ export default function CheckoutModal({
               ) : (
                 <>
                   <ShieldCheck className="h-4 w-4 text-[#E53935]" />
-                  {!agreedTerms ? (
-                    <span>Agree to Terms to Continue</span>
-                  ) : (
-                    <span>Submit Payment for Verification</span>
-                  )}
+                  <span>{!agreedTerms ? "Agree to Terms to Continue" : "Submit Payment for Verification"}</span>
                   <ArrowRight className="h-4 w-4 text-[#E53935]" />
                 </>
               )}
@@ -560,26 +559,26 @@ export default function CheckoutModal({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-sm w-full rounded-2xl bg-white border border-zinc-200 p-5 text-center shadow-2xl"
+            className="relative max-w-sm w-full rounded-3xl bg-white border border-zinc-200 p-6 text-center shadow-2xl font-sans"
           >
             <button
               onClick={() => setShowEnlargedQr(false)}
-              className="absolute top-3 right-3 text-zinc-500 hover:text-black p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 border border-zinc-200"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-black p-2 rounded-full bg-zinc-100 hover:bg-zinc-200 transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
-            <p className="text-xs font-mono font-bold text-black mb-3">
+            <h4 className="text-sm font-bold text-black mb-3">
               Scan InstaPay / GCash QR
-            </p>
-            <div className="rounded-xl bg-white p-3 shadow-md border border-zinc-200">
+            </h4>
+            <div className="rounded-2xl bg-zinc-50 p-3 shadow-inner border border-zinc-200">
               <img
                 src={qrUrl}
                 alt="Enlarged QR"
-                className="w-full h-auto object-contain"
+                className="w-full h-auto object-contain rounded-xl"
               />
             </div>
-            <p className="text-[11px] text-zinc-600 font-mono mt-3">
-              Account: <strong className="text-black">{gcashName}</strong>
+            <p className="text-xs text-zinc-500 font-sans mt-3">
+              Account Name: <strong className="text-black">{gcashName}</strong>
             </p>
           </div>
         </div>

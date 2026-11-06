@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import TermsModal from "@/components/TermsModal";
+import DiscordIcon from "@/components/DiscordIcon";
 
 export default function Footer() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
@@ -12,71 +13,56 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="w-full border-t border-zinc-200 bg-zinc-50/95 backdrop-blur-md mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-8">
+      {/* ─── FULL-BLEED FOOTER USING PUBLIC/FOOTER.JPG AS SECTION BACKGROUND ─── */}
+      <footer
+        className="relative w-full text-white bg-[#8E171E] bg-cover bg-left sm:bg-center bg-no-repeat overflow-hidden border-t border-red-950/40 mt-16 sm:mt-24 select-none"
+        style={{ backgroundImage: "url('/footer.jpg')" }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 pb-8 text-center sm:text-left">
             {/* Brand */}
-            <div className="space-y-2">
-              <Link href="/" className="flex items-center gap-3 text-black font-sans font-black text-lg group flex-shrink-0">
-                <div className="h-8 w-8 rounded-xl bg-white border border-zinc-200 shadow-sm flex items-center justify-center overflow-hidden p-0.5 group-hover:border-[#E53935] transition-colors flex-shrink-0">
+            <div className="flex flex-col items-center sm:items-start space-y-2">
+              <Link
+                href="/"
+                className="flex items-center gap-3 text-white font-sans font-black text-xl shrink-0 cursor-pointer outline-none focus:outline-none group"
+              >
+                <div className="relative flex items-center h-8">
                   <img
                     src="/logo.png"
-                    alt="Red Line Logo"
-                    className="h-full w-full object-contain"
+                    alt="Red Line VIP Sniper"
+                    className="h-6 sm:h-7 w-auto max-w-[90px] sm:max-w-[110px] object-contain pointer-events-none drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
-                <span className="whitespace-nowrap tracking-tight">RED LINE</span>
+                <span className="whitespace-nowrap tracking-tight font-black text-white pointer-events-none">
+                  REDLINE<span className="text-white/60 font-bold text-xs uppercase tracking-wider ml-0.5">.vip</span>
+                </span>
               </Link>
-              <p className="text-xs text-zinc-600 max-w-sm font-sans leading-relaxed">
+              <p className="text-xs text-white/80 max-w-sm font-sans leading-relaxed">
                 Undetected tactical cheat suite and stream-proof wallhack engineered for all Assault Fire servers.
               </p>
             </div>
 
-            {/* Quick Navigation Links */}
-            <nav className="flex flex-wrap items-center gap-6 font-sans text-xs sm:text-sm font-medium">
+            {/* Essential Clean Navigation: Terms, FAQ, Discord */}
+            <nav className="flex items-center justify-center gap-6 sm:gap-8 font-sans text-sm font-semibold">
               <Link
-                href="/#features"
-                className="text-zinc-600 hover:text-black transition-colors"
+                href="/terms"
+                className="text-white/85 hover:text-white transition-colors cursor-pointer"
               >
-                Features
+                Terms
               </Link>
               <Link
-                href="/#streamproof"
-                className="text-zinc-600 hover:text-black transition-colors"
-              >
-                Stream-Proof
-              </Link>
-              <Link
-                href="/#pricing"
-                className="text-zinc-600 hover:text-black transition-colors"
-              >
-                Pricing & Plans
-              </Link>
-              <Link
-                href="/#faq"
-                className="text-zinc-600 hover:text-black transition-colors"
+                href="/faq"
+                className="text-white/85 hover:text-white transition-colors cursor-pointer"
               >
                 FAQ
               </Link>
-              <Link
-                href="/dashboard"
-                className="text-zinc-600 hover:text-black transition-colors"
-              >
-                Customer Portal
-              </Link>
-              <button
-                type="button"
-                onClick={() => setIsTermsOpen(true)}
-                className="text-zinc-600 hover:text-black transition-colors cursor-pointer"
-              >
-                Terms of Service
-              </button>
               <a
                 href={discordInvite}
                 target="_blank"
                 rel="noreferrer"
-                className="text-zinc-600 hover:text-black flex items-center gap-1 transition-colors"
+                className="text-white/85 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
               >
+                <DiscordIcon className="h-4 w-4 fill-current text-white" />
                 <span>Discord</span>
                 <ExternalLink className="h-3 w-3" />
               </a>
@@ -84,21 +70,11 @@ export default function Footer() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-6 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 font-mono gap-3">
-            <p>© 2026 Red Line VIP. Engineered for Assault Fire. All rights reserved.</p>
-            <div className="flex items-center gap-4 text-[11px]">
-              <button
-                type="button"
-                onClick={() => setIsTermsOpen(true)}
-                className="hover:text-black transition-colors font-mono cursor-pointer"
-              >
-                Terms & Non-Refundable Policy
-              </button>
-              <span>•</span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="text-zinc-600">Systems Undetected</span>
-              </span>
+          <div className="pt-6 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between text-xs text-white/70 font-mono gap-3 text-center sm:text-left">
+            <p>© 2026 Red Line VIP. All rights reserved.</p>
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-white/85">Assault Fire Systems Undetected</span>
             </div>
           </div>
         </div>

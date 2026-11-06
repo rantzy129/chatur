@@ -1,14 +1,16 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { TimelineContent } from "@/components/ui/timeline-animation";
 import NumberFlow from "@number-flow/react";
 import {
   CheckCheck,
   ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+  Crosshair,
+  Sparkles,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { fireConfetti } from "@/lib/confetti";
 
 interface PricingSectionProps {
@@ -21,445 +23,399 @@ interface PricingSectionProps {
 }
 
 export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
-  // Annual / Monthly Toggle Switch
-  const [isAnnual, setIsAnnual] = useState(false);
-  const [isWeeklyRedline, setIsWeeklyRedline] = useState(false);
+  // 0: Before (hero.png on Left, text on Right)
+  // 1: After (text on Left, hero-2.jpg on Right)
+  const [activeSlide, setActiveSlide] = useState<0 | 1>(0);
+
+  // Selected product & duration inside the Buy Now view
+  const [selectedProduct, setSelectedProduct] = useState<"cheats" | "cleaner">("cheats");
+  const [selectedDuration, setSelectedDuration] = useState<"weekly" | "monthly" | "lifetime">("monthly");
 
   const pricingRef = useRef<HTMLDivElement>(null);
-  const switchRef = useRef<HTMLButtonElement>(null);
 
-  const revealVariants = {
-    visible: (i: number) => ({
-      y: 0,
-      opacity: 1,
-      filter: "blur(0px)",
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    }),
-    hidden: {
-      filter: "blur(8px)",
-      y: 20,
-      opacity: 0,
-    },
+  const goToSlide = (target: 0 | 1) => {
+    setActiveSlide(target);
   };
 
-  const triggerConfetti = () => {
-    if (switchRef.current) {
-      const rect = switchRef.current.getBoundingClientRect();
-      fireConfetti({
-        origin: {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        },
-        count: 90,
-      });
+  const getPrice = () => {
+    if (selectedProduct === "cheats") {
+      if (selectedDuration === "weekly") return 500;
+      if (selectedDuration === "lifetime") return 3000;
+      return 1000;
     } else {
+      if (selectedDuration === "lifetime") return 3000;
+      return 1000;
+    }
+  };
+
+  const getDurationLabel = () => {
+    if (selectedDuration === "weekly") return "7 Days VIP Access";
+    if (selectedDuration === "lifetime") return "Lifetime Permanent";
+    return "30 Days VIP Access";
+  };
+
+  const handleBuyNow = () => {
+    const isLifetime = selectedDuration === "lifetime";
+    const price = getPrice();
+
+    if (isLifetime) {
       fireConfetti({ count: 90 });
     }
-  };
 
-  const handleToggleSwitch = () => {
-    setIsWeeklyRedline(false);
-    const next = !isAnnual;
-    setIsAnnual(next);
-    if (next) {
-      triggerConfetti();
+    if (selectedProduct === "cheats") {
+      const durationTag =
+        selectedDuration === "weekly"
+          ? "1 Week"
+          : selectedDuration === "lifetime"
+          ? "Lifetime"
+          : "1 Month";
+
+      onSelectPlan?.({
+        tier: `Red Line Cheats - ${durationTag}`,
+        price,
+        description:
+          "Undetected stream-proof cheat & wallhack suite for all Assault Fire servers.",
+        isLifetime,
+      });
+    } else {
+      const durationTag = isLifetime ? "Lifetime" : "1 Month";
+      onSelectPlan?.({
+        tier: `Peace Cleaner - ${durationTag}`,
+        price,
+        description:
+          "Removes the device ban you got so you will be able to play Assault Fire again immediately.",
+        isLifetime,
+      });
     }
   };
 
-  const handleSetAnnual = (target: boolean) => {
-    setIsWeeklyRedline(false);
-    if (target === isAnnual) return;
-    setIsAnnual(target);
-    if (target) {
-      triggerConfetti();
-    }
-  };
-
-  const handleSelectRedline = () => {
-    const isWeekly = isWeeklyRedline;
-    const price = isWeekly ? 500 : isAnnual ? 3000 : 1000;
-    const durationLabel = isWeekly ? "1 Week" : isAnnual ? "Lifetime" : "1 Month";
-
-    onSelectPlan?.({
-      tier: `Red Line Cheats - ${durationLabel}`,
-      price,
-      description:
-        "Undetected stream-proof cheat & wallhack suite for all Assault Fire servers.",
-      isLifetime: isAnnual && !isWeekly,
-    });
-  };
-
-  const handleSelectCleaner = () => {
-    const price = isAnnual ? 3000 : 1000;
-    const durationLabel = isAnnual ? "Lifetime" : "1 Month";
-
-    onSelectPlan?.({
-      tier: `Peace Cleaner - ${durationLabel}`,
-      price,
-      description:
-        "Removes the device ban you got so you will be able to play Assault Fire again immediately.",
-      isLifetime: isAnnual,
-    });
-  };
+  const currentPrice = getPrice();
 
   return (
     <div
       ref={pricingRef}
-      className="relative px-4 sm:px-6 lg:px-8 py-16 sm:py-20 mx-auto bg-white text-black"
+      className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-10 sm:py-16 text-black select-none"
     >
-      {/* Subtle Atmospheric Depth */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl h-[400px] z-0 opacity-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(229,57,53,0.08) 0%, transparent 75%)",
-        }}
-      />
+      {/* ─── SECTION HEADER (SKRIPT.GG TAKE CONTROL) ────────────────── */}
+      <div className="relative z-10 text-center mb-10 sm:mb-16 max-w-3xl mx-auto space-y-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[11px] font-mono font-bold tracking-widest text-[#E53935] uppercase shadow-xs">
+          TAKE CONTROL
+        </div>
 
-      {/* Section Header */}
-      <div className="relative z-10 text-center mb-10 max-w-2xl mx-auto space-y-3">
-        <TimelineContent
-          as="h2"
-          animationNum={0}
-          timelineRef={pricingRef}
-          customVariants={revealVariants}
-          className="text-3xl sm:text-5xl font-black font-sans uppercase tracking-tight text-black leading-tight"
-        >
-          DEPLOYMENT PACKAGES
-        </TimelineContent>
+        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-[3.8rem] font-bold font-sans tracking-tight text-black leading-[1.06]">
+          From here,{" "}
+          <span className="text-[#8E95A2] font-semibold block sm:inline">
+            the game plays your way.
+          </span>
+        </h2>
 
-        <TimelineContent
-          as="p"
-          animationNum={1}
-          timelineRef={pricingRef}
-          customVariants={revealVariants}
-          className="text-sm sm:text-base text-zinc-600 font-sans leading-relaxed"
-        >
-          Every tier includes instant Discord OAuth activation, single-machine cryptographic binding, and continuous update coverage.
-        </TimelineContent>
+        <p className="text-sm sm:text-base text-zinc-600 font-sans leading-relaxed max-w-xl mx-auto">
+          Pick yours below. Each page walks you through exactly what changes the moment you load in.
+        </p>
       </div>
 
-      {/* ─── ANNUAL / MONTHLY TOGGLE SWITCH ───────────────────────── */}
-      <TimelineContent
-        as="div"
-        animationNum={2}
-        timelineRef={pricingRef}
-        customVariants={revealVariants}
-        className="relative z-20 flex justify-center mb-12"
+      {/* ─── FLOATING DECORATIVE SLANTED STRIPES (FROM SKRIPT SCREENSHOT) ─── */}
+      <div
+        aria-hidden="true"
+        className="hidden md:flex items-center gap-3 absolute right-[40%] top-60 rotate-[-25deg] opacity-35 pointer-events-none z-0"
       >
-        <div className="flex items-center justify-center gap-3.5 select-none">
-          <button
-            type="button"
-            onClick={() => handleSetAnnual(false)}
-            className={`font-sans text-sm font-semibold transition-colors cursor-pointer ${!isAnnual && !isWeeklyRedline ? "text-black font-bold" : "text-zinc-400 hover:text-black"
-              }`}
-          >
-            Monthly
-          </button>
+        <div className="h-1.5 w-18 rounded-full bg-zinc-300" />
+        <div className="h-1.5 w-10 rounded-full bg-zinc-300" />
+      </div>
 
-          {/* Toggle Switch matching user request & screenshot */}
-          <motion.button
-            ref={switchRef}
-            type="button"
-            role="switch"
-            aria-checked={isAnnual}
-            onClick={handleToggleSwitch}
-            animate={{
-              backgroundColor: isAnnual ? "#000000" : "#D4D4D8",
-            }}
-            transition={{ duration: 0.2 }}
-            className="relative inline-flex h-8 w-14 flex-shrink-0 cursor-pointer rounded-full p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
-          >
-            <span className="sr-only">Toggle annual billing</span>
-            <motion.span
-              animate={{ x: isAnnual ? 24 : 0 }}
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="pointer-events-none block h-6 w-6 rounded-full bg-white shadow-md"
-            />
-          </motion.button>
-
-          <button
-            type="button"
-            onClick={() => handleSetAnnual(true)}
-            className={`font-sans text-sm font-semibold transition-colors flex items-center gap-2 cursor-pointer ${isAnnual ? "text-black font-bold" : "text-zinc-400 hover:text-black"
-              }`}
-          >
-            <span>Annual</span>
-            <span className="rounded-full bg-[#E53935] text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shadow-sm">
-              Save 70%
-            </span>
-          </button>
-        </div>
-      </TimelineContent>
-
-      {/* ─── TWO STREAMLINED PRODUCT CARDS ───────────────────────── */}
-      <div className="relative z-10 grid lg:grid-cols-2 max-w-5xl gap-8 mx-auto items-stretch">
-        {/* ── CARD 1: Red Line Cheats (FLAGSHIP) ──────────────────── */}
-        <TimelineContent
-          as="div"
-          animationNum={3}
-          timelineRef={pricingRef}
-          customVariants={revealVariants}
-          className="h-full"
+      {/* ─── MAIN PRODUCT SECTION: BEFORE & AFTER SWAPPING LAYOUT ────── */}
+      <div className="relative z-10 min-h-[440px] sm:min-h-[480px] lg:min-h-[520px]">
+        <div
+          className={`w-full flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-14 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            activeSlide === 1 ? "lg:flex-row-reverse" : ""
+          }`}
         >
-          <Card className="relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between border-2 border-black bg-white shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-1 h-full">
-            <CardHeader className="p-0 text-left space-y-4">
-              {/* Title & Punchy Micro-Tagline */}
-              <div>
-                <h3 className="text-2xl sm:text-3xl font-black font-sans uppercase tracking-tight text-black">
-                  RED LINE CHEATS
-                </h3>
-                <p className="text-xs sm:text-sm text-zinc-600 font-sans mt-1.5 leading-relaxed">
-                  Stream-proof wallhack, visual ESP & bone tracking for all <strong className="text-black font-semibold">Assault Fire</strong> servers.
-                </p>
-              </div>
+          {/* ─── CHARACTER COMPONENT (MOVES LEFT <-> RIGHT) ─────────── */}
+          <motion.div
+            layout
+            transition={{
+              type: "spring",
+              stiffness: 170,
+              damping: 26,
+            }}
+            className="w-full lg:w-7/12 relative min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] flex items-center justify-center overflow-hidden"
+          >
+            <AnimatePresence mode="wait">
+              {activeSlide === 0 ? (
+                /* Slide 0: hero.png (Standing Upright on Left) */
+                <motion.div
+                  key="hero-standing"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-full flex items-center justify-center cursor-pointer"
+                  onClick={() => goToSlide(1)}
+                  title="Click to view deployment options"
+                >
+                  <img
+                    src="/hero.png"
+                    alt="Assault Fire Squad Standing"
+                    className="w-full max-h-[400px] sm:max-h-[460px] lg:max-h-[520px] object-contain drop-shadow-[0_25px_40px_rgba(0,0,0,0.16)] select-none transition-transform duration-300 hover:scale-[1.01]"
+                  />
+                </motion.div>
+              ) : (
+                /* Slide 1: hero-2.jpg (Crouching & Aiming on Right) */
+                <motion.div
+                  key="hero-aiming"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-full flex items-center justify-center cursor-pointer"
+                  onClick={() => goToSlide(0)}
+                  title="Click to view overview"
+                >
+                  <img
+                    src="/hero-2.png"
+                    alt="Assault Fire Squad Aiming"
+                    className="w-full max-h-[400px] sm:max-h-[460px] lg:max-h-[520px] object-contain drop-shadow-[0_25px_40px_rgba(0,0,0,0.16)] select-none transition-transform duration-300 hover:scale-[1.01]"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
-              {/* Duration Options */}
-              <div className="pt-2">
-                <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-zinc-100 border border-zinc-200 w-full sm:w-fit">
-                  <button
-                    type="button"
-                    onClick={() => setIsWeeklyRedline(true)}
-                    className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all cursor-pointer ${
-                      isWeeklyRedline
-                        ? "bg-black text-white shadow-sm"
-                        : "text-zinc-600 hover:text-black"
-                    }`}
-                  >
-                    1 Week (₱500)
-                  </button>
+          {/* ─── CONTENT COMPONENT (MOVES RIGHT <-> LEFT) ─────────── */}
+          <motion.div
+            layout
+            transition={{
+              type: "spring",
+              stiffness: 170,
+              damping: 26,
+            }}
+            className="w-full lg:w-5/12 relative flex flex-col justify-center pr-0 lg:pr-6"
+          >
+            <AnimatePresence mode="wait">
+              {activeSlide === 0 ? (
+                /* ── SLIDE 0 (BEFORE): ASSAULT FIRE OVERVIEW (RIGHT SIDE) ── */
+                <motion.div
+                  key="overview-content"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  className="space-y-6"
+                >
+                  {/* Square Badges matching [A] [V] from screenshot */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-10 w-10 rounded-xl bg-zinc-100/90 border border-zinc-200/70 flex items-center justify-center shadow-xs">
+                      <Crosshair className="h-5 w-5 text-[#E53935]" />
+                    </div>
+                    <div className="h-10 w-10 rounded-xl bg-zinc-100/90 border border-zinc-200/70 flex items-center justify-center shadow-xs">
+                      <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                    </div>
+                  </div>
 
-                  <div className="relative flex-1 sm:flex-initial">
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide bg-emerald-500 text-white shadow-sm pointer-events-none z-10">
-                      Best Seller!
+                  {/* Title */}
+                  <div>
+                    <h3 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold text-black font-sans tracking-tight leading-[1.08]">
+                      Assault Fire
+                    </h3>
+                  </div>
+
+                  {/* Description matching reference */}
+                  <p className="text-sm sm:text-base text-zinc-500 font-sans leading-relaxed max-w-md">
+                    Works on all Assault Fire servers and client versions. However your match is set up, you'll run it on your terms.
+                  </p>
+
+                  {/* Signature Red Line Action Button */}
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => goToSlide(1)}
+                      className="px-8 py-4 rounded-2xl bg-[#E53935] hover:bg-[#c62828] active:scale-95 text-white font-bold font-sans text-sm sm:text-base tracking-wide flex items-center gap-2.5 transition-all shadow-md hover:shadow-xl shadow-red-500/20 hover:shadow-red-500/30 cursor-pointer"
+                    >
+                      <span>Red Line for Assault Fire</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                /* ── SLIDE 1 (AFTER): "SEE EVERYTHING, MISS NOTHING" (LEFT SIDE) ── */
+                <motion.div
+                  key="buynow-content"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  className="space-y-6"
+                >
+                  {/* Signature 3-Line Headline matching reference screenshot */}
+                  <h3 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-black tracking-tight leading-[1.06] font-sans text-black">
+                    <span className="block">See Everything,</span>
+                    <span className="block text-zinc-400 font-extrabold mt-0.5">
+                      Miss Nothing,
                     </span>
+                    <span className="block text-black mt-0.5">
+                      Own the Server.
+                    </span>
+                  </h3>
+
+                  {/* Editorial Subtitle matching reference */}
+                  <p className="text-sm sm:text-base text-zinc-500 font-sans leading-relaxed max-w-md">
+                    The game looks different when nothing in it is hidden from you. Walk into every round, crossfire, and clutch already knowing how it ends.
+                  </p>
+
+                  {/* Software Suite Switcher */}
+                  <div className="p-1 rounded-2xl bg-zinc-100/90 border border-zinc-200 flex items-center gap-1 max-w-sm">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProduct("cheats")}
+                      className={`flex-1 py-1.5 px-3 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer ${
+                        selectedProduct === "cheats"
+                          ? "bg-white text-black shadow-xs"
+                          : "text-zinc-500 hover:text-black"
+                      }`}
+                    >
+                      Red Line Cheats
+                    </button>
                     <button
                       type="button"
                       onClick={() => {
-                        setIsWeeklyRedline(false);
-                        setIsAnnual(false);
+                        setSelectedProduct("cleaner");
+                        if (selectedDuration === "weekly") {
+                          setSelectedDuration("monthly");
+                        }
                       }}
-                      className={`w-full px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all cursor-pointer ${
-                        !isWeeklyRedline && !isAnnual
-                          ? "bg-black text-white shadow-sm"
-                          : "text-zinc-600 hover:text-black"
+                      className={`flex-1 py-1.5 px-3 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer ${
+                        selectedProduct === "cleaner"
+                          ? "bg-white text-black shadow-xs"
+                          : "text-zinc-500 hover:text-black"
                       }`}
                     >
-                      1 Month (₱1,000)
+                      Peace Cleaner
                     </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsWeeklyRedline(false);
-                      setIsAnnual(true);
-                      triggerConfetti();
-                    }}
-                    className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all cursor-pointer ${
-                      !isWeeklyRedline && isAnnual
-                        ? "bg-black text-white shadow-sm"
-                        : "text-zinc-600 hover:text-black"
-                    }`}
-                  >
-                    Annual (₱3,000)
-                  </button>
-                </div>
-              </div>
+                  {/* Duration Selector Pills */}
+                  <div className="grid grid-cols-3 gap-2 max-w-md w-full">
+                    {selectedProduct === "cheats" && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedDuration("weekly")}
+                        className={`py-2 px-2 sm:px-3 rounded-xl border text-center transition-all cursor-pointer ${
+                          selectedDuration === "weekly"
+                            ? "bg-black text-white border-black shadow-xs"
+                            : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
+                        }`}
+                      >
+                        <span className="block text-xs font-bold whitespace-nowrap">1 Week</span>
+                        <span className="block text-[11px] font-mono opacity-80">₱500</span>
+                      </button>
+                    )}
 
-              {/* Dynamic Price Display */}
-              <div className="py-4 border-y border-zinc-200 flex items-baseline">
-                <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight mr-1 text-black">
-                  ₱
-                </span>
-                <NumberFlow
-                  value={isWeeklyRedline ? 500 : isAnnual ? 3000 : 1000}
-                  className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-black tabular-nums"
-                />
-                <span className="text-xs sm:text-sm text-zinc-500 font-mono ml-2">
-                  / {isWeeklyRedline ? "7 days access" : isAnnual ? "lifetime permanent" : "30 days access"}
-                </span>
-              </div>
-            </CardHeader>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDuration("monthly")}
+                      className={`py-2 px-2 sm:px-3 rounded-xl border text-center transition-all cursor-pointer ${
+                        selectedDuration === "monthly"
+                          ? "bg-black text-white border-black shadow-xs"
+                          : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
+                      }`}
+                    >
+                      <span className="block text-xs font-bold whitespace-nowrap">1 Month</span>
+                      <span className="block text-[11px] font-mono opacity-80">₱1,000</span>
+                    </button>
 
-            <CardContent className="p-0 pt-6 space-y-6 flex-1 flex flex-col justify-between">
-              {/* Primary Authorization CTA Button */}
-              <button
-                type="button"
-                onClick={handleSelectRedline}
-                className="w-full py-3.5 px-6 rounded-2xl font-bold font-sans text-sm tracking-wide transition-all duration-150 flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] bg-black hover:bg-zinc-800 text-white shadow-black/10 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 cursor-pointer"
-              >
-                <span>Buy Now</span>
-                <ArrowRight className="h-4 w-4 text-[#E53935]" />
-              </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDuration("lifetime");
+                        fireConfetti({ count: 90 });
+                      }}
+                      className={`relative py-2 px-2 sm:px-3 rounded-xl border text-center transition-all cursor-pointer ${
+                        selectedDuration === "lifetime"
+                          ? "bg-black text-white border-black shadow-xs"
+                          : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
+                      }`}
+                    >
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.2 rounded-full text-[8px] font-black uppercase tracking-wider bg-[#E53935] text-white whitespace-nowrap shadow-xs">
+                        -70%
+                      </span>
+                      <span className="block text-xs font-bold whitespace-nowrap">Lifetime</span>
+                      <span className="block text-[11px] font-mono opacity-80">₱3,000</span>
+                    </button>
+                  </div>
 
-              {/* Scannable, Clean Feature Checklist */}
-              <ul className="space-y-3 font-sans text-xs sm:text-sm">
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-[#E53935] flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">100% Stream-Proof HUD.</strong> Invisible on OBS Studio & Discord
-                  </span>
-                </li>
+                  {/* Action Button: "Buy Now ₱{Price}" */}
+                  <div className="space-y-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleBuyNow}
+                      className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#E53935] hover:bg-[#c62828] active:scale-95 text-white font-bold font-sans text-sm sm:text-base tracking-wide flex items-center justify-center gap-2.5 transition-all shadow-md hover:shadow-xl shadow-red-500/20 hover:shadow-red-500/30 cursor-pointer"
+                    >
+                      <span>Buy Now ₱{currentPrice.toLocaleString()}</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
 
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-[#E53935] flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Adaptive Skeleton & ESP.</strong> Precise distance tracking & boxes
-                  </span>
-                </li>
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => goToSlide(0)}
+                        className="text-xs font-sans font-semibold text-zinc-400 hover:text-black flex items-center gap-1.5 transition-colors cursor-pointer pt-1"
+                      >
+                        <ArrowLeft className="h-3 w-3" />
+                        <span>Return to Overview</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
 
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-[#E53935] flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Native 144Hz-360Hz Sync.</strong> Zero input lag or FPS loss
-                  </span>
-                </li>
+        {/* ─── VERTICAL SLIDER PILL INDICATOR ON FAR RIGHT EDGE ──────── */}
+        <div className="hidden lg:flex flex-col items-center gap-2 absolute right-0 top-1/2 -translate-y-1/2 select-none z-20">
+          <button
+            type="button"
+            onClick={() => goToSlide(0)}
+            aria-label="View Product Overview (Before)"
+            className={`transition-all duration-300 cursor-pointer ${
+              activeSlide === 0
+                ? "h-7 w-2 rounded-full bg-black shadow-xs"
+                : "h-2 w-2 rounded-full bg-zinc-300 hover:bg-zinc-500"
+            }`}
+          />
+          <button
+            type="button"
+            onClick={() => goToSlide(1)}
+            aria-label="View Product Pitch & Buy Now (After)"
+            className={`transition-all duration-300 cursor-pointer ${
+              activeSlide === 1
+                ? "h-7 w-2 rounded-full bg-black shadow-xs"
+                : "h-2 w-2 rounded-full bg-zinc-300 hover:bg-zinc-500"
+            }`}
+          />
+        </div>
+      </div>
 
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-[#E53935] flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Single-Seat Cryptographic Lock.</strong> Instant Discord OAuth binding
-                  </span>
-                </li>
-
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-[#E53935] flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Continuous Updates & Role.</strong> Verified VIP Discord Syndicate
-                  </span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </TimelineContent>
-
-        {/* ── CARD 2: PEACE CLEANER (OPTIMIZER) ───────────────────── */}
-        <TimelineContent
-          as="div"
-          animationNum={4}
-          timelineRef={pricingRef}
-          customVariants={revealVariants}
-          className="h-full"
-        >
-          <Card className="relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between border border-zinc-200 hover:border-zinc-400 bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 h-full">
-            <CardHeader className="p-0 text-left space-y-4">
-              {/* Title & Punchy Micro-Tagline */}
-              <div>
-                <h3 className="text-2xl sm:text-3xl font-black font-sans uppercase tracking-tight text-black">
-                  PEACE CLEANER
-                </h3>
-                <p className="text-xs sm:text-sm text-zinc-600 font-sans mt-1.5 leading-relaxed">
-                  Removes the device ban you got so you will be able to play again on all <strong className="text-black font-semibold">Assault Fire</strong> servers.
-                </p>
-              </div>
-
-              {/* Duration Options */}
-              <div className="pt-2">
-                <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-zinc-100 border border-zinc-200 w-full sm:w-fit">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsAnnual(false);
-                      setIsWeeklyRedline(false);
-                    }}
-                    className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all cursor-pointer ${
-                      !isAnnual
-                        ? "bg-black text-white shadow-sm"
-                        : "text-zinc-600 hover:text-black"
-                    }`}
-                  >
-                    1 Month (₱1,000)
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsAnnual(true);
-                      triggerConfetti();
-                    }}
-                    className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all cursor-pointer ${
-                      isAnnual
-                        ? "bg-black text-white shadow-sm"
-                        : "text-zinc-600 hover:text-black"
-                    }`}
-                  >
-                    Annual (₱3,000)
-                  </button>
-                </div>
-              </div>
-
-              {/* Dynamic Price Display */}
-              <div className="py-4 border-y border-zinc-200 flex items-baseline">
-                <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight mr-1 text-black">
-                  ₱
-                </span>
-                <NumberFlow
-                  value={isAnnual ? 3000 : 1000}
-                  className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-black tabular-nums"
-                />
-                <span className="text-xs sm:text-sm text-zinc-500 font-mono ml-2">
-                  / {isAnnual ? "lifetime permanent" : "30 days access"}
-                </span>
-              </div>
-            </CardHeader>
-
-            <CardContent className="p-0 pt-6 space-y-6 flex-1 flex flex-col justify-between">
-              {/* Primary Authorization CTA Button */}
-              <button
-                type="button"
-                onClick={handleSelectCleaner}
-                className="w-full py-3.5 px-6 rounded-2xl font-bold font-sans text-sm tracking-wide transition-all duration-150 flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] bg-black hover:bg-zinc-800 text-white shadow-black/10 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 cursor-pointer"
-              >
-                <span>Buy Now</span>
-                <ArrowRight className="h-4 w-4 text-[#E53935]" />
-              </button>
-
-              {/* Scannable, Clean Feature Checklist */}
-              <ul className="space-y-3 font-sans text-xs sm:text-sm">
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Removes Device Bans.</strong> Clears hardware ban flags so you can play again
-                  </span>
-                </li>
-
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Deep HWID & Trace Cleaner.</strong> Cleans anti-cheat tokens & tracking registry
-                  </span>
-                </li>
-
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">FPS & Memory Stabilization.</strong> Flushes standby cache to stop micro-stutters
-                  </span>
-                </li>
-
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Single-Seat Hardware Lock.</strong> Bound securely to your Discord account
-                  </span>
-                </li>
-
-                <li className="flex items-start gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
-                  <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Continuous Updates.</strong> All future Peace Cleaner bypass updates included
-                  </span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </TimelineContent>
+      {/* Mobile Horizontal Slider Dots */}
+      <div className="lg:hidden flex items-center justify-center gap-2 mt-6 select-none">
+        <button
+          type="button"
+          onClick={() => goToSlide(0)}
+          className={`transition-all duration-300 cursor-pointer ${
+            activeSlide === 0
+              ? "w-7 h-2 rounded-full bg-black"
+              : "w-2 h-2 rounded-full bg-zinc-300"
+          }`}
+        />
+        <button
+          type="button"
+          onClick={() => goToSlide(1)}
+          className={`transition-all duration-300 cursor-pointer ${
+            activeSlide === 1
+              ? "w-7 h-2 rounded-full bg-black"
+              : "w-2 h-2 rounded-full bg-zinc-300"
+          }`}
+        />
       </div>
     </div>
   );

@@ -45,35 +45,35 @@ export default function OrderConfirmationModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="order-confirmation-title"
-        className="relative my-auto w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 text-center shadow-2xl sm:p-8"
+        className="relative my-auto w-full max-w-md rounded-3xl border border-zinc-200/90 bg-white p-6 sm:p-8 text-center shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] font-sans"
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Close order confirmation"
-          className="absolute right-4 top-4 rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E53935]"
+          className="absolute right-5 top-5 rounded-full bg-zinc-100 hover:bg-zinc-200 p-2 text-zinc-400 hover:text-black transition-colors cursor-pointer"
         >
           <X className="h-4 w-4" />
         </button>
 
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-600 shadow-sm">
-          <Check className="h-7 w-7" strokeWidth={2.5} />
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl border border-emerald-200/80 bg-emerald-50 text-emerald-600 shadow-sm">
+          <Check className="h-8 w-8" strokeWidth={2.5} />
         </div>
         <h2
           id="order-confirmation-title"
-          className="text-2xl font-black text-black font-sans tracking-tight uppercase"
+          className="text-2xl font-black text-black font-sans tracking-tight"
         >
-          ORDER TRANSMITTED
+          Order Transmitted
         </h2>
-        <p className="mx-auto mt-3 max-w-sm text-xs sm:text-sm leading-relaxed text-zinc-600 font-sans">
-          Your payment receipt has been delivered to staff for cryptographic verification. Your license key will automatically unlock in your VIP dashboard once verified.
+        <p className="mx-auto mt-2 max-w-sm text-xs sm:text-sm leading-relaxed text-zinc-500 font-sans">
+          Your payment receipt has been delivered to staff for verification. Your VIP license key will automatically unlock in your dashboard once approved.
         </p>
 
-        <div className="mt-5 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
-          <span className="block text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-semibold">
+        <div className="mt-5 rounded-2xl border border-zinc-200/80 bg-zinc-50 px-4 py-3.5">
+          <span className="block text-[11px] uppercase tracking-wider text-zinc-400 font-bold">
             Order Reference Code
           </span>
-          <strong className="mt-1 block break-all font-mono text-emerald-700 text-sm tracking-wider">
+          <strong className="mt-1 block break-all font-mono text-emerald-700 text-sm sm:text-base font-bold tracking-wider">
             {orderNumber}
           </strong>
         </div>
@@ -82,15 +82,15 @@ export default function OrderConfirmationModal({
           <Link
             href="/dashboard"
             onClick={onClose}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-black hover:bg-zinc-800 px-4 text-xs font-bold font-mono text-white transition-all shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-black hover:bg-zinc-800 px-4 text-xs sm:text-sm font-bold font-sans text-white transition-all shadow-md active:scale-[0.98] cursor-pointer"
           >
-            <span>View License Portal</span>
+            <span>View VIP Portal</span>
             <ChevronRight className="h-4 w-4 text-[#E53935]" />
           </Link>
           <button
             type="button"
             onClick={onClose}
-            className="min-h-11 rounded-xl border border-zinc-200 bg-zinc-100 px-4 text-xs font-semibold font-mono text-black transition-all hover:bg-zinc-200 active:scale-[0.98]"
+            className="min-h-12 rounded-2xl border border-zinc-200 bg-zinc-100 hover:bg-zinc-200 px-4 text-xs sm:text-sm font-semibold font-sans text-black transition-all active:scale-[0.98] cursor-pointer"
           >
             Continue Browsing
           </button>

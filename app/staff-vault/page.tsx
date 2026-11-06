@@ -115,9 +115,9 @@ function Sidebar({
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-zinc-200 bg-white lg:flex">
       <a href="/staff-vault" className="flex h-[76px] items-center gap-3 border-b border-zinc-200 px-6">
-        <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-zinc-200 bg-white p-1.5 shadow-sm">
-          <img src="/logo.png" alt="" className="h-full w-full object-contain" />
-        </span>
+        <div className="flex h-8 items-center justify-center">
+          <img src="/logo.png" alt="Red Line" className="h-6 w-auto max-w-[85px] object-contain drop-shadow-sm" />
+        </div>
         <span>
           <span className="block text-sm font-black tracking-tight text-black font-sans">RED LINE</span>
           <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500 font-mono">
@@ -1107,9 +1107,9 @@ export default function AdminPage() {
           <section className="relative hidden min-h-screen flex-col justify-between overflow-hidden border-r border-zinc-200 bg-white p-10 lg:flex xl:p-14">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_22%,rgba(229,57,53,0.06),transparent_50%)]" />
             <a href="/" className="relative flex w-fit items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-zinc-200 bg-white p-1.5 shadow-sm">
-                <img src="/logo.png" alt="" className="h-full w-full object-contain" />
-              </span>
+              <div className="flex h-8 items-center justify-center">
+                <img src="/logo.png" alt="Red Line" className="h-7 w-auto max-w-[95px] object-contain drop-shadow-sm" />
+              </div>
               <span>
                 <span className="block text-sm font-black tracking-tight text-black font-sans">RED LINE</span>
                 <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500 font-mono">Admin workspace</span>
@@ -1139,9 +1139,9 @@ export default function AdminPage() {
           <main className="flex min-h-screen flex-col bg-[#FAFAFA]">
             <header className="flex h-[72px] items-center justify-between border-b border-zinc-200 bg-white px-5 sm:px-8">
               <a href="/" className="flex items-center gap-2.5 lg:hidden">
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl border border-zinc-200 bg-white p-1 shadow-sm">
-                  <img src="/logo.png" alt="" className="h-full w-full object-contain" />
-                </span>
+                <div className="flex h-7 items-center justify-center">
+                  <img src="/logo.png" alt="Red Line" className="h-6 w-auto max-w-[80px] object-contain drop-shadow-sm" />
+                </div>
                 <span className="text-xs font-black tracking-tight text-black font-sans">RED LINE ADMIN</span>
               </a>
               <span className="hidden text-[12px] font-mono text-zinc-500 lg:inline">Secure sign in</span>

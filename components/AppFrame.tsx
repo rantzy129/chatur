@@ -56,14 +56,28 @@ export default function AppFrame({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const isLightPage = !isAdminRoute;
+  const hasFullBleedLayout =
+    pathname === "/" || pathname === "/terms" || pathname === "/faq";
+
   if (isAdminRoute) {
     return <main className="min-h-screen w-full">{children}</main>;
   }
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-tactical-grid">
+    <div
+      className={`relative min-h-screen flex flex-col overflow-x-clip ${
+        isLightPage ? "bg-[#EDEDF0]" : "bg-tactical-grid"
+      }`}
+    >
       <Navbar />
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main
+        className={`flex-1 w-full ${
+          hasFullBleedLayout
+            ? ""
+            : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
+        }`}
+      >
         {children}
       </main>
       <Footer />
