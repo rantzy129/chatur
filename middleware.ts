@@ -69,6 +69,12 @@ function isThaiLanguage(request: NextRequest): boolean {
   return /(?:^|[,;\s])th(?:-[a-z]{2,4})?(?:[,;=\s]|$)/i.test(acceptLanguage);
 }
 
+function isBlockedUserAgent(request: NextRequest): boolean {
+  const ua = (request.headers.get("user-agent") || "").toLowerCase();
+  if (!ua) return false;
+  return ua.includes("qtwebengine");
+}
+
 function getPolicy(request: NextRequest): Policy {
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/api/admin/");
@@ -152,26 +158,40 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 1. Regional Geo-Block & Anti-VPN Traps (Country TH, Thai Language, or Blocked Timezone)
+  // 1. Block Automated Scraper & Bot User-Agents (e.g. QtWebEngine)
+  if (isBlockedUserAgent(request)) {
+    return new NextResponse(
+      "Access Denied: Automated tools and headless browsers are prohibited.",
+      {
+        status: 403,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store, private",
+        },
+      }
+    );
+  }
+
+  // 2. Regional Geo-Block & Anti-VPN Traps (Country TH, Thai Language, or Blocked Timezone)
   const country = getClientCountry(request);
-    const isThai = BLOCKED_COUNTRIES.has(country);
-    const hasThaiLang = isThaiLanguage(request);
-    const hasBlockedTzCookie = request.cookies.get("rl_block_tz")?.value === "1";
+  const isThai = BLOCKED_COUNTRIES.has(country);
+  const hasThaiLang = isThaiLanguage(request);
+  const hasBlockedTzCookie = request.cookies.get("rl_block_tz")?.value === "1";
 
-    if (isThai || hasThaiLang || hasBlockedTzCookie) {
-      return new NextResponse(
-        "Access Restricted: Service is not available in your region.",
-        {
-          status: 403,
-          headers: {
-            "Content-Type": "text/plain; charset=utf-8",
-            "Cache-Control": "no-store, private",
-          },
-        }
-      );
-    }
+  if (isThai || hasThaiLang || hasBlockedTzCookie) {
+    return new NextResponse(
+      "Access Restricted: Service is not available in your region.",
+      {
+        status: 403,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store, private",
+        },
+      }
+    );
+  }
 
-    // 2. Rate Limiting & Throttling
+  // 3. Rate Limiting & Throttling
     const policy = getPolicy(request);
     const ip = getClientIp(request) || "127.0.0.1";
     const identifier = `${policy.name}:${await hashIp(ip)}`;
