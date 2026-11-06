@@ -46,6 +46,12 @@ export default function Navbar() {
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
               <Link
+                href="/#features"
+                className="text-zinc-600 hover:text-black transition-colors duration-150"
+              >
+                <span>Features</span>
+              </Link>
+              <Link
                 href="/#pricing"
                 className={`transition-colors duration-150 flex items-center gap-1.5 ${
                   pathname === "/#pricing" ? "text-black font-bold" : "text-zinc-600 hover:text-black"
@@ -53,6 +59,12 @@ export default function Navbar() {
               >
                 {pathname === "/#pricing" && <span className="h-1.5 w-1.5 rounded-full bg-[#E53935]" />}
                 <span>Pricing & Plans</span>
+              </Link>
+              <Link
+                href="/#faq"
+                className="text-zinc-600 hover:text-black transition-colors duration-150"
+              >
+                <span>FAQ</span>
               </Link>
               <Link
                 href="/dashboard"
@@ -167,11 +179,25 @@ export default function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden px-4 pt-2 pb-6 border-t border-zinc-200 bg-white space-y-3">
             <Link
+              href="/#features"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2.5 rounded-xl text-sm text-zinc-800 hover:text-black hover:bg-zinc-100 font-medium"
+            >
+              Features
+            </Link>
+            <Link
               href="/#pricing"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2.5 rounded-xl text-sm text-zinc-800 hover:text-black hover:bg-zinc-100 font-medium"
             >
               Pricing & Plans
+            </Link>
+            <Link
+              href="/#faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2.5 rounded-xl text-sm text-zinc-800 hover:text-black hover:bg-zinc-100 font-medium"
+            >
+              FAQ
             </Link>
             <Link
               href="/dashboard"

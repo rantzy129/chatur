@@ -28,17 +28,29 @@ export default function Footer() {
                 <span className="whitespace-nowrap tracking-tight">RED LINE</span>
               </Link>
               <p className="text-xs text-zinc-600 max-w-sm font-sans leading-relaxed">
-                Private tactical visual engine engineered specifically for Assault Fire PH competitive performance and stream isolation.
+                Undetected tactical cheat suite and stream-proof wallhack engineered for all Assault Fire servers.
               </p>
             </div>
 
             {/* Quick Navigation Links */}
             <nav className="flex flex-wrap items-center gap-6 font-sans text-xs sm:text-sm font-medium">
               <Link
+                href="/#features"
+                className="text-zinc-600 hover:text-black transition-colors"
+              >
+                Features
+              </Link>
+              <Link
                 href="/#pricing"
                 className="text-zinc-600 hover:text-black transition-colors"
               >
                 Pricing & Plans
+              </Link>
+              <Link
+                href="/#faq"
+                className="text-zinc-600 hover:text-black transition-colors"
+              >
+                FAQ
               </Link>
               <Link
                 href="/dashboard"
@@ -67,7 +79,7 @@ export default function Footer() {
 
           {/* Bottom Bar */}
           <div className="pt-6 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 font-mono gap-3">
-            <p>© 2026 Red Line VIP. Engineered for Assault Fire PH. All rights reserved.</p>
+            <p>© 2026 Red Line VIP. Engineered for Assault Fire. All rights reserved.</p>
             <div className="flex items-center gap-4 text-[11px]">
               <button
                 type="button"

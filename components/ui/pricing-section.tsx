@@ -88,7 +88,7 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
       tier: `Red Line Cheats - ${durationLabel}`,
       price,
       description:
-        "Tactical stream-proof visual overlay suite engineered specifically for Assault Fire PH.",
+        "Undetected stream-proof cheat & wallhack suite for all Assault Fire servers.",
       isLifetime: isAnnual && !isWeekly,
     });
   };
@@ -101,7 +101,7 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
       tier: `Peace Cleaner - ${durationLabel}`,
       price,
       description:
-        "1-click engine cache, standby memory, and registry purge engineered specifically for Assault Fire PH.",
+        "Removes the device ban you got so you will be able to play Assault Fire again immediately.",
       isLifetime: isAnnual,
     });
   };
@@ -215,7 +215,7 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
                   RED LINE CHEATS
                 </h3>
                 <p className="text-xs sm:text-sm text-zinc-600 font-sans mt-1.5 leading-relaxed">
-                  Stream-proof tactical visual overlay suite for <strong className="text-black font-semibold">Assault Fire PH</strong>.
+                  Stream-proof wallhack, visual ESP & bone tracking for all <strong className="text-black font-semibold">Assault Fire</strong> servers.
                 </p>
               </div>
 
@@ -355,7 +355,7 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
                   PEACE CLEANER
                 </h3>
                 <p className="text-xs sm:text-sm text-zinc-600 font-sans mt-1.5 leading-relaxed">
-                  1-click engine cache purge & FPS stabilizer for <strong className="text-black font-semibold">Assault Fire PH</strong>.
+                  Removes the device ban you got so you will be able to play again on all <strong className="text-black font-semibold">Assault Fire</strong> servers.
                 </p>
               </div>
 
@@ -425,35 +425,35 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
                 <li className="flex items-start gap-2.5">
                   <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
                   <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">1-Click Engine Purge.</strong> Flushes shader cache & match buffers
+                    <strong className="text-black font-semibold">Removes Device Bans.</strong> Clears hardware ban flags so you can play again
                   </span>
                 </li>
 
                 <li className="flex items-start gap-2.5">
                   <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
                   <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">FPS & Memory Stabilization.</strong> Eliminates micro-stutter & crashes
+                    <strong className="text-black font-semibold">Deep HWID & Trace Cleaner.</strong> Cleans anti-cheat tokens & tracking registry
                   </span>
                 </li>
 
                 <li className="flex items-start gap-2.5">
                   <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
                   <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">100% External Utility.</strong> Zero game file or memory modification
+                    <strong className="text-black font-semibold">FPS & Memory Stabilization.</strong> Flushes standby cache to stop micro-stutters
                   </span>
                 </li>
 
                 <li className="flex items-start gap-2.5">
                   <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
                   <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Single-Seat Hardware Lock.</strong> Bound to your Discord account
+                    <strong className="text-black font-semibold">Single-Seat Hardware Lock.</strong> Bound securely to your Discord account
                   </span>
                 </li>
 
                 <li className="flex items-start gap-2.5">
                   <CheckCheck className="h-4 w-4 text-zinc-900 flex-shrink-0 mt-0.5" />
                   <span className="text-zinc-800 leading-snug">
-                    <strong className="text-black font-semibold">Continuous Updates.</strong> All future Peace Cleaner revisions included
+                    <strong className="text-black font-semibold">Continuous Updates.</strong> All future Peace Cleaner bypass updates included
                   </span>
                 </li>
               </ul>

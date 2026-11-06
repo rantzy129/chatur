@@ -4,8 +4,9 @@ import type { Metadata } from "next";
 import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Terms of Service for Assault Fire PH",
-  description: "Terms of service, refund policy, and operational risk disclaimer for Red Line VIP.",
+  title: "Terms of Service | Assault Fire Cheats & VIP Access",
+  description:
+    "Terms of service, refund policy, and operational risk disclaimer for Red Line VIP cheat suite for Assault Fire.",
   alternates: {
     canonical: new URL("/terms", siteUrl).toString(),
   },
@@ -31,7 +32,7 @@ export default function TermsPage() {
           TERMS OF SERVICE & DISCLAIMER
         </h1>
         <p className="text-xs text-zinc-500 font-mono">
-          Effective Date: October 2026 • Assault Fire PH Single-Seat License Agreement
+          Effective Date: October 2026 • Assault Fire VIP Single-Seat License Agreement
         </p>
       </div>
 
