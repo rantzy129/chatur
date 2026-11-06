@@ -24,7 +24,7 @@ function isPeaceCleanerLicense(license: LicenseRow) {
   return key.startsWith("PC-") || tier.includes("peace") || tier.includes("cleaner");
 }
 
-function isEsmiringhoyLicense(license: LicenseRow) {
+function isRedLineLicense(license: LicenseRow) {
   const key = (license.license_key || "").toUpperCase();
   const tier = (license.tier || "").toLowerCase();
   return key.startsWith("ESM-") || (!key.startsWith("PC-") && !tier.includes("peace") && !tier.includes("cleaner"));
@@ -75,7 +75,7 @@ export async function GET(req: Request) {
     } else {
       // Default: if user has active PC license and no ESM, choose PC
       const hasPc = activeLicenses.some(isPeaceCleanerLicense);
-      const hasEsm = activeLicenses.some(isEsmiringhoyLicense);
+      const hasEsm = activeLicenses.some(isRedLineLicense);
       if (hasPc && !hasEsm) targetProduct = "PC";
       else targetProduct = "ESM";
     }
@@ -90,10 +90,10 @@ export async function GET(req: Request) {
         );
       }
     } else {
-      const hasActiveEsm = activeLicenses.some(isEsmiringhoyLicense);
+      const hasActiveEsm = activeLicenses.some(isRedLineLicense);
       if (!hasActiveEsm) {
         return NextResponse.json(
-          { error: "An active Esmiringhoy license is required to download this package." },
+          { error: "An active Red Line license is required to download this package." },
           { status: 403 }
         );
       }

@@ -86,7 +86,7 @@ export async function POST(req: Request) {
         expiresAt = exp.toISOString();
       }
 
-      const productTag = prefix === "PC" ? "[Peace Cleaner]" : "[Esmiringhoy]";
+      const productTag = prefix === "PC" ? "[Peace Cleaner]" : "[Red Line]";
       const finalTier = tier ? `${productTag} ${tier}` : (expiresAt ? `${productTag} Monthly VIP` : `${productTag} Lifetime VIP`);
 
       const { data, error } = await supabaseAdmin

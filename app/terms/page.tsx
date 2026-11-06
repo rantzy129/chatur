@@ -155,7 +155,7 @@ export default function TermsPage() {
             Third-Party Independence &amp; Non-Affiliation
           </h2>
           <p>
-            Red Line VIP and Esmiringhoy are independent third-party performance and tactical display tools developed specifically for the Assault Fire PH client. This software is completely independent and is not endorsed by, sponsored by, or affiliated with the original game developers, creators, or trademark holders. All trademarks, game titles, and assets belong to their respective copyright owners.
+            Red Line VIP is an independent third-party performance and tactical display tool developed specifically for the Assault Fire client. This software is completely independent and is not endorsed by, sponsored by, or affiliated with the original game developers, creators, or trademark holders. All trademarks, game titles, and assets belong to their respective copyright owners.
           </p>
         </section>
       </div>

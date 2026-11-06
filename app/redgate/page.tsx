@@ -1540,7 +1540,7 @@ export default function AdminPage() {
                         : "border-zinc-200 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-black"
                     }`}
                   >
-                    <span>Esmiringhoy</span>
+                    <span>Red Line</span>
                   </button>
                   <button
                     type="button"

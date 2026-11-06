@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     }
 
     const tierPrices: Record<string, number> = {
-      // Red Line Cheats / Esmiringhoy VIP
+      // Red Line Cheats VIP
       "Weekly VIP": 500,
       "Monthly VIP": 1000,
       "Lifetime VIP Pass": 3000,
