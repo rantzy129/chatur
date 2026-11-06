@@ -63,6 +63,12 @@ function getClientCountry(request: NextRequest): string {
   return (vercelCountry || cfCountry || "").trim().toUpperCase();
 }
 
+function isThaiLanguage(request: NextRequest): boolean {
+  const acceptLanguage = (request.headers.get("accept-language") || "").toLowerCase();
+  if (!acceptLanguage) return false;
+  return /(?:^|[,;\s])th(?:-[a-z]{2,4})?(?:[,;=\s]|$)/i.test(acceptLanguage);
+}
+
 function getPolicy(request: NextRequest): Policy {
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/api/admin/");
@@ -146,82 +152,86 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 1. Regional Geo-Block Enforcement (e.g. Thailand)
+  // 1. Regional Geo-Block & Anti-VPN Traps (Country TH, Thai Language, or Blocked Timezone)
   const country = getClientCountry(request);
-  if (BLOCKED_COUNTRIES.has(country)) {
-    return new NextResponse(
-      "Bawal ka diri bai.",
-      {
-        status: 403,
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Cache-Control": "no-store, private",
-        },
+    const isThai = BLOCKED_COUNTRIES.has(country);
+    const hasThaiLang = isThaiLanguage(request);
+    const hasBlockedTzCookie = request.cookies.get("rl_block_tz")?.value === "1";
+
+    if (isThai || hasThaiLang || hasBlockedTzCookie) {
+      return new NextResponse(
+        "Access Restricted: Service is not available in your region.",
+        {
+          status: 403,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "no-store, private",
+          },
+        }
+      );
+    }
+
+    // 2. Rate Limiting & Throttling
+    const policy = getPolicy(request);
+    const ip = getClientIp(request) || "127.0.0.1";
+    const identifier = `${policy.name}:${await hashIp(ip)}`;
+    const limiter = getRateLimiter(policy);
+
+    let success = true;
+    let limit = policy.limit;
+    let remaining = policy.limit;
+    let resetTimeMs = Date.now() + 60_000;
+
+    if (limiter) {
+      try {
+        const result = await limiter.limit(identifier);
+        success = result.success;
+        limit = result.limit;
+        remaining = result.remaining;
+        resetTimeMs = result.reset;
+      } catch (error) {
+        console.warn("Distributed rate limiter error, falling back to local window:", error);
+        const memResult = checkMemoryRateLimit(identifier, policy.limit, parseWindowToMs(policy.window));
+        success = memResult.success;
+        remaining = memResult.remaining;
+        resetTimeMs = memResult.reset;
       }
-    );
-  }
-
-  // 2. Rate Limiting & Throttling
-  const policy = getPolicy(request);
-  const ip = getClientIp(request) || "127.0.0.1";
-  const identifier = `${policy.name}:${await hashIp(ip)}`;
-  const limiter = getRateLimiter(policy);
-
-  let success = true;
-  let limit = policy.limit;
-  let remaining = policy.limit;
-  let resetTimeMs = Date.now() + 60_000;
-
-  if (limiter) {
-    try {
-      const result = await limiter.limit(identifier);
-      success = result.success;
-      limit = result.limit;
-      remaining = result.remaining;
-      resetTimeMs = result.reset;
-    } catch (error) {
-      console.warn("Distributed rate limiter error, falling back to local window:", error);
+    } else {
+      // In-memory sliding-window fallback
       const memResult = checkMemoryRateLimit(identifier, policy.limit, parseWindowToMs(policy.window));
       success = memResult.success;
       remaining = memResult.remaining;
       resetTimeMs = memResult.reset;
     }
-  } else {
-    // In-memory sliding-window fallback
-    const memResult = checkMemoryRateLimit(identifier, policy.limit, parseWindowToMs(policy.window));
-    success = memResult.success;
-    remaining = memResult.remaining;
-    resetTimeMs = memResult.reset;
+
+    const resetSeconds = Math.max(1, Math.ceil((resetTimeMs - Date.now()) / 1000));
+    const headers = new Headers({
+      "Cache-Control": "no-store",
+      "X-RateLimit-Limit": String(limit),
+      "X-RateLimit-Remaining": String(remaining),
+      "X-RateLimit-Reset": String(Math.ceil(resetTimeMs / 1000)),
+    });
+
+    if (!success) {
+      headers.set("Retry-After", String(resetSeconds));
+      return NextResponse.json(
+        { error: "Too many requests. Please wait before trying again." },
+        { status: 429, headers }
+      );
+    }
+
+    return NextResponse.next({ headers });
   }
 
-  const resetSeconds = Math.max(1, Math.ceil((resetTimeMs - Date.now()) / 1000));
-  const headers = new Headers({
-    "Cache-Control": "no-store",
-    "X-RateLimit-Limit": String(limit),
-    "X-RateLimit-Remaining": String(remaining),
-    "X-RateLimit-Reset": String(Math.ceil(resetTimeMs / 1000)),
-  });
-
-  if (!success) {
-    headers.set("Retry-After", String(resetSeconds));
-    return NextResponse.json(
-      { error: "Too many requests. Please wait before trying again." },
-      { status: 429, headers }
-    );
-  }
-
-  return NextResponse.next({ headers });
-}
-
-export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - static media files (png, jpg, webp, svg, pdf)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf)$).*)",
-  ],
-};
+  export const config = {
+    matcher: [
+      /*
+       * Match all request paths except for the ones starting with:
+       * - _next/static (static files)
+       * - _next/image (image optimization files)
+       * - favicon.ico (favicon file)
+       * - static media files (png, jpg, webp, svg, pdf)
+       */
+      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf)$).*)",
+    ],
+  };
