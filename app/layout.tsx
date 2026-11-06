@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s | Red Line VIP - Assault Fire Cheats",
   },
   description:
-    "The #1 undetected Assault Fire cheat and stream-proof wallhack ESP suite. Bone skeleton aimbot tracking, visual ESP overlays, and Peace Cleaner device ban remover. Works on all AF servers and versions.",
+    "Undetected Assault Fire cheat and stream-proof wallhack. Bone skeleton aim tracking, ESP overlays, and Peace Cleaner device ban removal for all AF servers.",
   keywords: [
     "assault fire cheat",
     "assault fire cheats",
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     siteName: "Red Line VIP - Assault Fire Cheats",
     title: "Assault Fire Cheat & Undetected Wallhack | Red Line VIP",
     description:
-      "Undetected stream-proof wallhack, visual ESP suite, bone skeleton aimbot tracking, and Peace Cleaner device ban remover for all Assault Fire servers.",
+      "Undetected Assault Fire cheat and stream-proof wallhack. Bone skeleton tracking & Peace Cleaner device ban removal.",
     images: [
       {
         url: "/opengraph-image",
@@ -94,7 +94,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Assault Fire Cheat & Undetected Wallhack | Red Line VIP",
     description:
-      "Undetected stream-proof wallhack, visual ESP suite, bone skeleton aimbot tracking, and Peace Cleaner device ban remover for all Assault Fire servers.",
+      "Undetected Assault Fire cheat and stream-proof wallhack. Bone skeleton tracking & Peace Cleaner device ban removal.",
     images: [
       {
         url: "/twitter-image",

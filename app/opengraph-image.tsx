@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { logoBase64 } from "@/lib/logo-base64";
 
 export const runtime = "edge";
 
@@ -49,25 +50,31 @@ export default async function Image() {
           }}
         />
 
-        {/* Top section: Logo + Brand */}
+        {/* Top section: Real Web Logo + Brand */}
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          {/* Red square brand mark */}
+          {/* Logo container matching website styling */}
           <div
             style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "14px",
-              backgroundColor: "#E53935",
+              width: "60px",
+              height: "60px",
+              borderRadius: "16px",
+              backgroundColor: "#FFFFFF",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "28px",
-              fontWeight: 900,
-              color: "#FFFFFF",
-              letterSpacing: "-1px",
+              padding: "6px",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
             }}
           >
-            RL
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={logoBase64}
+              alt="Red Line VIP Logo"
+              width="48"
+              height="48"
+              style={{ objectFit: "contain" }}
+            />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
             <span
@@ -173,4 +180,3 @@ export default async function Image() {
     }
   );
 }
-
