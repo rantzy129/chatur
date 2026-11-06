@@ -11,6 +11,49 @@ type Policy = {
 const policies = new Map<string, Ratelimit>();
 let redis: Redis | undefined;
 
+// In-memory sliding-window fallback when Upstash Redis is not yet provisioned
+type MemoryBucket = { count: number; resetAt: number };
+const memoryBuckets = new Map<string, MemoryBucket>();
+
+function parseWindowToMs(window: Policy["window"]): number {
+  const [numStr, unit] = window.split(" ") as [string, "s" | "m" | "h"];
+  const num = parseInt(numStr, 10);
+  if (unit === "h") return num * 3_600_000;
+  if (unit === "m") return num * 60_000;
+  return num * 1_000;
+}
+
+function checkMemoryRateLimit(
+  identifier: string,
+  limit: number,
+  windowMs: number
+): { success: boolean; remaining: number; reset: number } {
+  const now = Date.now();
+
+  // Periodic pruning of stale memory keys
+  if (memoryBuckets.size > 1500) {
+    for (const [key, bucket] of memoryBuckets.entries()) {
+      if (bucket.resetAt <= now) {
+        memoryBuckets.delete(key);
+      }
+    }
+  }
+
+  const existing = memoryBuckets.get(identifier);
+  if (!existing || existing.resetAt <= now) {
+    const resetAt = now + windowMs;
+    memoryBuckets.set(identifier, { count: 1, resetAt });
+    return { success: true, remaining: limit - 1, reset: resetAt };
+  }
+
+  if (existing.count >= limit) {
+    return { success: false, remaining: 0, reset: existing.resetAt };
+  }
+
+  existing.count += 1;
+  return { success: true, remaining: limit - existing.count, reset: existing.resetAt };
+}
+
 function getPolicy(request: NextRequest): Policy {
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/api/admin/");
@@ -18,6 +61,10 @@ function getPolicy(request: NextRequest): Policy {
   const hasValidAdminSecret =
     !!process.env.ADMIN_SECRET_KEY &&
     request.headers.get("x-admin-secret") === process.env.ADMIN_SECRET_KEY;
+
+  if (pathname === "/redgate" || pathname === "/staff-vault") {
+    return { name: "admin-probe", limit: 10, window: "1 m" };
+  }
 
   if ((isAdminRoute || isAdminAction) && !hasValidAdminSecret) {
     return { name: "admin-auth", limit: 5, window: "15 m" };
@@ -39,12 +86,14 @@ function getPolicy(request: NextRequest): Policy {
 }
 
 function getClientIp(request: NextRequest): string | null {
+  // Check authoritative reverse-proxy headers from Vercel & Cloudflare before unverified headers
+  const vercelIp = request.headers.get("x-vercel-forwarded-for")?.trim();
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  const cfIp = request.headers.get("cf-connecting-ip")?.trim();
   const forwardedFor = request.headers.get("x-forwarded-for");
-  const forwardedIps = forwardedFor?.split(",").map((value) => value.trim()).filter(Boolean);
-  const candidate =
-    forwardedIps?.at(-1) ||
-    request.headers.get("x-real-ip")?.trim() ||
-    request.headers.get("x-vercel-forwarded-for")?.trim();
+  const firstForwarded = forwardedFor?.split(",")[0]?.trim();
+
+  const candidate = vercelIp || realIp || cfIp || firstForwarded;
 
   if (!candidate || candidate.length > 64 || !/^[\da-fA-F:.]+$/.test(candidate)) {
     return null;
@@ -79,59 +128,62 @@ function getRateLimiter(policy: Policy): Ratelimit | null {
   return limiter;
 }
 
-function unavailable(message: string, retryAfter = 10) {
-  return NextResponse.json(
-    { error: message },
-    {
-      status: 503,
-      headers: {
-        "Cache-Control": "no-store",
-        "Retry-After": String(retryAfter),
-      },
-    }
-  );
-}
-
 export async function middleware(request: NextRequest) {
   if (request.method === "OPTIONS") {
     return NextResponse.next();
   }
 
   const policy = getPolicy(request);
-  const limiter = getRateLimiter(policy);
-  if (!limiter) {
-    // If Upstash Redis is not configured (e.g. localhost or dev), allow requests through
-    return NextResponse.next();
-  }
-
   const ip = getClientIp(request) || "127.0.0.1";
+  const identifier = `${policy.name}:${await hashIp(ip)}`;
+  const limiter = getRateLimiter(policy);
 
-  try {
-    const identifier = `${policy.name}:${await hashIp(ip)}`;
-    const result = await limiter.limit(identifier);
-    const resetSeconds = Math.max(1, Math.ceil((result.reset - Date.now()) / 1000));
-    const headers = new Headers({
-      "Cache-Control": "no-store",
-      "X-RateLimit-Limit": String(result.limit),
-      "X-RateLimit-Remaining": String(result.remaining),
-      "X-RateLimit-Reset": String(Math.ceil(result.reset / 1000)),
-    });
+  let success = true;
+  let limit = policy.limit;
+  let remaining = policy.limit;
+  let resetTimeMs = Date.now() + 60_000;
 
-    if (!result.success) {
-      headers.set("Retry-After", String(resetSeconds));
-      return NextResponse.json(
-        { error: "Too many requests. Please wait before trying again." },
-        { status: 429, headers }
-      );
+  if (limiter) {
+    try {
+      const result = await limiter.limit(identifier);
+      success = result.success;
+      limit = result.limit;
+      remaining = result.remaining;
+      resetTimeMs = result.reset;
+    } catch (error) {
+      console.warn("Distributed rate limiter error, falling back to local window:", error);
+      const memResult = checkMemoryRateLimit(identifier, policy.limit, parseWindowToMs(policy.window));
+      success = memResult.success;
+      remaining = memResult.remaining;
+      resetTimeMs = memResult.reset;
     }
-
-    return NextResponse.next({ headers });
-  } catch (error) {
-    console.error("API rate limiter unavailable:", error);
-    return unavailable("API rate limiting is temporarily unavailable.");
+  } else {
+    // In-memory sliding-window fallback
+    const memResult = checkMemoryRateLimit(identifier, policy.limit, parseWindowToMs(policy.window));
+    success = memResult.success;
+    remaining = memResult.remaining;
+    resetTimeMs = memResult.reset;
   }
+
+  const resetSeconds = Math.max(1, Math.ceil((resetTimeMs - Date.now()) / 1000));
+  const headers = new Headers({
+    "Cache-Control": "no-store",
+    "X-RateLimit-Limit": String(limit),
+    "X-RateLimit-Remaining": String(remaining),
+    "X-RateLimit-Reset": String(Math.ceil(resetTimeMs / 1000)),
+  });
+
+  if (!success) {
+    headers.set("Retry-After", String(resetSeconds));
+    return NextResponse.json(
+      { error: "Too many requests. Please wait before trying again." },
+      { status: 429, headers }
+    );
+  }
+
+  return NextResponse.next({ headers });
 }
 
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: ["/api/:path*", "/redgate", "/staff-vault"],
 };

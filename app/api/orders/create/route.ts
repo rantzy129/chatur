@@ -112,7 +112,7 @@ export async function POST(req: Request) {
     if (insertError) {
       console.error("Supabase order insert error:", insertError);
       return NextResponse.json(
-        { error: "Failed to record order: " + insertError.message },
+        { error: "Unable to record order at this time. Please contact staff on Discord." },
         { status: 500 }
       );
     }
@@ -148,7 +148,7 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error("Order creation unexpected error:", err);
     return NextResponse.json(
-      { error: err.message || "An unexpected error occurred." },
+      { error: "An unexpected error occurred while processing your order. Please try again." },
       { status: 500 }
     );
   }

@@ -6,7 +6,11 @@ import Navbar from "@/components/Navbar";
 
 export default function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAdminRoute = pathname === "/redgate";
+  const isAdminRoute =
+    pathname === "/staff-vault" ||
+    pathname.startsWith("/staff-vault") ||
+    pathname === "/redgate" ||
+    pathname.startsWith("/redgate");
 
   if (isAdminRoute) {
     return <main className="min-h-screen w-full">{children}</main>;

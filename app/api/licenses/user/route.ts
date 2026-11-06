@@ -17,11 +17,13 @@ export async function GET(req: Request) {
       .order("created_at", { ascending: false });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Licenses fetch error:", error);
+      return NextResponse.json({ error: "Failed to load licenses." }, { status: 500 });
     }
 
     return NextResponse.json({ licenses: licenses || [] });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("Licenses request error:", err);
+    return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 });
   }
 }
