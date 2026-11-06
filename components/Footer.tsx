@@ -41,6 +41,12 @@ export default function Footer() {
                 Features
               </Link>
               <Link
+                href="/#streamproof"
+                className="text-zinc-600 hover:text-black transition-colors"
+              >
+                Stream-Proof
+              </Link>
+              <Link
                 href="/#pricing"
                 className="text-zinc-600 hover:text-black transition-colors"
               >

@@ -52,6 +52,12 @@ export default function Navbar() {
                 <span>Features</span>
               </Link>
               <Link
+                href="/#streamproof"
+                className="text-zinc-600 hover:text-black transition-colors duration-150"
+              >
+                <span>Stream-Proof</span>
+              </Link>
+              <Link
                 href="/#pricing"
                 className={`transition-colors duration-150 flex items-center gap-1.5 ${
                   pathname === "/#pricing" ? "text-black font-bold" : "text-zinc-600 hover:text-black"
@@ -184,6 +190,13 @@ export default function Navbar() {
               className="block px-3 py-2.5 rounded-xl text-sm text-zinc-800 hover:text-black hover:bg-zinc-100 font-medium"
             >
               Features
+            </Link>
+            <Link
+              href="/#streamproof"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2.5 rounded-xl text-sm text-zinc-800 hover:text-black hover:bg-zinc-100 font-medium"
+            >
+              Stream-Proof
             </Link>
             <Link
               href="/#pricing"

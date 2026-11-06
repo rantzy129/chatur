@@ -7,11 +7,16 @@ import {
   ChevronDown,
   ShieldCheck,
   EyeOff,
+  Eye,
   Zap,
   Crosshair,
   Cpu,
   Layers,
   HelpCircle,
+  Monitor,
+  Video,
+  Maximize2,
+  X,
 } from "lucide-react";
 import PricingSection from "@/components/ui/pricing-section";
 import CheckoutModal from "@/components/CheckoutModal";
@@ -30,6 +35,8 @@ export default function HomePage() {
   const [successOrderNumber, setSuccessOrderNumber] = useState<string | null>(null);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [proofView, setProofView] = useState<"both" | "overlay" | "clean">("both");
+  const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -124,21 +131,25 @@ export default function HomePage() {
         </div>
 
         {/* Trust Badges */}
-        <div className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-3 text-xs font-mono text-zinc-600">
-          <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-xl">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+        <div className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-mono text-zinc-600">
+          <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-xl whitespace-nowrap">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
             <span>100% Undetected</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-xl">
-            <EyeOff className="h-3.5 w-3.5 text-blue-600" />
-            <span>Stream-Proof (Discord & OBS)</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-xl">
-            <Crosshair className="h-3.5 w-3.5 text-[#E53935]" />
+          <a
+            href="#streamproof"
+            className="flex items-center gap-1.5 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 px-3 py-1.5 rounded-xl transition-all hover:border-zinc-400 group cursor-pointer whitespace-nowrap"
+          >
+            <EyeOff className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+            <span>Stream-Proof Proof</span>
+            <ChevronRight className="h-3 w-3 text-zinc-400 group-hover:text-black group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+          </a>
+          <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-xl whitespace-nowrap">
+            <Crosshair className="h-3.5 w-3.5 text-[#E53935] flex-shrink-0" />
             <span>Bone Skeleton Aim Tracking</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-xl">
-            <Zap className="h-3.5 w-3.5 text-amber-500" />
+          <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-xl whitespace-nowrap">
+            <Zap className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
             <span>Instant Key Delivery</span>
           </div>
         </div>
@@ -218,6 +229,170 @@ export default function HomePage() {
             </div>
             <span className="text-[11px] font-mono text-zinc-400 uppercase">Universal Compatibility</span>
           </div>
+        </div>
+      </section>
+
+      {/* ─── STREAM-PROOF VISUAL COMPARISON (LIVE PROOF) ────────── */}
+      <section id="streamproof" className="scroll-mt-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-mono font-semibold text-emerald-700 uppercase tracking-wider">
+            <EyeOff className="h-3.5 w-3.5 text-emerald-600" />
+            <span>100% Stream-Proof Visual Isolation</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-black font-sans uppercase tracking-tight text-black">
+            STREAM-PROOF IN ACTION: LIVE PROOF
+          </h2>
+          <p className="text-sm sm:text-base text-zinc-600 font-sans leading-relaxed">
+            Direct comparison showing live in-game ESP visuals on your display versus what OBS Studio, Discord Screenshare, or your recording software captures.
+          </p>
+
+          {/* View Filter Buttons */}
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => setProofView("both")}
+              className={`px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                proofView === "both"
+                  ? "bg-black text-white shadow-sm"
+                  : "bg-zinc-100 text-zinc-600 hover:text-black hover:bg-zinc-200"
+              }`}
+            >
+              Side-by-Side
+            </button>
+            <button
+              type="button"
+              onClick={() => setProofView("overlay")}
+              className={`px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                proofView === "overlay"
+                  ? "bg-black text-white shadow-sm"
+                  : "bg-zinc-100 text-zinc-600 hover:text-black hover:bg-zinc-200"
+              }`}
+            >
+              Your Screen (Overlay)
+            </button>
+            <button
+              type="button"
+              onClick={() => setProofView("clean")}
+              className={`px-3.5 py-1.5 rounded-xl font-sans text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                proofView === "clean"
+                  ? "bg-black text-white shadow-sm"
+                  : "bg-zinc-100 text-zinc-600 hover:text-black hover:bg-zinc-200"
+              }`}
+            >
+              Stream POV (Clean)
+            </button>
+          </div>
+        </div>
+
+        {/* Dual Cards Comparison Grid */}
+        <div className={`grid gap-6 ${proofView === "both" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 max-w-4xl mx-auto"}`}>
+          {/* Card 1: What You See */}
+          {(proofView === "both" || proofView === "overlay") && (
+            <div className="rounded-3xl border border-zinc-200 bg-white shadow-lg overflow-hidden flex flex-col justify-between transition-all hover:border-zinc-300">
+              <div className="p-4 sm:px-5 sm:py-4 border-b border-zinc-200 bg-zinc-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="h-8 w-8 rounded-xl bg-red-100 text-[#E53935] flex items-center justify-center flex-shrink-0">
+                    <Monitor className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-sm font-sans text-black uppercase tracking-tight truncate sm:whitespace-normal">
+                      Your Screen (What You See)
+                    </h3>
+                    <p className="text-[11px] font-mono text-zinc-500 truncate sm:whitespace-normal">
+                      Physical Monitor Display
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center flex-shrink-0">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-200 text-[10px] font-mono font-bold text-[#E53935] uppercase whitespace-nowrap">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#E53935] animate-pulse" />
+                    <span>Live Overlay Active</span>
+                  </span>
+                </div>
+              </div>
+
+              <div
+                onClick={() => setPreviewImage({ url: "/proof/your-screen.webp", title: "Your Screen (What You See) - Live ESP & Skeleton HUD Active" })}
+                className="relative group cursor-pointer overflow-hidden bg-black aspect-video flex items-center justify-center"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/proof/your-screen.webp"
+                  alt="Assault Fire Cheat Your Screen View with ESP Wallhack"
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-sans text-xs font-semibold backdrop-blur-[2px]">
+                  <Maximize2 className="h-4 w-4" />
+                  <span>Click to Expand High-Res</span>
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-5 border-t border-zinc-100 bg-white space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-semibold text-black">
+                  <Eye className="h-3.5 w-3.5 text-[#E53935]" />
+                  <span>Full Tactical Visibility</span>
+                </div>
+                <p className="text-xs text-zinc-600 font-sans leading-relaxed">
+                  Real-time bone skeletons, player boxes, and distance tags render directly on your screen layer with zero lag.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Card 2: What Discord / Stream Sees */}
+          {(proofView === "both" || proofView === "clean") && (
+            <div className="rounded-3xl border border-zinc-200 bg-white shadow-lg overflow-hidden flex flex-col justify-between transition-all hover:border-zinc-300">
+              <div className="p-4 sm:px-5 sm:py-4 border-b border-zinc-200 bg-zinc-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="h-8 w-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                    <Video className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-sm font-sans text-black uppercase tracking-tight truncate sm:whitespace-normal">
+                      Screenshot & Stream POV
+                    </h3>
+                    <p className="text-[11px] font-mono text-zinc-500 truncate sm:whitespace-normal">
+                      OBS • Discord • Screen Capture
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center flex-shrink-0">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-mono font-bold text-emerald-700 uppercase whitespace-nowrap">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                    <span>100% Clean Capture</span>
+                  </span>
+                </div>
+              </div>
+
+              <div
+                onClick={() => setPreviewImage({ url: "/proof/screenshot-pov.webp", title: "Screenshot & Stream POV - 100% Clean, Stream-Proof Capture" })}
+                className="relative group cursor-pointer overflow-hidden bg-black aspect-video flex items-center justify-center"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/proof/screenshot-pov.webp"
+                  alt="Assault Fire Stream-Proof Proof - Clean Capture on Discord and OBS"
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-sans text-xs font-semibold backdrop-blur-[2px]">
+                  <Maximize2 className="h-4 w-4" />
+                  <span>Click to Expand High-Res</span>
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-5 border-t border-zinc-100 bg-white space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-semibold text-black">
+                  <EyeOff className="h-3.5 w-3.5 text-emerald-600" />
+                  <span>Zero Overlay Traces</span>
+                </div>
+                <p className="text-xs text-zinc-600 font-sans leading-relaxed">
+                  Screen recording tools capture completely clean gameplay with zero cheat visuals. Safe for live streams and Discord screen share.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -315,6 +490,41 @@ export default function HomePage() {
         isOpen={showTermsModal}
         onClose={() => setShowTermsModal(false)}
       />
+
+      {/* ─── STREAM-PROOF IMAGE LIGHTBOX MODAL ────────────────── */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="relative max-w-5xl w-full bg-[#0A0A0B] rounded-2xl sm:rounded-3xl border border-zinc-800 overflow-hidden shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between bg-zinc-950">
+              <span className="font-bold text-xs sm:text-sm text-white font-sans truncate max-w-[80%]">
+                {previewImage.title}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewImage(null)}
+                className="p-1.5 rounded-xl bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition-colors cursor-pointer"
+                aria-label="Close Preview"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="relative bg-black flex items-center justify-center max-h-[80vh] overflow-hidden p-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewImage.url}
+                alt={previewImage.title}
+                className="w-full h-auto object-contain max-h-[75vh] rounded-xl"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
