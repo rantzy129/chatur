@@ -15,8 +15,6 @@ import {
   Video,
   Maximize2,
   X,
-  Mouse,
-  HeartHandshake,
 } from "lucide-react";
 import PricingSection from "@/components/ui/pricing-section";
 import { StreamproofShowcase } from "@/components/ui/StreamproofShowcase";
@@ -200,39 +198,39 @@ export default function HomePage() {
           {/* Column 1: Headline */}
           <div className="space-y-4">
             <h2 className="text-3xl sm:text-4xl lg:text-[3rem] font-bold tracking-tight leading-[1.06] font-sans text-black">
-              Simply better,
+              Pure precision,
               <span className="block text-[#8E95A2] font-semibold mt-1">
-                year after year
+                zero detection.
               </span>
             </h2>
             <p className="text-sm sm:text-[15px] font-semibold text-zinc-600 leading-snug max-w-[260px] mt-3">
-              Built with more care than anyone ever asked for.
+              Engineered specifically for competitive Assault Fire.
             </p>
           </div>
 
-          {/* Column 2: Ready Means Ready */}
+          {/* Column 2: 100% Stream-Proof */}
           <div className="space-y-3.5">
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-red-500/10 border border-red-500/20 text-[#E53935] shadow-xs mb-3">
-              <Mouse className="h-4 w-4 stroke-[1.8]" />
+              <EyeOff className="h-4 w-4 stroke-[1.8]" />
             </div>
             <h3 className="text-xl sm:text-[1.35rem] font-black font-sans text-black tracking-tight mb-2.5">
-              Ready means ready.
+              100% Stream-Proof.
             </h3>
             <p className="text-xs sm:text-[13.5px] text-zinc-500 font-sans leading-relaxed text-pretty">
-              If it isn't safe, it doesn't release. That's been true since day one. What does release is finished: beautiful to look at, effortless to use, and so light your game never notices it.
+              Stream, record, and share your screen on Discord or OBS with total confidence. Viewers and recordings only see clean, natural gameplay while you keep your full visual edge.
             </p>
           </div>
 
-          {/* Column 3: Same Team */}
+          {/* Column 3: Smooth & Undetected */}
           <div className="space-y-3.5">
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-red-500/10 border border-red-500/20 text-[#E53935] shadow-xs mb-3">
-              <HeartHandshake className="h-4 w-4 stroke-[1.8]" />
+              <ShieldCheck className="h-4 w-4 stroke-[1.8]" />
             </div>
             <h3 className="text-xl sm:text-[1.35rem] font-black font-sans text-black tracking-tight mb-2.5">
-              Same team since 2018.
+              Smooth & Undetected.
             </h3>
             <p className="text-xs sm:text-[13.5px] text-zinc-500 font-sans leading-relaxed text-pretty">
-              We were first to do this, and we never handed it off. The people, the standards, and much of the community are the same ones from the start.
+              Keeps your account and device protected across every match with zero framerate lag or stutters. Always updated for the latest game patches so you can just log in and dominate.
             </p>
           </div>
         </div>

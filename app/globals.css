@@ -93,6 +93,30 @@ button, a, [role="button"] {
   animation: float-subtle 6s ease-in-out infinite;
 }
 
+/* Chatbot Floating Animation */
+@keyframes chatbot-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-chatbot-float {
+  animation: chatbot-float 3.5s ease-in-out infinite;
+}
+
+/* Showcase Tab Pill Progress Fill */
+@keyframes fill-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 /* Glass & Solid Panels */
 .glass-panel {
   background: rgba(255, 255, 255, 0.95);

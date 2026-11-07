@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import ChatbotWidget from "@/components/ChatbotWidget";
 
 export default function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -81,6 +82,7 @@ export default function AppFrame({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Footer />
+      <ChatbotWidget />
     </div>
   );
 }

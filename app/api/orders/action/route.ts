@@ -70,8 +70,9 @@ export async function POST(req: Request) {
         .single();
 
       if (licErr) {
+        console.error("Failed to generate license in database:", licErr);
         return NextResponse.json(
-          { error: "Failed to generate license in database: " + licErr.message },
+          { error: "Failed to generate license in database. Please check server logs." },
           { status: 500 }
         );
       }
@@ -91,7 +92,13 @@ export async function POST(req: Request) {
         .single();
 
       if (updateErr) {
-        return NextResponse.json({ error: updateErr.message }, { status: 500 });
+        console.error("Failed to update order status:", updateErr);
+        // Rollback: remove the dangling license to prevent orphan records or duplicate keys on retry
+        await supabaseAdmin.from("esm_licenses").delete().eq("id", lic.id);
+        return NextResponse.json(
+          { error: "Failed to update order status. Rolled back license creation." },
+          { status: 500 }
+        );
       }
 
       // 5. Send Discord approved log
@@ -123,7 +130,8 @@ export async function POST(req: Request) {
         .single();
 
       if (updateErr) {
-        return NextResponse.json({ error: updateErr.message }, { status: 500 });
+        console.error("Order rejection update error:", updateErr);
+        return NextResponse.json({ error: "Failed to update order status." }, { status: 500 });
       }
 
       return NextResponse.json({
@@ -135,6 +143,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("Admin order action unexpected error:", err);
+    return NextResponse.json({ error: "An unexpected error occurred while processing the order action." }, { status: 500 });
   }
 }

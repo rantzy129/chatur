@@ -14,12 +14,14 @@ export async function GET(req: Request) {
       .order("created_at", { ascending: false });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Admin licenses fetch error:", error);
+      return NextResponse.json({ error: "Failed to retrieve licenses from database." }, { status: 500 });
     }
 
     return NextResponse.json({ licenses: licenses || [] });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("Admin licenses GET error:", err);
+    return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 });
   }
 }
 
@@ -110,6 +112,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("Admin licenses GET error:", err);
+    return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 });
   }
 }

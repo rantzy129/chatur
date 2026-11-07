@@ -12,7 +12,7 @@ export async function GET(req: Request) {
     // Query licenses linked to this user's discord_id in esm_licenses
     const { data: licenses, error } = await getSupabaseAdmin()
       .from("esm_licenses")
-      .select("*")
+      .select("id, license_key, tier, hwid, expires_at, is_banned, created_at")
       .eq("discord_id", user.id)
       .order("created_at", { ascending: false });
 

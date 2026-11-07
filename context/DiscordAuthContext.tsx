@@ -78,19 +78,13 @@ export function DiscordAuthProvider({ children }: { children: React.ReactNode })
             setIsLoading(false);
             return;
           }
+        } else {
+          // If Supabase session is gone or expired, clear stale cached profile
+          setUser(null);
+          localStorage.removeItem("esm_discord_user");
         }
       } catch (err) {
         console.error("Supabase session check error:", err);
-      }
-
-      // 2. Fallback to localStorage session
-      try {
-        const stored = localStorage.getItem("esm_discord_user");
-        if (stored) {
-          setUser(JSON.parse(stored));
-        }
-      } catch (e) {
-        console.error("Failed to restore cached user session", e);
       } finally {
         setIsLoading(false);
       }
@@ -137,11 +131,8 @@ export function DiscordAuthProvider({ children }: { children: React.ReactNode })
       });
 
       if (error) {
-        console.warn("Supabase OAuth sign-in fallback:", error.message);
-        // Fallback to direct Discord OAuth if Supabase provider is still configuring
-        const clientId = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID || "1561348357614735451";
-        const fallbackRedirect = encodeURIComponent(window.location.origin + "/");
-        window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${fallbackRedirect}&response_type=token&scope=identify%20email`;
+        console.error("Supabase OAuth sign-in error:", error.message);
+        alert("Discord authentication could not be initiated: " + error.message);
       }
     } catch (err) {
       console.error("Discord login error:", err);

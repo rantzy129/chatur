@@ -123,7 +123,7 @@ export default function FaqPage() {
         {
           code: "3.3.",
           content:
-            "Is Peace Cleaner included in cheat subscriptions? Yes. All Red Line VIP monthly and lifetime cheat plans include Peace Cleaner at zero extra charge. Peace Cleaner is also available as an independent standalone license for banned players who do not need visual overlays.",
+            "Are Peace Cleaner and Red Line Cheats separate subscriptions? Yes. Peace Cleaner and Red Line Cheats are different subscriptions. Peace Cleaner is an independent device ban removal suite that unbans your PC from hardware blacklists (₱1,000/mo or ₱3,000 lifetime), while Red Line Cheats provides undetected stream-proof ESP and aimbot overlays (₱500/wk, ₱1,000/mo, or ₱3,000 lifetime). Each subscription has its own dedicated license key.",
         },
       ],
     },
