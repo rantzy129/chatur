@@ -516,53 +516,73 @@ function LicensesTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-200">
-          {licenses.map((license) => (
-            <tr key={license.id} className={`transition-colors hover:bg-zinc-50/80 ${license.is_banned ? "bg-red-50/50" : ""}`}>
-              <td className="px-4 py-3.5">
-                <span className="flex items-center gap-2">
-                  <code className="font-mono font-bold text-black">{license.license_key}</code>
-                  <button
-                    type="button"
-                    onClick={() => onCopy(license.license_key)}
-                    aria-label={`Copy ${license.license_key}`}
-                    className="rounded-md p-1 text-zinc-500 hover:text-black hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]"
+          {licenses.map((license) => {
+            const isExpired = !!license.expires_at && new Date(license.expires_at).getTime() < Date.now();
+            return (
+              <tr
+                key={license.id}
+                className={`transition-colors hover:bg-zinc-50/80 ${
+                  license.is_banned
+                    ? "bg-red-50/50"
+                    : isExpired
+                    ? "bg-amber-50/25"
+                    : ""
+                }`}
+              >
+                <td className="px-4 py-3.5">
+                  <span className="flex items-center gap-2">
+                    <code className="font-mono font-bold text-black">{license.license_key}</code>
+                    <button
+                      type="button"
+                      onClick={() => onCopy(license.license_key)}
+                      aria-label={`Copy ${license.license_key}`}
+                      className="rounded-md p-1 text-zinc-500 hover:text-black hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]"
+                    >
+                      {copiedKey === license.license_key ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                    </button>
+                  </span>
+                </td>
+                <td className="px-4 py-3.5 text-zinc-700 font-medium">{license.tier}</td>
+                <td className="px-4 py-3.5">
+                  <span className="block font-semibold text-black">{license.discord_username || "Unassigned"}</span>
+                  <span className="mt-1 block text-[10px] text-zinc-500 font-mono">{license.discord_id || "No Discord ID"}</span>
+                </td>
+                <td className="px-4 py-3.5">
+                  {license.hwid ? (
+                    <code title={license.hwid} className="block max-w-[130px] truncate text-[11px] font-mono text-zinc-700">{license.hwid}</code>
+                  ) : <span className="text-zinc-400 font-mono text-[11px]">Not bound</span>}
+                </td>
+                <td className="px-4 py-3.5 text-zinc-600 font-mono text-[11px]">{license.expires_at ? formatDate(license.expires_at) : "Lifetime"}</td>
+                <td className="px-4 py-3.5">
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold font-mono border ${
+                      license.is_banned
+                        ? "border-red-200 bg-red-50 text-[#E53935]"
+                        : isExpired
+                        ? "border-amber-200 bg-amber-50 text-amber-700"
+                        : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    }`}
                   >
-                    {copiedKey === license.license_key ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-                  </button>
-                </span>
-              </td>
-              <td className="px-4 py-3.5 text-zinc-700 font-medium">{license.tier}</td>
-              <td className="px-4 py-3.5">
-                <span className="block font-semibold text-black">{license.discord_username || "Unassigned"}</span>
-                <span className="mt-1 block text-[10px] text-zinc-500 font-mono">{license.discord_id || "No Discord ID"}</span>
-              </td>
-              <td className="px-4 py-3.5">
-                {license.hwid ? (
-                  <code title={license.hwid} className="block max-w-[130px] truncate text-[11px] font-mono text-zinc-700">{license.hwid}</code>
-                ) : <span className="text-zinc-400 font-mono text-[11px]">Not bound</span>}
-              </td>
-              <td className="px-4 py-3.5 text-zinc-600 font-mono text-[11px]">{license.expires_at ? formatDate(license.expires_at) : "Lifetime"}</td>
-              <td className="px-4 py-3.5">
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold font-mono border ${license.is_banned ? "border-red-200 bg-red-50 text-[#E53935]" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
-                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                  {license.is_banned ? "Banned" : "Active"}
-                </span>
-              </td>
-              <td className="px-4 py-3.5">
-                <div className="flex justify-end gap-1">
-                  <button type="button" onClick={() => onResetHwid(license.license_key)} aria-label={`Reset hardware lock for ${license.license_key}`} title="Reset hardware lock" className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]">
-                    <RotateCcw className="h-3.5 w-3.5" />
-                  </button>
-                  <button type="button" onClick={() => onToggleBan(license.license_key, license.is_banned)} aria-label={`${license.is_banned ? "Unban" : "Ban"} ${license.license_key}`} title={license.is_banned ? "Unban license" : "Ban license"} className="rounded-lg p-2 text-zinc-600 hover:bg-amber-50 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
-                    <Ban className="h-3.5 w-3.5" />
-                  </button>
-                  <button type="button" onClick={() => onDelete(license.license_key)} aria-label={`Delete ${license.license_key}`} title="Delete license" className="rounded-lg p-2 text-zinc-600 hover:bg-red-50 hover:text-[#E53935] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                    {license.is_banned ? "Banned" : isExpired ? "Expired" : "Active"}
+                  </span>
+                </td>
+                <td className="px-4 py-3.5">
+                  <div className="flex justify-end gap-1">
+                    <button type="button" onClick={() => onResetHwid(license.license_key)} aria-label={`Reset hardware lock for ${license.license_key}`} title="Reset hardware lock" className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]">
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                    <button type="button" onClick={() => onToggleBan(license.license_key, license.is_banned)} aria-label={`${license.is_banned ? "Unban" : "Ban"} ${license.license_key}`} title={license.is_banned ? "Unban license" : "Ban license"} className="rounded-lg p-2 text-zinc-600 hover:bg-amber-50 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+                      <Ban className="h-3.5 w-3.5" />
+                    </button>
+                    <button type="button" onClick={() => onDelete(license.license_key)} aria-label={`Delete ${license.license_key}`} title="Delete license" className="rounded-lg p-2 text-zinc-600 hover:bg-red-50 hover:text-[#E53935] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935]">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -1050,7 +1070,17 @@ export default function AdminPage() {
   const approvedOrders = orders.filter((order) => order.status === "approved");
   const resolvedOrders = orders.filter((order) => order.status !== "pending");
   const totalRevenue = approvedOrders.reduce((total, order) => total + (Number(order.amount) || 0), 0);
-  const activeLicenses = licenses.filter((license) => !license.is_banned);
+  const isLicenseActive = (lic: License) => {
+    if (lic.is_banned) return false;
+    if (!lic.expires_at) return true;
+    return new Date(lic.expires_at).getTime() > Date.now();
+  };
+
+  const activeLicenses = licenses.filter(isLicenseActive);
+  const expiredLicenses = licenses.filter(
+    (lic) => !lic.is_banned && !!lic.expires_at && new Date(lic.expires_at).getTime() <= Date.now()
+  );
+  const bannedLicenses = licenses.filter((lic) => lic.is_banned);
   const lifetimeLicenses = licenses.filter((license) => !license.expires_at);
   const approvalRate = resolvedOrders.length
     ? Math.round((approvedOrders.length / resolvedOrders.length) * 100)
@@ -1377,7 +1407,7 @@ export default function AdminPage() {
                 <Metric
                   label="Active licenses"
                   value={String(activeLicenses.length)}
-                  detail={`${licenses.length - activeLicenses.length} currently banned`}
+                  detail={`${expiredLicenses.length} expired · ${bannedLicenses.length} banned`}
                   icon={UsersRound}
                   accent="blue"
                 />
@@ -1442,7 +1472,9 @@ export default function AdminPage() {
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 px-4 py-4 sm:px-5">
                 <div>
                   <h2 className="text-[14px] font-bold text-black font-sans">License registry</h2>
-                  <p className="mt-1 text-[11px] text-zinc-500">{activeLicenses.length} active · {lifetimeLicenses.length} lifetime</p>
+                  <p className="mt-1 text-[11px] text-zinc-500">
+                    {activeLicenses.length} active · {expiredLicenses.length} expired · {lifetimeLicenses.length} lifetime
+                  </p>
                 </div>
                 <button
                   type="button"

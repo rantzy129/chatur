@@ -317,6 +317,7 @@ export default function DashboardPage() {
             {licenses.map((lic) => {
               const isRevealed = revealedKeys[lic.id];
               const isPermanent = !lic.expires_at;
+              const isExpired = !isLicenseActive(lic) && !lic.is_banned;
 
               return (
                 <div
@@ -324,6 +325,8 @@ export default function DashboardPage() {
                   className={`relative p-6 sm:p-7 rounded-3xl bg-white border transition-all shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between ${
                     lic.is_banned
                       ? "border-red-200 bg-red-50/20"
+                      : isExpired
+                      ? "border-amber-200 bg-amber-50/20"
                       : isPermanent
                       ? "border-black shadow-md"
                       : "border-zinc-200/90 hover:border-zinc-300"
@@ -335,12 +338,14 @@ export default function DashboardPage() {
                       className={`text-xs font-bold px-3 py-1 rounded-full ${
                         lic.is_banned
                           ? "bg-red-100 text-[#E53935]"
+                          : isExpired
+                          ? "bg-amber-100 text-amber-800 border border-amber-200"
                           : isPermanent
                           ? "bg-[#E53935]/10 text-[#E53935] border border-[#E53935]/30"
                           : "bg-zinc-100 text-zinc-800"
                       }`}
                     >
-                      {lic.is_banned ? "BANNED" : lic.tier}
+                      {lic.is_banned ? "BANNED" : isExpired ? `${lic.tier} (EXPIRED)` : lic.tier}
                     </span>
 
                     <span className="text-xs text-zinc-500 flex items-center gap-1.5 font-medium">
@@ -444,6 +449,17 @@ export default function DashboardPage() {
                             <Copy className="h-3 w-3" />
                           </button>
                         </div>
+                      </div>
+                    )}
+
+                    {!isLicenseActive(lic) && !lic.is_banned && (
+                      <div className="pt-2">
+                        <Link
+                          href="/#pricing"
+                          className="w-full py-3.5 px-4 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                        >
+                          <span>License Expired — Renew VIP Plan</span>
+                        </Link>
                       </div>
                     )}
                   </div>
