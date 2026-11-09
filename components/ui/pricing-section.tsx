@@ -68,31 +68,14 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
       fireConfetti({ count: 90 });
     }
 
-    if (selectedProduct === "cheats") {
-      const durationTag =
-        selectedDuration === "weekly"
-          ? "1 Week"
-          : selectedDuration === "lifetime"
-          ? "Lifetime"
-          : "1 Month";
-
-      onSelectPlan?.({
-        tier: `Red Line Cheats - ${durationTag}`,
-        price,
-        description:
-          "Undetected stream-proof cheat & wallhack suite for all Assault Fire servers.",
-        isLifetime,
-      });
-    } else {
-      const durationTag = isLifetime ? "Lifetime" : "1 Month";
-      onSelectPlan?.({
-        tier: `Peace Cleaner - ${durationTag}`,
-        price,
-        description:
-          "Removes the device ban you got so you will be able to play Assault Fire again immediately.",
-        isLifetime,
-      });
-    }
+    const durationTag = isLifetime ? "Lifetime" : "1 Month";
+    onSelectPlan?.({
+      tier: `Peace Cleaner - ${durationTag}`,
+      price,
+      description:
+        "Removes the device ban you got so you will be able to play Assault Fire again immediately.",
+      isLifetime,
+    });
   };
 
   const currentPrice = getPrice();
