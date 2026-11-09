@@ -112,6 +112,9 @@ export async function GET(req: Request) {
           ].filter(Boolean) as string[]
         : [
             process.env.CLIENT_DOWNLOAD_STORAGE_PATH,
+            "SileGaming.rar",
+            "silegaming.rar",
+            "SileGaming.zip",
             "RedLine.rar",
             "esmiringhoy.rar",
             "esmiringhoy.zip",
@@ -125,7 +128,7 @@ export async function GET(req: Request) {
         const downloadFileName =
           targetProduct === "PC"
             ? (isRar ? "PeaceCleaner.rar" : "PeaceCleaner.zip")
-            : (isRar ? "RedLine.rar" : "RedLine.zip");
+            : (isRar ? "SileGaming.rar" : "SileGaming.zip");
 
         const { data, error: signedUrlError } = await supabaseAdmin.storage
           .from(bucket)

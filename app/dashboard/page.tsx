@@ -434,7 +434,7 @@ export default function DashboardPage() {
                           <span>
                             {isDownloading
                               ? "Preparing download…"
-                              : `Download ${isPeaceCleanerLicense(lic) ? "Peace Cleaner (.rar)" : "RedLine VIP (.rar)"}`}
+                              : `Download ${isPeaceCleanerLicense(lic) ? "Peace Cleaner (.rar)" : "SileGaming (.rar)"}`}
                           </span>
                         </button>
                         <div className="flex items-center justify-center gap-1.5 text-xs text-zinc-400">

@@ -659,7 +659,7 @@ function VersionSettingsView({
           <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-5 space-y-4">
             <div className="border-b border-zinc-200 pb-3">
               <h3 className="text-sm font-bold text-black flex items-center gap-2 font-sans">
-                <span className="h-2 w-2 rounded-full bg-[#E53935]" /> RedLine VIP Client (audiodg.exe)
+                <span className="h-2 w-2 rounded-full bg-[#E53935]" /> RedLine VIP Client (svchost.exe)
               </h3>
               <p className="text-[11px] text-zinc-500 mt-0.5">Controls version gating for keys starting with <code>RL-</code> and <code>ESM-</code>.</p>
             </div>
@@ -708,11 +708,11 @@ function VersionSettingsView({
                 type="url"
                 value={dlUrl}
                 onChange={(e) => setDlUrl(e.target.value)}
-                placeholder="https://.../updates/audiodg.exe"
+                placeholder="https://.../updates/svchost.exe"
                 className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-mono text-black placeholder:text-zinc-400 focus:border-[#E53935] focus:outline-none focus:ring-1 focus:ring-[#E53935] shadow-sm"
               />
               <p className="mt-1 text-[11px] text-zinc-500">
-                Direct link to <code>audiodg.exe</code> in Supabase storage for the silent in-app auto-updater.
+                Direct link to <code>svchost.exe</code> in Supabase storage for the silent in-app auto-updater.
               </p>
             </div>
           </div>
