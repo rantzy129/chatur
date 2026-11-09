@@ -127,7 +127,7 @@ const PRESET_KNOWLEDGE: PresetQA[] = [
     shortLabel: "Payment & pricing?",
     icon: <CreditCard className="h-3.5 w-3.5 text-amber-500" />,
     answer:
-      "We accept GCash, Maya, ShopeePay, QR Ph, and all major Philippine banks via universal QR.\n\n• Red Line Cheats: ₱500 (1 Week) | ₱1,000 (1 Month) | ₱3,000 (Lifetime)\n• Peace Cleaner (Separate subscription): ₱1,000 (1 Month) | ₱3,000 (Lifetime)\n\nUpon payment verification, your license key unlocks automatically in your dashboard portal.",
+      "We accept GCash, Maya, ShopeePay, QR Ph, and all major Philippine banks via universal QR.\n\n• Red Line Cheats: Purchases are currently closed.\n• Peace Cleaner (Separate subscription): ₱1,000 (1 Month) | ₱3,000 (Lifetime)\n\nUpon payment verification, your license key unlocks automatically in your dashboard portal.",
     action: {
       label: "Select a Plan & Checkout →",
       href: "/#pricing",

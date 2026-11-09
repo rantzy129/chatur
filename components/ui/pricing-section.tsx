@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Crosshair,
   Sparkles,
+  Lock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { fireConfetti } from "@/lib/confetti";
@@ -55,6 +56,11 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
   };
 
   const handleBuyNow = () => {
+    if (selectedProduct === "cheats") {
+      // Purchases for Red Line Cheats are closed
+      return;
+    }
+
     const isLifetime = selectedDuration === "lifetime";
     const price = getPrice();
 
@@ -273,7 +279,12 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
                           : "text-zinc-500 hover:text-black"
                       }`}
                     >
-                      Red Line Cheats
+                      <span className="flex items-center justify-center gap-1.5">
+                        Red Line Cheats
+                        <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-zinc-200 text-zinc-600">
+                          Closed
+                        </span>
+                      </span>
                     </button>
                     <button
                       type="button"
@@ -289,9 +300,27 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
                           : "text-zinc-500 hover:text-black"
                       }`}
                     >
-                      Peace Cleaner
+                      <span className="flex items-center justify-center gap-1.5">
+                        Peace Cleaner
+                        <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700">
+                          Available
+                        </span>
+                      </span>
                     </button>
                   </div>
+
+                  {/* Purchases Closed Info Note */}
+                  {selectedProduct === "cheats" && (
+                    <div className="p-3.5 rounded-2xl bg-zinc-100/90 border border-zinc-200 text-left space-y-1 max-w-md">
+                      <div className="flex items-center gap-2 text-xs font-bold text-zinc-700 uppercase tracking-wide">
+                        <Lock className="h-3.5 w-3.5 text-zinc-500" />
+                        <span>Purchases Currently Closed</span>
+                      </div>
+                      <p className="text-xs text-zinc-500 leading-relaxed">
+                        New license purchases for Red Line Cheats are temporarily closed. Existing subscribers can continue using their licenses via the dashboard. Peace Cleaner remains open for purchase.
+                      </p>
+                    </div>
+                  )}
 
                   {/* Duration Selector Pills */}
                   <div className="grid grid-cols-3 gap-2 max-w-md w-full">
@@ -343,16 +372,27 @@ export default function PricingSection({ onSelectPlan }: PricingSectionProps) {
                     </button>
                   </div>
 
-                  {/* Action Button: "Buy Now ₱{Price}" */}
+                  {/* Action Button */}
                   <div className="space-y-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={handleBuyNow}
-                      className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#E53935] hover:bg-[#c62828] active:scale-95 text-white font-bold font-sans text-sm sm:text-base tracking-wide flex items-center justify-center gap-2.5 transition-all shadow-md hover:shadow-xl shadow-red-500/20 hover:shadow-red-500/30 cursor-pointer"
-                    >
-                      <span>Buy Now ₱{currentPrice.toLocaleString()}</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
+                    {selectedProduct === "cheats" ? (
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-zinc-200 text-zinc-500 font-bold font-sans text-sm sm:text-base tracking-wide flex items-center justify-center gap-2.5 cursor-not-allowed shadow-none border border-zinc-300"
+                      >
+                        <Lock className="h-4 w-4" />
+                        <span>Purchases Closed</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleBuyNow}
+                        className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#E53935] hover:bg-[#c62828] active:scale-95 text-white font-bold font-sans text-sm sm:text-base tracking-wide flex items-center justify-center gap-2.5 transition-all shadow-md hover:shadow-xl shadow-red-500/20 hover:shadow-red-500/30 cursor-pointer"
+                      >
+                        <span>Buy Now ₱{currentPrice.toLocaleString()}</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    )}
 
                     <div>
                       <button

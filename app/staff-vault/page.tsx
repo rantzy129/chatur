@@ -139,11 +139,10 @@ function Sidebar({
                 type="button"
                 onClick={() => onNavigate(id)}
                 aria-current={selected ? "page" : undefined}
-                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-[13px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935] ${
-                  selected
+                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-[13px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935] ${selected
                     ? "bg-red-50 text-[#E53935] border border-red-200 shadow-sm"
                     : "text-zinc-600 hover:bg-zinc-100 hover:text-black"
-                }`}
+                  }`}
               >
                 <Icon className={`h-[17px] w-[17px] ${selected ? "text-[#E53935]" : "text-zinc-500"}`} strokeWidth={1.8} />
                 <span className="flex-1">{label}</span>
@@ -521,13 +520,12 @@ function LicensesTable({
             return (
               <tr
                 key={license.id}
-                className={`transition-colors hover:bg-zinc-50/80 ${
-                  license.is_banned
+                className={`transition-colors hover:bg-zinc-50/80 ${license.is_banned
                     ? "bg-red-50/50"
                     : isExpired
-                    ? "bg-amber-50/25"
-                    : ""
-                }`}
+                      ? "bg-amber-50/25"
+                      : ""
+                  }`}
               >
                 <td className="px-4 py-3.5">
                   <span className="flex items-center gap-2">
@@ -555,13 +553,12 @@ function LicensesTable({
                 <td className="px-4 py-3.5 text-zinc-600 font-mono text-[11px]">{license.expires_at ? formatDate(license.expires_at) : "Lifetime"}</td>
                 <td className="px-4 py-3.5">
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold font-mono border ${
-                      license.is_banned
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold font-mono border ${license.is_banned
                         ? "border-red-200 bg-red-50 text-[#E53935]"
                         : isExpired
-                        ? "border-amber-200 bg-amber-50 text-amber-700"
-                        : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                    }`}
+                          ? "border-amber-200 bg-amber-50 text-amber-700"
+                          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      }`}
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-current" />
                     {license.is_banned ? "Banned" : isExpired ? "Expired" : "Active"}
@@ -1315,11 +1312,10 @@ export default function AdminPage() {
                   setNotice(null);
                 }}
                 aria-current={view === id ? "page" : undefined}
-                className={`inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-[12px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935] ${
-                  view === id
+                className={`inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-[12px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53935] ${view === id
                     ? "border-[#E53935] text-[#E53935]"
                     : "border-transparent text-zinc-500 hover:text-black"
-                }`}
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 {label}
@@ -1357,11 +1353,10 @@ export default function AdminPage() {
           {notice && (
             <div
               role={notice.tone === "error" ? "alert" : "status"}
-              className={`mb-5 flex items-start gap-2.5 rounded-xl border px-3.5 py-3 text-[12px] font-medium ${
-                notice.tone === "success"
+              className={`mb-5 flex items-start gap-2.5 rounded-xl border px-3.5 py-3 text-[12px] font-medium ${notice.tone === "success"
                   ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                   : "border-red-200 bg-red-50 text-[#E53935]"
-              }`}
+                }`}
             >
               {notice.tone === "success" ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#E53935]" />}
               <span>{notice.message}</span>
@@ -1566,22 +1561,20 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => setGenProduct("ESM")}
-                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[12px] font-bold transition ${
-                      genProduct === "ESM"
+                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[12px] font-bold transition ${genProduct === "ESM"
                         ? "border-red-200 bg-red-50 text-[#E53935] shadow-sm"
                         : "border-zinc-200 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-black"
-                    }`}
+                      }`}
                   >
                     <span>Red Line</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setGenProduct("PC")}
-                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[12px] font-bold transition ${
-                      genProduct === "PC"
+                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[12px] font-bold transition ${genProduct === "PC"
                         ? "border-red-200 bg-red-50 text-[#E53935] shadow-sm"
                         : "border-zinc-200 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-black"
-                    }`}
+                      }`}
                   >
                     <span>Peace Cleaner</span>
                   </button>

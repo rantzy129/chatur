@@ -38,6 +38,16 @@ export async function POST(req: Request) {
       );
     }
 
+    const isPeaceCleaner =
+      String(tier).toLowerCase().includes("peace") ||
+      String(tier).toLowerCase().includes("cleaner");
+    if (!isPeaceCleaner) {
+      return NextResponse.json(
+        { error: "Purchases for Red Line Cheats are currently closed." },
+        { status: 400 }
+      );
+    }
+
     const tierPrices: Record<string, number> = {
       // Red Line Cheats VIP
       "Weekly VIP": 500,

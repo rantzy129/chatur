@@ -15,6 +15,7 @@ import {
   Maximize2,
   ChevronLeft,
   ChevronRight,
+  Lock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -244,150 +245,31 @@ export function StreamproofShowcase({
         <div
           className="group relative rounded-[2rem] sm:rounded-[2.5rem] bg-white border border-zinc-200/80 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden transition-shadow select-none"
         >
-        {/* Left Floating Arrow on Desktop */}
-        <button
-          type="button"
-          onClick={handlePrev}
-          aria-label="Previous feature"
-          className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/95 hover:bg-white text-zinc-700 hover:text-black border border-zinc-200 shadow-md items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 cursor-pointer active:scale-95"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
+          {/* Left Floating Arrow on Desktop */}
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous feature"
+            className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/95 hover:bg-white text-zinc-700 hover:text-black border border-zinc-200 shadow-md items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 cursor-pointer active:scale-95"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
 
-        {/* Right Floating Arrow on Desktop */}
-        <button
-          type="button"
-          onClick={handleNext}
-          aria-label="Next feature"
-          className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/95 hover:bg-white text-zinc-700 hover:text-black border border-zinc-200 shadow-md items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 cursor-pointer active:scale-95"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
+          {/* Right Floating Arrow on Desktop */}
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next feature"
+            className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/95 hover:bg-white text-zinc-700 hover:text-black border border-zinc-200 shadow-md items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 cursor-pointer active:scale-95"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
 
-        <AnimatePresence mode="wait" custom={direction}>
-          {activeTab === 0 && (
-            /* ── TAB 0: STREAM-PROOF PROOF (DUAL POV LIVE TOGGLE) ──── */
-            <motion.div
-              key="tab-streamproof"
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.2}
-              onDragEnd={(_, info) => {
-                if (info.offset.x < -40 || info.velocity.x < -400) {
-                  handleNext();
-                } else if (info.offset.x > 40 || info.velocity.x > 400) {
-                  handlePrev();
-                }
-              }}
-              className="p-5 sm:p-8 lg:p-9 cursor-grab active:cursor-grabbing touch-pan-y"
-            >
-              {/* Window Controls & POV Switcher */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-zinc-100/90">
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-                    <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-                    <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-                  </div>
-                  <span className="text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider">
-                    Red Line Driver Isolation Buffer
-                  </span>
-                </div>
-
-                {/* Sub-toggle between Physical Monitor vs Stream POV */}
-                <div className="grid grid-cols-1 sm:flex items-center gap-1 p-1 rounded-xl bg-zinc-100/90 border border-zinc-200/60 text-xs font-semibold font-sans w-full sm:w-auto">
-                  <button
-                    type="button"
-                    onClick={() => setProofPOV("screen")}
-                    className={`px-3 py-2 sm:py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto ${proofPOV === "screen"
-                        ? "bg-black text-white shadow-xs"
-                        : "text-zinc-600 hover:text-black"
-                      }`}
-                  >
-                    <Monitor className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Your Screen (ESP Active)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setProofPOV("stream")}
-                    className={`px-3 py-2 sm:py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto ${proofPOV === "stream"
-                        ? "bg-emerald-600 text-white shadow-xs"
-                        : "text-zinc-600 hover:text-black"
-                      }`}
-                  >
-                    <Video className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">OBS / Stream POV (Clean)</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Live Preview Display */}
-              <div className="relative w-full rounded-2xl overflow-hidden bg-black aspect-[16/9] flex items-center justify-center group shadow-sm border border-zinc-200/40">
-                {proofPOV === "screen" ? (
-                  <img
-                    src="/proof/your-screen.webp"
-                    alt="Assault Fire Live Screen View with ESP Wallhack"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-                  />
-                ) : (
-                  <img
-                    src="/proof/screenshot-pov.webp"
-                    alt="Assault Fire Clean Capture on Discord and OBS"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-                  />
-                )}
-
-                {/* Status Badges Overlay */}
-                <div className="absolute top-4 left-4 flex items-center gap-2">
-                  {proofPOV === "screen" ? (
-                    <span className="px-3 py-1.5 rounded-xl bg-red-600/90 text-white text-[11px] font-mono font-bold uppercase tracking-wider backdrop-blur-md shadow-md flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                      Physical Screen Overlay
-                    </span>
-                  ) : (
-                    <span className="px-3 py-1.5 rounded-xl bg-emerald-600/90 text-white text-[11px] font-mono font-bold uppercase tracking-wider backdrop-blur-md shadow-md flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-white" />
-                      100% Clean Capture (OBS / Discord)
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    onPreviewImage?.(
-                      proofPOV === "screen"
-                        ? {
-                          url: "/proof/your-screen.webp",
-                          title: "Your Screen: Live ESP & Bone Skeletons Active",
-                        }
-                        : {
-                          url: "/proof/screenshot-pov.webp",
-                          title: "Stream POV: 100% Clean OBS & Discord Output",
-                        }
-                    )
-                  }
-                  className="absolute bottom-4 right-4 px-3.5 py-1.5 rounded-xl bg-black/75 hover:bg-black text-white text-xs font-semibold backdrop-blur-md flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
-                >
-                  <Maximize2 className="h-3.5 w-3.5" />
-                  <span>Click to Expand</span>
-                </button>
-              </div>
-            </motion.div>
-          )
-          }
-
-          {
-            activeTab === 1 && (
-              /* ── TAB 1: WALLHACK ESP ────────────────────────────────── */
+          <AnimatePresence mode="wait" custom={direction}>
+            {activeTab === 0 && (
+              /* ── TAB 0: STREAM-PROOF PROOF (DUAL POV LIVE TOGGLE) ──── */
               <motion.div
-                key="tab-wallhack"
+                key="tab-streamproof"
                 custom={direction}
                 variants={slideVariants}
                 initial="enter"
@@ -406,39 +288,91 @@ export function StreamproofShowcase({
                 }}
                 className="p-5 sm:p-8 lg:p-9 cursor-grab active:cursor-grabbing touch-pan-y"
               >
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-100/90">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs font-mono font-bold text-zinc-600 uppercase">
-                      Tactical 2D/3D Bounding Boxes & Distance Meters
+                {/* Window Controls & POV Switcher */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-zinc-100/90">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1.5">
+                      <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+                      <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+                      <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+                    </div>
+                    <span className="text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider">
+                      Red Line Driver Isolation Buffer
                     </span>
                   </div>
-                  <span className="text-xs font-mono text-zinc-400">FPS: 240+ STABLE</span>
+
+                  {/* Sub-toggle between Physical Monitor vs Stream POV */}
+                  <div className="grid grid-cols-1 sm:flex items-center gap-1 p-1 rounded-xl bg-zinc-100/90 border border-zinc-200/60 text-xs font-semibold font-sans w-full sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={() => setProofPOV("screen")}
+                      className={`px-3 py-2 sm:py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto ${proofPOV === "screen"
+                        ? "bg-black text-white shadow-xs"
+                        : "text-zinc-600 hover:text-black"
+                        }`}
+                    >
+                      <Monitor className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">Your Screen (ESP Active)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProofPOV("stream")}
+                      className={`px-3 py-2 sm:py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto ${proofPOV === "stream"
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "text-zinc-600 hover:text-black"
+                        }`}
+                    >
+                      <Video className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">OBS / Stream POV (Clean)</span>
+                    </button>
+                  </div>
                 </div>
 
+                {/* Live Preview Display */}
                 <div className="relative w-full rounded-2xl overflow-hidden bg-black aspect-[16/9] flex items-center justify-center group shadow-sm border border-zinc-200/40">
-                  <img
-                    src="/proof/your-screen.webp"
-                    alt="Assault Fire Wallhack ESP with 2D/3D Bounding Boxes"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-                  />
+                  {proofPOV === "screen" ? (
+                    <img
+                      src="/proof/your-screen.webp"
+                      alt="Assault Fire Live Screen View with ESP Wallhack"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+                    />
+                  ) : (
+                    <img
+                      src="/proof/screenshot-pov.webp"
+                      alt="Assault Fire Clean Capture on Discord and OBS"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+                    />
+                  )}
 
-                  {/* Clean Unobtrusive Top-Left Badge (Never blocks soldiers/crosshairs) */}
+                  {/* Status Badges Overlay */}
                   <div className="absolute top-4 left-4 flex items-center gap-2">
-                    <span className="px-3 py-1.5 rounded-xl bg-emerald-600/90 text-white text-[11px] font-mono font-bold uppercase tracking-wider backdrop-blur-md shadow-md flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                      Adaptive Bounding Boxes Active
-                    </span>
+                    {proofPOV === "screen" ? (
+                      <span className="px-3 py-1.5 rounded-xl bg-red-600/90 text-white text-[11px] font-mono font-bold uppercase tracking-wider backdrop-blur-md shadow-md flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                        Physical Screen Overlay
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1.5 rounded-xl bg-emerald-600/90 text-white text-[11px] font-mono font-bold uppercase tracking-wider backdrop-blur-md shadow-md flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-white" />
+                        100% Clean Capture (OBS / Discord)
+                      </span>
+                    )}
                   </div>
 
-                  {/* Click to Expand Button */}
                   <button
                     type="button"
                     onClick={() =>
-                      onPreviewImage?.({
-                        url: "/proof/your-screen.webp",
-                        title: "Wallhack ESP: 2D/3D Bounding Boxes & Distance Meters",
-                      })
+                      onPreviewImage?.(
+                        proofPOV === "screen"
+                          ? {
+                            url: "/proof/your-screen.webp",
+                            title: "Your Screen: Live ESP & Bone Skeletons Active",
+                          }
+                          : {
+                            url: "/proof/screenshot-pov.webp",
+                            title: "Stream POV: 100% Clean OBS & Discord Output",
+                          }
+                      )
                     }
                     className="absolute bottom-4 right-4 px-3.5 py-1.5 rounded-xl bg-black/75 hover:bg-black text-white text-xs font-semibold backdrop-blur-md flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
                   >
@@ -446,147 +380,214 @@ export function StreamproofShowcase({
                     <span>Click to Expand</span>
                   </button>
                 </div>
-
-                {/* Clean Caption Bar OUTSIDE/BELOW the Image (100% Unobscured Gameplay) */}
-                <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 sm:p-4 rounded-xl bg-zinc-50 border border-zinc-200/70 text-xs sm:text-sm">
-                  <div className="flex items-center gap-2.5 text-zinc-900 font-semibold font-sans">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
-                    <span>Renders real-time enemy distance, weapon tags, and health status through walls & obstacles.</span>
-                  </div>
-                  <span className="text-zinc-500 font-mono text-[11px] shrink-0 font-medium bg-white px-2.5 py-1 rounded-lg border border-zinc-200">
-                    Zero Framerate Lag
-                  </span>
-                </div>
               </motion.div>
             )
-          }
+            }
 
-          {
-            activeTab === 2 && (
-              /* ── TAB 2: BONE SKELETON & AIMBOT ─────────────────────── */
-              <motion.div
-                key="tab-aimbot"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.2}
-                onDragEnd={(_, info) => {
-                  if (info.offset.x < -40 || info.velocity.x < -400) {
-                    handleNext();
-                  } else if (info.offset.x > 40 || info.velocity.x > 400) {
-                    handlePrev();
-                  }
-                }}
-                className="p-5 sm:p-8 lg:p-9 cursor-grab active:cursor-grabbing touch-pan-y"
-              >
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-100/90">
-                  <div className="flex items-center gap-2">
-                    <Crosshair className="h-4 w-4 text-[#E53935]" />
-                    <span className="text-xs font-mono font-bold text-zinc-600 uppercase">
-                      Bone Skeleton Joint Tracking & Smoothing
+            {
+              activeTab === 1 && (
+                /* ── TAB 1: WALLHACK ESP ────────────────────────────────── */
+                <motion.div
+                  key="tab-wallhack"
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -40 || info.velocity.x < -400) {
+                      handleNext();
+                    } else if (info.offset.x > 40 || info.velocity.x > 400) {
+                      handlePrev();
+                    }
+                  }}
+                  className="p-5 sm:p-8 lg:p-9 cursor-grab active:cursor-grabbing touch-pan-y"
+                >
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-100/90">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-xs font-mono font-bold text-zinc-600 uppercase">
+                        Tactical 2D/3D Bounding Boxes & Distance Meters
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono text-zinc-400">FPS: 240+ STABLE</span>
+                  </div>
+
+                  <div className="relative w-full rounded-2xl overflow-hidden bg-black aspect-[16/9] flex items-center justify-center group shadow-sm border border-zinc-200/40">
+                    <img
+                      src="/proof/your-screen.webp"
+                      alt="Assault Fire Wallhack ESP with 2D/3D Bounding Boxes"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+                    />
+
+                    {/* Clean Unobtrusive Top-Left Badge (Never blocks soldiers/crosshairs) */}
+                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                      <span className="px-3 py-1.5 rounded-xl bg-emerald-600/90 text-white text-[11px] font-mono font-bold uppercase tracking-wider backdrop-blur-md shadow-md flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                        Adaptive Bounding Boxes Active
+                      </span>
+                    </div>
+
+                    {/* Click to Expand Button */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onPreviewImage?.({
+                          url: "/proof/your-screen.webp",
+                          title: "Wallhack ESP: 2D/3D Bounding Boxes & Distance Meters",
+                        })
+                      }
+                      className="absolute bottom-4 right-4 px-3.5 py-1.5 rounded-xl bg-black/75 hover:bg-black text-white text-xs font-semibold backdrop-blur-md flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                    >
+                      <Maximize2 className="h-3.5 w-3.5" />
+                      <span>Click to Expand</span>
+                    </button>
+                  </div>
+
+                  {/* Clean Caption Bar OUTSIDE/BELOW the Image (100% Unobscured Gameplay) */}
+                  <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 sm:p-4 rounded-xl bg-zinc-50 border border-zinc-200/70 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2.5 text-zinc-900 font-semibold font-sans">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+                      <span>Renders real-time enemy distance, weapon tags, and health status through walls & obstacles.</span>
+                    </div>
+                    <span className="text-zinc-500 font-mono text-[11px] shrink-0 font-medium bg-white px-2.5 py-1 rounded-lg border border-zinc-200">
+                      Zero Framerate Lag
                     </span>
                   </div>
-                  <span className="text-xs font-mono text-emerald-600 font-bold">TARGET LOCKED</span>
-                </div>
+                </motion.div>
+              )
+            }
 
-                <div className="relative w-full rounded-2xl overflow-hidden bg-zinc-950 aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8] lg:aspect-[21/9] min-h-[380px] flex items-center justify-center p-6 sm:p-10 border border-zinc-200/40">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full max-w-4xl">
-                    <div className="flex justify-center">
-                      <img
-                        src="/img-1.png"
-                        alt="Aimbot Interface 3D Claymorphic Element"
-                        className="w-72 drop-shadow-2xl select-none"
-                      />
+            {
+              activeTab === 2 && (
+                /* ── TAB 2: BONE SKELETON & AIMBOT ─────────────────────── */
+                <motion.div
+                  key="tab-aimbot"
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -40 || info.velocity.x < -400) {
+                      handleNext();
+                    } else if (info.offset.x > 40 || info.velocity.x > 400) {
+                      handlePrev();
+                    }
+                  }}
+                  className="p-5 sm:p-8 lg:p-9 cursor-grab active:cursor-grabbing touch-pan-y"
+                >
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-100/90">
+                    <div className="flex items-center gap-2">
+                      <Crosshair className="h-4 w-4 text-[#E53935]" />
+                      <span className="text-xs font-mono font-bold text-zinc-600 uppercase">
+                        Bone Skeleton Joint Tracking & Smoothing
+                      </span>
                     </div>
-                    <div className="space-y-4 text-white font-sans">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-[#E53935] text-xs font-bold uppercase font-mono">
-                        Precision Smoothing Engine
+                    <span className="text-xs font-mono text-emerald-600 font-bold">TARGET LOCKED</span>
+                  </div>
+
+                  <div className="relative w-full rounded-2xl overflow-hidden bg-zinc-950 aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8] lg:aspect-[21/9] min-h-[380px] flex items-center justify-center p-6 sm:p-10 border border-zinc-200/40">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full max-w-4xl">
+                      <div className="flex justify-center">
+                        <img
+                          src="/img-1.png"
+                          alt="Aimbot Interface 3D Claymorphic Element"
+                          className="w-72 drop-shadow-2xl select-none"
+                        />
                       </div>
-                      <h4 className="text-2xl font-bold tracking-tight">
-                        Bone Skeleton Tracking Through Smoke & Walls
+                      <div className="space-y-4 text-white font-sans">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-[#E53935] text-xs font-bold uppercase font-mono">
+                          Precision Smoothing Engine
+                        </div>
+                        <h4 className="text-2xl font-bold tracking-tight">
+                          Bone Skeleton Tracking Through Smoke & Walls
+                        </h4>
+                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                          Highlights head hitboxes, spine joints, and leg positions even through smoke grenades. Adjust FOV radius, smooth sensitivity, and aim keys on the fly.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            }
+
+            {
+              activeTab === 3 && (
+                /* ── TAB 3: PEACE CLEANER HWID BAN REMOVAL ─────────────── */
+                <motion.div
+                  key="tab-cleaner"
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -40 || info.velocity.x < -400) {
+                      handleNext();
+                    } else if (info.offset.x > 40 || info.velocity.x > 400) {
+                      handlePrev();
+                    }
+                  }}
+                  className="p-5 sm:p-8 lg:p-9 cursor-grab active:cursor-grabbing touch-pan-y"
+                >
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-100/90">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                      <span className="text-xs font-mono font-bold text-zinc-600 uppercase">
+                        Peace Cleaner: Hardware Identifier Flusher
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono text-emerald-600 font-bold">HWID CLEAN</span>
+                  </div>
+
+                  <div className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 to-black aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8] lg:aspect-[21/9] min-h-[380px] flex items-center justify-center p-6 sm:p-10 lg:p-12 text-white border border-zinc-200/40">
+                    <div className="max-w-2xl text-center space-y-4">
+                      <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center shadow-lg">
+                        <Sparkles className="h-7 w-7" />
+                      </div>
+                      <h4 className="text-2xl sm:text-3xl lg:text-4xl font-black font-sans tracking-tight">
+                        Instant Device Ban Removal
                       </h4>
-                      <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-                        Highlights head hitboxes, spine joints, and leg positions even through smoke grenades. Adjust FOV radius, smooth sensitivity, and aim keys on the fly.
+                      <p className="text-xs sm:text-sm lg:text-base text-zinc-300 font-sans leading-relaxed max-w-xl mx-auto">
+                        Peace Cleaner removes device bans so you can play Assault Fire immediately. Flushes residual anti-cheat tokens, clears hardware identifiers, and purges standby memory caches.
                       </p>
+                      <div className="flex flex-wrap justify-center gap-2 pt-2">
+                        <span className="px-3.5 py-1.5 rounded-xl bg-zinc-800/90 border border-zinc-700/60 text-xs font-mono text-zinc-200">
+                          NIC MAC Address: Spoofed
+                        </span>
+                        <span className="px-3.5 py-1.5 rounded-xl bg-zinc-800/90 border border-zinc-700/60 text-xs font-mono text-zinc-200">
+                          Registry Trace: Purged
+                        </span>
+                        <span className="px-3.5 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-xs font-mono text-emerald-400 font-bold">
+                          Status: 100% Undetected
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            )
-          }
+                </motion.div>
+              )
+            }
+          </AnimatePresence>
 
-          {
-            activeTab === 3 && (
-              /* ── TAB 3: PEACE CLEANER HWID BAN REMOVAL ─────────────── */
-              <motion.div
-                key="tab-cleaner"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.2}
-                onDragEnd={(_, info) => {
-                  if (info.offset.x < -40 || info.velocity.x < -400) {
-                    handleNext();
-                  } else if (info.offset.x > 40 || info.velocity.x > 400) {
-                    handlePrev();
-                  }
-                }}
-                className="p-5 sm:p-8 lg:p-9 cursor-grab active:cursor-grabbing touch-pan-y"
-              >
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-100/90">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                    <span className="text-xs font-mono font-bold text-zinc-600 uppercase">
-                      Peace Cleaner: Hardware Identifier Flusher
-                    </span>
-                  </div>
-                  <span className="text-xs font-mono text-emerald-600 font-bold">HWID CLEAN</span>
-                </div>
-
-                <div className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-900 to-black aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8] lg:aspect-[21/9] min-h-[380px] flex items-center justify-center p-6 sm:p-10 lg:p-12 text-white border border-zinc-200/40">
-                  <div className="max-w-2xl text-center space-y-4">
-                    <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center shadow-lg">
-                      <Sparkles className="h-7 w-7" />
-                    </div>
-                    <h4 className="text-2xl sm:text-3xl lg:text-4xl font-black font-sans tracking-tight">
-                      Instant Device Ban Removal
-                    </h4>
-                    <p className="text-xs sm:text-sm lg:text-base text-zinc-300 font-sans leading-relaxed max-w-xl mx-auto">
-                      Peace Cleaner removes device bans so you can play Assault Fire immediately. Flushes residual anti-cheat tokens, clears hardware identifiers, and purges standby memory caches.
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-2 pt-2">
-                      <span className="px-3.5 py-1.5 rounded-xl bg-zinc-800/90 border border-zinc-700/60 text-xs font-mono text-zinc-200">
-                        NIC MAC Address: Spoofed
-                      </span>
-                      <span className="px-3.5 py-1.5 rounded-xl bg-zinc-800/90 border border-zinc-700/60 text-xs font-mono text-zinc-200">
-                        Registry Trace: Purged
-                      </span>
-                      <span className="px-3.5 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-xs font-mono text-emerald-400 font-bold">
-                        Status: 100% Undetected
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )
-          }
-        </AnimatePresence>
-
-        {/* Mobile Swipe Hint Bar */}
-        <div className="sm:hidden flex items-center justify-center gap-1.5 pb-3 text-[11px] text-zinc-400 font-sans">
-          <span>👈 Swipe image left or right 👉</span>
+          {/* Mobile Swipe Hint Bar */}
+          <div className="sm:hidden flex items-center justify-center gap-1.5 pb-3 text-[11px] text-zinc-400 font-sans">
+            <span>👈 Swipe image left or right 👉</span>
+          </div>
         </div>
-      </div>
       </div>
 
       {/* ─── INFO SECTION BELOW (MATCHING 2ND SCREENSHOT) ───────────── */}
@@ -597,15 +598,18 @@ export function StreamproofShowcase({
             Every feature above is included. No tiers, no unlocks.
           </h3>
 
-          <div>
+          <div className="space-y-2">
             <button
               type="button"
-              onClick={handleBuy}
-              className="w-full sm:w-auto justify-center px-8 py-3.5 rounded-2xl bg-[#E53935] hover:bg-[#c62828] active:scale-95 text-white font-bold font-sans text-sm sm:text-base tracking-wide flex items-center gap-2.5 transition-all shadow-md hover:shadow-xl shadow-red-500/20 hover:shadow-red-500/30 cursor-pointer"
+              disabled
+              className="w-full sm:w-auto justify-center px-8 py-3.5 rounded-2xl bg-zinc-200 text-zinc-500 font-bold font-sans text-sm tracking-wide flex items-center gap-2.5 cursor-not-allowed border border-zinc-300"
             >
-              <span>Buy Now! Starts at ₱500</span>
-              <ArrowRight className="h-4 w-4" />
+              <Lock className="h-4 w-4" />
+              <span>Purchases Closed</span>
             </button>
+            <p className="text-xs text-zinc-500">
+              Red Line Cheats purchases are currently closed. <a href="#pricing" className="text-[#E53935] font-bold hover:underline">Peace Cleaner is available →</a>
+            </p>
           </div>
         </div >
 

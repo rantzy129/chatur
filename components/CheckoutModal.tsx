@@ -20,6 +20,7 @@ import {
   ZoomIn,
   FileText,
   Trash2,
+  Lock,
 } from "lucide-react";
 import DiscordIcon from "@/components/DiscordIcon";
 import TermsModal from "@/components/TermsModal";
@@ -87,6 +88,9 @@ export default function CheckoutModal({
 
   if (!isOpen || !plan || typeof document === "undefined") return null;
 
+  const isPeaceCleaner =
+    plan.tier.toLowerCase().includes("peace") ||
+    plan.tier.toLowerCase().includes("cleaner");
   const gcashName = process.env.NEXT_PUBLIC_GCASH_NAME || "RED LINE";
   const qrUrl = process.env.NEXT_PUBLIC_GCASH_QR_URL || "/qr.jpg";
 
@@ -261,8 +265,33 @@ export default function CheckoutModal({
           </div>
         </div>
 
-        {/* Discord Gate: Only logged in users can see payment details & form */}
-        {!user ? (
+        {/* Purchases Closed for Red Line Cheats */}
+        {!isPeaceCleaner ? (
+          <div className="py-8 text-center space-y-5">
+            <div className="mx-auto h-16 w-16 rounded-3xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-600 shadow-sm">
+              <Lock className="h-7 w-7 text-zinc-500" />
+            </div>
+
+            <div className="space-y-2 max-w-sm mx-auto">
+              <h4 className="text-xl font-bold text-black font-sans tracking-tight">
+                Purchases Currently Closed
+              </h4>
+              <p className="text-xs sm:text-sm text-zinc-500 font-sans leading-relaxed">
+                New license purchases for Red Line Cheats are temporarily closed. If you need a device ban unbanned, Peace Cleaner is open and available.
+              </p>
+            </div>
+
+            <div className="pt-2 max-w-sm mx-auto">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-3 px-5 rounded-2xl bg-black hover:bg-zinc-800 text-white text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        ) : !user ? (
           <div className="py-8 text-center space-y-6">
             <div className="mx-auto h-16 w-16 rounded-3xl bg-[#5865F2]/10 border border-[#5865F2]/20 flex items-center justify-center text-[#5865F2] shadow-sm">
               <DiscordIcon className="h-8 w-8 fill-current" />
