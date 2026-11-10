@@ -15,7 +15,6 @@ import {
   Maximize2,
   ChevronLeft,
   ChevronRight,
-  Lock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -598,18 +597,15 @@ export function StreamproofShowcase({
             Every feature above is included. No tiers, no unlocks.
           </h3>
 
-          <div className="space-y-2">
+          <div>
             <button
               type="button"
-              disabled
-              className="w-full sm:w-auto justify-center px-8 py-3.5 rounded-2xl bg-zinc-200 text-zinc-500 font-bold font-sans text-sm tracking-wide flex items-center gap-2.5 cursor-not-allowed border border-zinc-300"
+              onClick={handleBuy}
+              className="w-full sm:w-auto justify-center px-8 py-3.5 rounded-2xl bg-[#E53935] hover:bg-[#c62828] active:scale-95 text-white font-bold font-sans text-sm sm:text-base tracking-wide flex items-center gap-2.5 transition-all shadow-md hover:shadow-xl shadow-red-500/20 hover:shadow-red-500/30 cursor-pointer"
             >
-              <Lock className="h-4 w-4" />
-              <span>Purchases Closed</span>
+              <span>Buy Now! Starts at ₱500</span>
+              <ArrowRight className="h-4 w-4" />
             </button>
-            <p className="text-xs text-zinc-500">
-              Red Line Cheats purchases are currently closed. <a href="#pricing" className="text-[#E53935] font-bold hover:underline">Peace Cleaner is available →</a>
-            </p>
           </div>
         </div >
 
