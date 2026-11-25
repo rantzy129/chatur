@@ -52,9 +52,7 @@ export const metadata: Metadata = {
     "assault fire device ban",
     "assault fire hwid unban",
     "assault fire peace cleaner",
-    "red line vip",
-    "red line cheats",
-    "red line assault fire",
+    "peace cleaner af",
   ],
   alternates: {
     canonical: "/",

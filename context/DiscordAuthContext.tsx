@@ -22,8 +22,8 @@ interface DiscordAuthContextType {
 const DiscordAuthContext = createContext<DiscordAuthContextType>({
   user: null,
   isLoading: true,
-  loginWithDiscord: async () => {},
-  logout: async () => {},
+  loginWithDiscord: async () => { },
+  logout: async () => { },
 });
 
 export function DiscordAuthProvider({ children }: { children: React.ReactNode }) {
