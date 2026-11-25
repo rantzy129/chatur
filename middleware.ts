@@ -146,7 +146,7 @@ function getRateLimiter(policy: Policy): Ratelimit | null {
   const limiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(policy.limit, policy.window),
-    prefix: "redline:rate-limit:v1",
+    prefix: "assaultfire:rate-limit:v1",
   });
 
   policies.set(policy.name, limiter);

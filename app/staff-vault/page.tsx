@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Activity,
   AlertCircle,
   ArrowUpRight,
   Ban,
+  Bell,
+  BellRing,
   Check,
   CheckCircle2,
   Clock3,
@@ -26,6 +28,8 @@ import {
   Sparkles,
   Trash2,
   UsersRound,
+  Volume2,
+  VolumeX,
   Wallet,
   X,
   XCircle,
@@ -72,7 +76,7 @@ interface SystemSettings {
 }
 
 type AdminView = "overview" | "orders" | "licenses" | "settings";
-type Notice = { tone: "success" | "error"; message: string } | null;
+type Notice = { tone: "success" | "error" | "info"; message: string } | null;
 
 const navigation: { id: AdminView; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -932,6 +936,165 @@ export default function AdminPage() {
   const [genNotes, setGenNotes] = useState("");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
+  // Live order alerts & background sync
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>("default");
+  const [latestOrderAlert, setLatestOrderAlert] = useState<Order | null>(null);
+  const knownOrderIdsRef = useRef<Set<string>>(new Set());
+  const isInitialLoadRef = useRef(true);
+
+  // Synthesized chime using native Web Audio API (zero external asset latency)
+  const playOrderChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === "suspended") {
+        void ctx.resume();
+      }
+      const now = ctx.currentTime;
+
+      // Two-tone bright notification ping (E5 -> B5 harmonic rise)
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(659.25, now);
+      osc1.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+
+      osc2.type = "triangle";
+      osc2.frequency.setValueAtTime(987.77, now + 0.12);
+      osc2.frequency.exponentialRampToValueAtTime(1318.51, now + 0.35);
+
+      gainNode.gain.setValueAtTime(0.0001, now);
+      gainNode.gain.linearRampToValueAtTime(0.32, now + 0.04);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.65);
+
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc1.start(now);
+      osc1.stop(now + 0.3);
+      osc2.start(now + 0.12);
+      osc2.stop(now + 0.65);
+    } catch (err) {
+      console.warn("Unable to play order chime:", err);
+    }
+  };
+
+  const triggerOrderNotification = (newOrder: Order) => {
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        const notif = new Notification(`⚡ New Order: ${newOrder.tier} (₱${newOrder.amount.toLocaleString()})`, {
+          body: `Buyer: ${newOrder.discord_username || "Anonymous"} | Ref: ${newOrder.reference_number || "None"}. Click to review payment.`,
+          icon: "/favicon.ico",
+          tag: `order-${newOrder.id}`,
+        });
+        notif.onclick = () => {
+          window.focus();
+          setView("orders");
+        };
+      } catch (e) {
+        console.warn("Failed to trigger desktop notification:", e);
+      }
+    }
+  };
+
+  const handleToggleNotifications = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      alert("Browser notifications are not supported in this browser.");
+      return;
+    }
+    if (Notification.permission === "granted") {
+      setNotice({ tone: "info", message: "Desktop notifications are already enabled." });
+      return;
+    }
+    try {
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      if (permission === "granted") {
+        setNotice({ tone: "success", message: "Desktop notifications enabled! You will be alerted when orders arrive." });
+        try {
+          new Notification("Assault Fire VIP", {
+            body: "Live order alerts are now enabled.",
+            icon: "/favicon.ico",
+          });
+        } catch {
+          // ignore test alert
+        }
+      } else {
+        setNotice({ tone: "info", message: "Desktop notifications permission was dismissed or blocked." });
+      }
+    } catch (err) {
+      console.warn("Notification request failed:", err);
+    }
+  };
+
+  // Sync notification permission state on mount
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setNotificationPermission(Notification.permission);
+    }
+  }, []);
+
+  // Auto-dismiss floating order alert after 15 seconds
+  useEffect(() => {
+    if (!latestOrderAlert) return;
+    const timer = setTimeout(() => {
+      setLatestOrderAlert(null);
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, [latestOrderAlert]);
+
+  // Silent background polling function without loading spinners
+  const pollAdminOrders = async () => {
+    if (!adminSecret || !isAuthenticated) return;
+    try {
+      const res = await fetch("/api/admin/orders", {
+        headers: { "x-admin-secret": adminSecret },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const fetchedOrders: Order[] = data.orders || [];
+
+      // Detect any new pending orders that arrived since last check
+      const newPendingOrders: Order[] = [];
+      for (const o of fetchedOrders) {
+        if (!knownOrderIdsRef.current.has(o.id)) {
+          knownOrderIdsRef.current.add(o.id);
+          if (o.status === "pending") {
+            newPendingOrders.push(o);
+          }
+        }
+      }
+
+      setOrders(fetchedOrders);
+
+      if (newPendingOrders.length > 0) {
+        const newest = newPendingOrders[0];
+        setLatestOrderAlert(newest);
+        if (soundEnabled) {
+          playOrderChime();
+        }
+        triggerOrderNotification(newest);
+      }
+    } catch {
+      // Silent catch on background polling
+    }
+  };
+
+  // Auto-refresh interval (every 6 seconds while authenticated & enabled)
+  useEffect(() => {
+    if (!isAuthenticated || !autoRefreshEnabled || !adminSecret) return;
+    const interval = setInterval(() => {
+      void pollAdminOrders();
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, autoRefreshEnabled, adminSecret, soundEnabled]);
+
   useEffect(() => {
     const saved = sessionStorage.getItem("esm_admin_secret");
     if (saved) {
@@ -962,7 +1125,13 @@ export default function AdminPage() {
         throw new Error(licensesData.error || "Could not load licenses.");
       }
 
-      setOrders(ordersData.orders || []);
+      const loadedOrders: Order[] = ordersData.orders || [];
+      setOrders(loadedOrders);
+      // Seed known order IDs so initial load doesn't trigger alerts
+      if (isInitialLoadRef.current) {
+        knownOrderIdsRef.current = new Set(loadedOrders.map((o) => o.id));
+        isInitialLoadRef.current = false;
+      }
       setLicenses(licensesData.licenses || []);
       if (settingsData && settingsData.settings) {
         setSettings(settingsData.settings);
@@ -1378,6 +1547,63 @@ export default function AdminPage() {
             <p className="mt-0.5 hidden text-[11px] text-zinc-500 font-mono sm:block">Assault Fire / Admin workspace</p>
           </div>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-[11px] font-bold text-emerald-700">
+              <span className="relative flex h-2 w-2">
+                <span className={`absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 ${autoRefreshEnabled ? "animate-ping" : "hidden"}`} />
+                <span className={`relative inline-flex h-2 w-2 rounded-full ${autoRefreshEnabled ? "bg-emerald-500" : "bg-zinc-400"}`} />
+              </span>
+              <button
+                type="button"
+                onClick={() => setAutoRefreshEnabled((prev) => !prev)}
+                title={autoRefreshEnabled ? "Auto-refreshing every 6s. Click to pause." : "Auto-refresh paused. Click to resume."}
+                className="hover:underline font-mono"
+              >
+                {autoRefreshEnabled ? "Live 6s" : "Paused"}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const next = !soundEnabled;
+                setSoundEnabled(next);
+                if (next) playOrderChime();
+              }}
+              title={soundEnabled ? "Order chime active (click to mute)" : "Order chime muted (click to enable)"}
+              className={`flex h-9 items-center gap-1.5 rounded-xl border px-2.5 text-[12px] font-bold shadow-sm transition-all ${
+                soundEnabled
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                  : "border-zinc-200 bg-white text-zinc-400 hover:text-zinc-600"
+              }`}
+            >
+              {soundEnabled ? <Volume2 className="h-4 w-4 text-emerald-600" /> : <VolumeX className="h-4 w-4" />}
+              <span className="hidden xl:inline">{soundEnabled ? "Chime On" : "Muted"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleToggleNotifications}
+              title={
+                notificationPermission === "granted"
+                  ? "Desktop notifications are enabled"
+                  : "Click to enable desktop order notifications"
+              }
+              className={`flex h-9 items-center gap-1.5 rounded-xl border px-2.5 text-[12px] font-bold shadow-sm transition-all ${
+                notificationPermission === "granted"
+                  ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  : "border-zinc-200 bg-white text-zinc-500 hover:text-black"
+              }`}
+            >
+              {notificationPermission === "granted" ? (
+                <BellRing className="h-4 w-4 text-blue-600 animate-pulse" />
+              ) : (
+                <Bell className="h-4 w-4" />
+              )}
+              <span className="hidden xl:inline">
+                {notificationPermission === "granted" ? "Alerts On" : "Enable Alerts"}
+              </span>
+            </button>
+
             <span className="hidden text-[11px] text-zinc-500 font-mono md:block">
               {new Date().toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric" })}
             </span>
@@ -1458,10 +1684,18 @@ export default function AdminPage() {
               role={notice.tone === "error" ? "alert" : "status"}
               className={`mb-5 flex items-start gap-2.5 rounded-xl border px-3.5 py-3 text-[12px] font-medium ${notice.tone === "success"
                   ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                  : notice.tone === "info"
+                  ? "border-blue-200 bg-blue-50 text-blue-800"
                   : "border-red-200 bg-red-50 text-[#E53935]"
                 }`}
             >
-              {notice.tone === "success" ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#E53935]" />}
+              {notice.tone === "success" ? (
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+              ) : notice.tone === "info" ? (
+                <Bell className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+              ) : (
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#E53935]" />
+              )}
               <span>{notice.message}</span>
             </div>
           )}
@@ -1859,6 +2093,46 @@ export default function AdminPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Live Order Incoming Ping Toast */}
+      {latestOrderAlert && (
+        <aside
+          aria-label="New order notification"
+          className="fixed bottom-6 right-6 z-50 flex max-w-md animate-bounce items-center gap-3.5 rounded-2xl border-2 border-emerald-500 bg-black p-4 text-white shadow-2xl transition-all"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-black uppercase tracking-wider text-emerald-400 font-mono">⚡ New Order Received!</p>
+            <p className="truncate text-[13px] font-bold text-white">
+              {latestOrderAlert.tier} • ₱{latestOrderAlert.amount.toLocaleString()}
+            </p>
+            <p className="truncate text-[11px] text-zinc-400 font-mono">
+              {latestOrderAlert.discord_username || "Buyer"} • Ref: {latestOrderAlert.reference_number || "None"}
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setView("orders");
+                setLatestOrderAlert(null);
+              }}
+              className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-black text-black hover:bg-emerald-400 font-sans shadow"
+            >
+              Review
+            </button>
+            <button
+              type="button"
+              onClick={() => setLatestOrderAlert(null)}
+              className="rounded-lg p-1.5 text-zinc-400 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </aside>
       )}
     </div>
   );
