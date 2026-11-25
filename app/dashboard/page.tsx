@@ -308,7 +308,7 @@ export default function DashboardPage() {
                 href="/#pricing"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-black hover:bg-zinc-800 active:scale-[0.98] text-white font-bold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
               >
-                <span>Purchase VIP Access (from ₱500)</span>
+                <span>Purchase VIP Access (from ₱1,000)</span>
               </Link>
             </div>
           </div>
