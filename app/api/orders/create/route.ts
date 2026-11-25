@@ -136,7 +136,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Fire Discord Webhook alert for staff
+    // Fire Discord Webhook alert for staff (non-blocking: order is already safely saved in database)
     try {
       await sendDiscordOrderNotification({
         orderNumber,
@@ -149,14 +149,7 @@ export async function POST(req: Request) {
         receiptUrl: receiptUrl ?? undefined,
       });
     } catch (notificationError) {
-      console.error("Order was saved but the Discord notification failed:", notificationError);
-      return NextResponse.json(
-        {
-          error: `Order ${orderNumber} was saved, but the staff Discord notification failed. Please do not resubmit; contact staff.`,
-          orderNumber,
-        },
-        { status: 502 }
-      );
+      console.warn("Order was saved to database, but Discord webhook alert failed:", notificationError);
     }
 
     return NextResponse.json({

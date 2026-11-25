@@ -102,13 +102,17 @@ export async function POST(req: Request) {
       }
 
       // 5. Send Discord approved log
-      await sendDiscordOrderApproved({
-        orderNumber: order.order_number,
-        discordId: order.discord_id,
-        discordUsername: order.discord_username,
-        tier: order.tier,
-        licenseKey: key,
-      });
+      try {
+        await sendDiscordOrderApproved({
+          orderNumber: order.order_number,
+          discordId: order.discord_id,
+          discordUsername: order.discord_username,
+          tier: order.tier,
+          licenseKey: key,
+        });
+      } catch (webhookErr) {
+        console.warn("Discord approval notification failed to send:", webhookErr);
+      }
 
       return NextResponse.json({
         success: true,
