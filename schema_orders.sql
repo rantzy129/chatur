@@ -1,0 +1,47 @@
+-- ==============================================================================
+-- ESMIRINGHOY VIP — WEB STORE ORDERS TABLE & STORAGE SCHEMA
+-- Run this in your Supabase Dashboard -> SQL Editor
+-- ==============================================================================
+
+-- 1. Create esm_orders table
+CREATE TABLE IF NOT EXISTS public.esm_orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_number TEXT UNIQUE NOT NULL,
+    discord_id TEXT NOT NULL,
+    discord_username TEXT NOT NULL,
+    discord_avatar TEXT,
+    tier TEXT NOT NULL,                  -- 'Monthly VIP' or 'Lifetime VIP'
+    amount NUMERIC NOT NULL,             -- 1000 or 3000
+    payment_method TEXT DEFAULT 'GCash QR',
+    reference_number TEXT NOT NULL,
+    sender_name TEXT,
+    receipt_url TEXT,                    -- Base64 or uploaded image URL
+    status TEXT DEFAULT 'pending',       -- 'pending', 'approved', 'rejected'
+    admin_notes TEXT,
+    license_key TEXT,                    -- Key assigned upon approval
+    created_at TIMESTAMPTZ DEFAULT now(),
+    reviewed_at TIMESTAMPTZ,
+    reviewed_by TEXT
+);
+
+-- Indexes for lightning fast lookups
+CREATE INDEX IF NOT EXISTS idx_esm_orders_discord_id ON public.esm_orders (discord_id);
+CREATE INDEX IF NOT EXISTS idx_esm_orders_status ON public.esm_orders (status);
+CREATE INDEX IF NOT EXISTS idx_esm_orders_created_at ON public.esm_orders (created_at DESC);
+
+-- Enable RLS
+ALTER TABLE public.esm_orders ENABLE ROW LEVEL SECURITY;
+
+-- All order access goes through server routes using the service-role key.
+-- Do not add a public/authenticated policy for this sensitive table.
+DROP POLICY IF EXISTS "Service role full access on orders" ON public.esm_orders;
+REVOKE ALL PRIVILEGES ON TABLE public.esm_orders FROM PUBLIC, anon, authenticated;
+GRANT ALL PRIVILEGES ON TABLE public.esm_orders TO service_role;
+
+NOTIFY pgrst, 'reload schema';
+
+-- Private subscriber download bucket. Keep public=false; downloads are issued
+-- only as short-lived signed URLs after the API verifies an active license.
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('subscriber-downloads', 'subscriber-downloads', false)
+ON CONFLICT (id) DO UPDATE SET public = false;

@@ -1,0 +1,163 @@
+"use client";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { getSupabaseClient } from "@/lib/supabase";
+
+export interface DiscordUser {
+  id: string;
+  username: string;
+  discriminator?: string;
+  global_name?: string;
+  avatar?: string;
+  avatarUrl: string;
+}
+
+interface DiscordAuthContextType {
+  user: DiscordUser | null;
+  isLoading: boolean;
+  loginWithDiscord: () => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+const DiscordAuthContext = createContext<DiscordAuthContextType>({
+  user: null,
+  isLoading: true,
+  loginWithDiscord: async () => {},
+  logout: async () => {},
+});
+
+export function DiscordAuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<DiscordUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Helper to normalize user metadata from Supabase or direct Discord API
+  const parseDiscordUser = (supabaseUser: any): DiscordUser | null => {
+    if (!supabaseUser) return null;
+
+    const meta = supabaseUser.user_metadata || {};
+    // Discord ID is stored in provider_id, sub, or provider_token
+    const discordId =
+      meta.provider_id ||
+      meta.sub ||
+      (supabaseUser.identities && supabaseUser.identities[0]?.identity_data?.provider_id) ||
+      supabaseUser.id;
+
+    const username =
+      meta.custom_claims?.global_name ||
+      meta.full_name ||
+      meta.name ||
+      meta.user_name ||
+      meta.username ||
+      "Discord User";
+
+    const avatarUrl =
+      meta.avatar_url ||
+      meta.picture ||
+      `https://cdn.discordapp.com/embed/avatars/${parseInt(String(discordId).slice(-1) || "0", 10) % 5}.png`;
+
+    return {
+      id: String(discordId),
+      username: String(username),
+      avatarUrl: String(avatarUrl),
+      avatar: meta.avatar,
+    };
+  };
+
+  useEffect(() => {
+    let authSubscription: { unsubscribe: () => void } | undefined;
+
+    // 1. Check native Supabase Auth Session
+    const checkSupabaseAuth = async () => {
+      try {
+        const { data: { session } } = await getSupabaseClient().auth.getSession();
+        if (session?.user) {
+          const parsed = parseDiscordUser(session.user);
+          if (parsed) {
+            setUser(parsed);
+            localStorage.setItem("esm_discord_user", JSON.stringify(parsed));
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          // If Supabase session is gone or expired, clear stale cached profile
+          setUser(null);
+          localStorage.removeItem("esm_discord_user");
+        }
+      } catch (err) {
+        console.error("Supabase session check error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSupabaseAuth();
+
+    // Listen to Supabase auth state changes (handles redirect return)
+    try {
+      const { data } = getSupabaseClient().auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            const parsed = parseDiscordUser(session.user);
+            if (parsed) {
+              setUser(parsed);
+              localStorage.setItem("esm_discord_user", JSON.stringify(parsed));
+            }
+          } else if (event === "SIGNED_OUT") {
+            setUser(null);
+            localStorage.removeItem("esm_discord_user");
+          }
+        }
+      );
+      authSubscription = data.subscription;
+    } catch (err) {
+      console.error("Supabase auth listener setup error:", err);
+    }
+
+    return () => {
+      authSubscription?.unsubscribe();
+    };
+  }, []);
+
+  // Primary Login using Supabase Discord OAuth
+  const loginWithDiscord = async () => {
+    try {
+      const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
+      const { data, error } = await getSupabaseClient().auth.signInWithOAuth({
+        provider: "discord",
+        options: {
+          redirectTo: redirectUrl,
+          scopes: "identify email",
+        },
+      });
+
+      if (error) {
+        console.error("Supabase OAuth sign-in error:", error.message);
+        alert("Discord authentication could not be initiated: " + error.message);
+      }
+    } catch (err) {
+      console.error("Discord login error:", err);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await getSupabaseClient().auth.signOut();
+    } catch (e) {
+      console.error("Signout error:", e);
+    }
+    setUser(null);
+    localStorage.removeItem("esm_discord_user");
+  };
+
+  return (
+    <DiscordAuthContext.Provider
+      value={{ user, isLoading, loginWithDiscord, logout }}
+    >
+      {children}
+    </DiscordAuthContext.Provider>
+  );
+}
+
+export function useDiscordAuth() {
+  return useContext(DiscordAuthContext);
+}
