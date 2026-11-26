@@ -64,6 +64,14 @@ export function DiscordAuthProvider({ children }: { children: React.ReactNode })
   };
 
   useEffect(() => {
+    // Seamlessly forward any legacy domain redirects (e.g. from Supabase default site_url)
+    if (typeof window !== "undefined" && window.location.hostname.includes("redline")) {
+      const targetPath = window.location.pathname === "/" && window.location.hash ? "/dashboard" : window.location.pathname;
+      const target = `https://assaultfire.vercel.app${targetPath}${window.location.search}${window.location.hash}`;
+      window.location.replace(target);
+      return;
+    }
+
     let authSubscription: { unsubscribe: () => void } | undefined;
 
     // 1. Check native Supabase Auth Session
@@ -121,7 +129,12 @@ export function DiscordAuthProvider({ children }: { children: React.ReactNode })
   // Primary Login using Supabase Discord OAuth
   const loginWithDiscord = async () => {
     try {
-      const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
+      const base =
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        (typeof window !== "undefined" && window.location.origin && !window.location.origin.includes("redline")
+          ? window.location.origin
+          : "https://assaultfire.vercel.app");
+      const redirectUrl = `${base.replace(/\/+$/, "")}/dashboard`;
       const { data, error } = await getSupabaseClient().auth.signInWithOAuth({
         provider: "discord",
         options: {

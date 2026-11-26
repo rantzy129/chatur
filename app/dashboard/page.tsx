@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   Copy,
   Check,
-  Download,
   Clock,
   Laptop,
   AlertTriangle,
@@ -73,8 +72,6 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [revealedKeys, setRevealedKeys] = useState<Record<string, boolean>>({});
 
@@ -117,47 +114,6 @@ export default function DashboardPage() {
     }
   }, [user]);
 
-  const handleClientDownload = async (product?: "ESM" | "PC") => {
-    setDownloadError(null);
-    setIsDownloading(true);
-
-    try {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await getSupabaseClient().auth.getSession();
-
-      if (sessionError) throw sessionError;
-      if (!session?.access_token) {
-        throw new Error("Your Discord session expired. Please sign in again.");
-      }
-
-      const endpoint = product ? `/api/downloads/client?product=${product}` : "/api/downloads/client";
-      const response = await fetch(endpoint, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        cache: "no-store",
-      });
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error || "Unable to download the client.");
-      }
-      if (typeof result.url !== "string") {
-        throw new Error("The download link was missing. Please try again.");
-      }
-
-      window.location.assign(result.url);
-    } catch (error) {
-      console.error("Client download failed:", error);
-      setDownloadError(
-        error instanceof Error
-          ? error.message
-          : "Could not start client download. Please try again or ping staff."
-      );
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   const handleCopy = (key: string) => {
     navigator.clipboard.writeText(key);
     setCopiedKey(key);
@@ -190,7 +146,7 @@ export default function DashboardPage() {
               VIP Customer Portal
             </h1>
             <p className="text-xs sm:text-sm text-zinc-500 max-w-sm mx-auto leading-relaxed">
-              Connect your Discord account to manage your Assault Fire licenses, download client tools, and track GCash order verification.
+              Connect your Discord account to manage your Assault Fire licenses, copy authorization keys, and track GCash order verification.
             </p>
           </div>
 
@@ -259,13 +215,6 @@ export default function DashboardPage() {
           </Link>
         </div>
       </div>
-
-      {downloadError && (
-        <div role="alert" className="text-sm text-[#E53935] bg-red-50 border border-red-200 p-4 rounded-2xl flex items-center gap-2.5">
-          <AlertTriangle className="h-4 w-4 shrink-0" />
-          <span>{downloadError}</span>
-        </div>
-      )}
 
       {/* ─── ACTIVE VIP LICENSES ──────────────────────────────────── */}
       <section className="space-y-4">
@@ -424,31 +373,18 @@ export default function DashboardPage() {
 
                     {isLicenseActive(lic) && (
                       <div className="pt-2 space-y-2">
-                        <button
-                          type="button"
-                          onClick={() => handleClientDownload(isPeaceCleanerLicense(lic) ? "PC" : "ESM")}
-                          disabled={isDownloading}
-                          className="w-full py-3.5 px-4 rounded-2xl bg-black hover:bg-zinc-800 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:cursor-wait disabled:opacity-60 cursor-pointer active:scale-[0.98] shadow-md"
+                        <a
+                          href={process.env.NEXT_PUBLIC_DISCORD_INVITE || "https://discord.gg/PvEgFfdBg"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-3.5 px-4 rounded-2xl bg-black hover:bg-zinc-800 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.98] shadow-md"
                         >
-                          <Download className={`h-4 w-4 text-[#E53935] ${isDownloading ? "animate-pulse" : ""}`} />
-                          <span>
-                            {isDownloading
-                              ? "Preparing download…"
-                              : `Download ${isPeaceCleanerLicense(lic) ? "Peace Cleaner (.rar)" : "SileGaming (.rar)"}`}
-                          </span>
-                        </button>
-                        <div className="flex items-center justify-center gap-1.5 text-xs text-zinc-400">
-                          <span>Archive Password:</span>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy("RL2026")}
-                            className="font-bold text-[#E53935] hover:underline flex items-center gap-1 cursor-pointer"
-                            title="Copy Password"
-                          >
-                            <span>RL2026</span>
-                            <Copy className="h-3 w-3" />
-                          </button>
-                        </div>
+                          <DiscordIcon className="h-4 w-4 text-[#5865F2]" />
+                          <span>Message Staff on Discord for Loader Files</span>
+                        </a>
+                        <p className="text-center text-[11px] text-zinc-400">
+                          Loader files are provided directly by staff in Discord DM. Please send your License Key to staff.
+                        </p>
                       </div>
                     )}
 
@@ -628,7 +564,7 @@ export default function DashboardPage() {
         </h3>
         <ol className="list-decimal list-inside space-y-2 text-zinc-600 leading-relaxed text-xs sm:text-sm">
           <li>
-            Download the client bundle using the button above and extract the .rar file to a clean folder.
+            Message staff on Discord with your License Key to receive the loader package, then extract it to a clean folder.
           </li>
           <li>
             Right click the client application executable and select <strong className="text-black font-semibold">"Run as Administrator"</strong>.

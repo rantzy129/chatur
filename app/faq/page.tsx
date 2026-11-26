@@ -164,7 +164,7 @@ export default function FaqPage() {
         {
           code: "5.2.",
           content:
-            "Instant key dispatch: The moment your payment is verified, your encrypted single-seat license key and private loader download URL appear immediately in your Customer Portal (/dashboard).",
+            "Instant key dispatch: The moment your payment is verified, your encrypted single-seat license key appears immediately in your Customer Portal (/dashboard). Message staff on Discord with your key to receive the private loader package.",
         },
         {
           code: "5.3.",
